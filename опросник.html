@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>3dWellness — ЖКТ: опросник → БАД</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root{
+    --bg:#faf8f4; --card:#fff; --soft:#f0eee7;
+    --text:#1a1a18; --muted:#75746e; --sub:#93928b;
+    --border:rgba(0,0,0,.09); --border-strong:rgba(0,0,0,.18);
+    --ok-bg:#e3f3ec; --ok-fg:#1f6d54;
+    --warn-bg:#f7ecd6; --warn-fg:#86611f;
+    --bad-bg:#f7ddd3; --bad-fg:#8a3f24;
+    --info-bg:#e9edfb; --info-fg:#3f4a8f;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#1a1a18;--card:#262523;--soft:#302f2c;
+      --text:#f4f3ee;--muted:#a8a69f;--sub:#8d8b84;
+      --border:rgba(255,255,255,.11);--border-strong:rgba(255,255,255,.22);}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:460px;margin:0 auto;padding:16px}
+  h1{font-size:19px;font-weight:600;margin:0}
+  .lead{font-size:13px;color:var(--muted);margin:4px 0 14px;line-height:1.4}
+  .count{font-size:13px;color:var(--sub);margin-bottom:10px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:12px;overflow:hidden}
+  .hd{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .hd .nm{font-size:14px;font-weight:600}
+  .bd{padding:2px 14px 8px}
+  .band{font-size:12px;font-weight:600;padding:2px 10px;border-radius:999px;background:var(--soft);color:var(--muted);white-space:nowrap}
+  .row{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-top:1px solid var(--border)}
+  .row:first-child{border-top:none}
+  .lab{flex:1;font-size:14px;line-height:1.35}
+  .seg{display:flex;gap:4px;flex-shrink:0}
+  .seg button{min-width:32px;height:29px;padding:0 6px;font-size:11px;line-height:1;
+    border:1px solid var(--border-strong);background:transparent;color:var(--sub);border-radius:8px;cursor:pointer}
+  .btn{width:100%;margin-top:6px;height:42px;font-size:15px;border-radius:12px;
+    border:1px solid transparent;background:#bfe3d3;color:#1f6d54;font-weight:600;cursor:pointer}
+  .btn.ghost{background:transparent;color:var(--muted);border-color:var(--border-strong);font-weight:400;height:38px}
+  .foot{text-align:center;font-size:12px;color:var(--sub);padding-top:12px;line-height:1.5}
+  .summary{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-top:2px}
+  .summary h2{font-size:15px;font-weight:600;margin:0 0 8px}
+  .srow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px solid var(--border);font-size:14px}
+  .srow:first-of-type{border-top:none}
+  .disc{background:var(--info-bg);color:var(--info-fg);border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.45;margin-bottom:12px}
+  .warnbox{background:var(--bad-bg);color:var(--bad-fg);border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.4;margin-bottom:12px;font-weight:600}
+  .glabel{font-size:11px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:.04em;margin:8px 0 2px}
+  .li{display:flex;gap:8px;padding:4px 0;font-size:14px;line-height:1.35}
+  .li .dot{flex-shrink:0}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 4px}
+  .chip{font-size:13px;padding:7px 12px;border-radius:999px;border:1px solid var(--border-strong);
+    background:transparent;color:var(--text);cursor:pointer;user-select:none}
+  .chip.on{background:#d3d0f2;color:#4a3f8f;border-color:transparent;font-weight:600}
+  .supp{border-top:1px solid var(--border);padding:10px 0}
+  .supp:first-child{border-top:none}
+  .supp .top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .supp .snm{font-size:15px;font-weight:600}
+  .src{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--info-bg);color:var(--info-fg);white-space:nowrap}
+  .dose{font-size:13px;color:var(--muted);margin-top:2px}
+  .why{font-size:12.5px;color:var(--sub);margin-top:3px}
+  .flag{font-size:12.5px;padding:5px 9px;border-radius:8px;margin-top:6px;line-height:1.35}
+  .flag.warn{background:var(--warn-bg);color:var(--warn-fg)}
+  .flag.bad{background:var(--bad-bg);color:var(--bad-fg)}
+  .blocked .snm,.blocked .dose{opacity:.5;text-decoration:line-through}
+  .hidden{display:none}
+  .seghue{display:flex;gap:6px;margin:6px 0 2px}
+  .seghue button{flex:1;height:36px;font-size:13px;border-radius:10px;border:1px solid var(--border-strong);background:transparent;color:var(--text);cursor:pointer}
+  .seghue button.on{background:#c4dcf3;color:#275f8f;border-color:transparent;font-weight:600}
+</style>
+</head>
+<body>
+
+<!-- ЭКРАН: ПРОФИЛЬ -->
+<div class="wrap" id="screen-profile">
+  <h1>сначала — коротко о тебе</h1>
+  <div class="lead">это «предохранитель»: по диагнозам и лекарствам мы проверяем БАД на противопоказания. Можно пропустить, но с ним рекомендации безопаснее.</div>
+
+  <div class="card"><div class="bd" style="padding:12px 14px">
+    <div class="glabel">беременность / ГВ</div>
+    <div class="seghue" id="pregSeg">
+      <button data-v="none" class="on">нет</button>
+      <button data-v="preg">беременность</button>
+      <button data-v="lact">кормлю</button>
+    </div>
+  </div></div>
+
+  <div class="card"><div class="bd" style="padding:12px 14px">
+    <div class="glabel">диагнозы (отметь свои)</div>
+    <div class="chips" id="dxChips"></div>
+  </div></div>
+
+  <div class="card"><div class="bd" style="padding:12px 14px">
+    <div class="glabel">что принимаешь</div>
+    <div class="chips" id="medChips"></div>
+  </div></div>
+
+  <button class="btn" id="toQ">далее → опросник ЖКТ</button>
+  <div class="foot">данные остаются на устройстве · это не медкарта</div>
+</div>
+
+<!-- ЭКРАН: ОПРОСНИК -->
+<div class="wrap hidden" id="screen-q">
+  <h1>1D · ЖКТ</h1>
+  <div class="lead">частота симптома: нет · иногда · часто · оч.часто (0 / 1 / 4 / 8). пороги «в фокусе» черновые — откалибруем по методике PLS.</div>
+  <div class="count" id="count">отвечено: 0 / 0</div>
+  <div id="body"></div>
+  <div class="summary">
+    <h2>блоки в фокусе</h2>
+    <div id="summary"></div>
+    <button class="btn" id="next">далее → анализы и направления</button>
+    <button class="btn ghost" id="backP">← профиль</button>
+  </div>
+  <div class="foot">этап «оценка» конвейера 1D · источник: PLS</div>
+</div>
+
+<!-- ЭКРАН: АНАЛИЗЫ -->
+<div class="wrap hidden" id="screen-r">
+  <h1>что проверить и куда двигаться</h1>
+  <div class="lead">по блокам «в фокусе».</div>
+  <div class="disc">Это не диагноз и не назначение. Опросник помогает понять, <b>что обсудить с врачом</b> и что стоит проверить.</div>
+  <div id="warn"></div>
+  <div id="results"></div>
+  <button class="btn" id="toS">далее → БАД и лист покупок</button>
+  <button class="btn ghost" id="backQ">← опросник</button>
+</div>
+
+<!-- ЭКРАН: БАД + ПОКУПКИ -->
+<div class="wrap hidden" id="screen-s">
+  <h1>БАД и лист покупок</h1>
+  <div class="lead">подобрано по блокам в фокусе и сверено с твоим профилем.</div>
+  <div class="disc">Ориентир для разговора с врачом, <b>не назначение</b>. Формы и дозы — стартовые диапазоны; финальное решение и учёт всех лекарств — за специалистом.</div>
+  <div id="supps"></div>
+  <div class="summary">
+    <h2>лист покупок</h2>
+    <div id="cart"></div>
+  </div>
+  <button class="btn" id="toSchedule">в схему приёма → напоминания</button>
+  <button class="btn ghost" id="backR">← анализы</button>
+  <div class="foot">схема приёма и пуши «выпей X» — следующий этап, встроится в экран «сегодня»</div>
+</div>
+
+<script>
+/* ---------- профиль ---------- */
+const DX=["гипертония","диабет","щитовидка","камни в желчном","гастрит / язва","тревожно-депрессивное","аутоиммунное"];
+const MEDS=["антикоагулянт","антидепрессант (СИОЗС)","ИПП (омепразол и т.п.)","гормоны щитовидки","контрацептивы"];
+const PROFILE={preg:"none", dx:new Set(), meds:new Set()};
+
+function buildChips(hostId,list,set){
+  const host=document.getElementById(hostId);
+  list.forEach(name=>{
+    const c=document.createElement("div"); c.className="chip"; c.textContent=name;
+    c.onclick=()=>{ if(set.has(name)){set.delete(name);c.classList.remove("on");} else {set.add(name);c.classList.add("on");} };
+    host.appendChild(c);
+  });
+}
+buildChips("dxChips",DX,PROFILE.dx);
+buildChips("medChips",MEDS,PROFILE.meds);
+document.querySelectorAll("#pregSeg button").forEach(b=>{
+  b.onclick=()=>{ document.querySelectorAll("#pregSeg button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); PROFILE.preg=b.dataset.v; };
+});
+
+/* ---------- данные опросника ---------- */
+const HUES=[
+  {bg:"#e3f3ec",sel:"#bfe3d3",fg:"#1f6d54"},
+  {bg:"#fbeee3",sel:"#f3d5bd",fg:"#8a4a24"},
+  {bg:"#ecebfb",sel:"#d3d0f2",fg:"#4a3f8f"},
+  {bg:"#e5f0fb",sel:"#c4dcf3",fg:"#275f8f"}
+];
+const DATA=[
+  {name:"А · функция желудка", items:[
+    {t:"несварение желудка после еды"},
+    {t:"чрезмерная отрыжка, вздутие живота после еды"},
+    {t:"спазмы в желудке во время или после еды"},
+    {t:"еда «оседает» в желудке: дискомфорт, распирание, вздутие"},
+    {t:"плохой привкус во рту"},
+    {t:"быстро насыщаетесь небольшим количеством еды"},
+    {t:"пропускаете еду из-за отсутствия аппетита"}]},
+  {name:"Б · воспаление желудка", items:[
+    {t:"эмоции/мысли о еде или её запах раздражают желудок"},
+    {t:"голод через 1–2 часа после обильной еды"},
+    {t:"боль/жжение через 1–4 часа после еды"},
+    {t:"боль облегчается едой, молоком или антацидами"},
+    {t:"жжение внизу грудной клетки, особенно лёжа"},
+    {t:"проблемы с пищеварением проходят от отдыха", binary:true},
+    {t:"острое/жирное, шоколад, кофе, алкоголь вызывают жжение"},
+    {t:"тошнота во время еды"},
+    {t:"трудность или боль при проглатывании", redflag:true}]},
+  {name:"В · тонкий кишечник и поджелудочная", items:[
+    {t:"боль при массировании под левым ребром"},
+    {t:"переполнение в животе через 2–4 часа после еды"},
+    {t:"дискомфорт внизу живота проходит после газов/дефекации"},
+    {t:"определённая еда/напитки усиливают несварение"},
+    {t:"в течение дня меняется форма стула"},
+    {t:"сильный запах стула"},
+    {t:"непереваренные остатки пищи в стуле"},
+    {t:"три и более обильных стула в день"},
+    {t:"понос"},
+    {t:"дефекация вскоре после еды"}]},
+  {name:"Г · толстый кишечник и микробиом", items:[
+    {t:"дискомфорт, боль, спазмы в нижней половине живота"},
+    {t:"стресс или сырые овощи вызывают вздутие, боль, газы"},
+    {t:"запоры или напряжённая дефекация"},
+    {t:"стул маленький, твёрдый и сухой"},
+    {t:"слизь в стуле"},
+    {t:"чередование запоров и поноса"},
+    {t:"боль, зуд или спазм в области заднего прохода"},
+    {t:"отсутствие желания дефекации", binary:true},
+    {t:"почти постоянная потребность в дефекации", binary:true}]}
+];
+
+/* анализы по блокам */
+const RECS=[
+  {labs:["Гастропанель: пепсиноген I/II, гастрин-17","H. pylori (дыхательный тест / антитела)","ОАК, ферритин, B12 — маркеры усвоения"],
+   dirs:["Питание медленно, тщательно жевать","Поддержка пищеварения — по назначению"]},
+  {labs:["H. pylori","Гастроскопия (ЭГДС) — по направлению","Гастропанель"],
+   dirs:["Убрать кофе, алкоголь, острое, жареное","Не есть на ночь","Защита слизистой — по назначению"]},
+  {labs:["Копрограмма","Панкреатическая эластаза-1 в кале","Водородный тест (СИБР)","Ферритин, B12, витамин D"],
+   dirs:["Ферменты — по назначению","Дробное питание","Подозрение на СИБР → гастроэнтеролог"]},
+  {labs:["Копрограмма","Кальпротектин фекальный","Микробиом — по желанию"],
+   dirs:["Клетчатка, пребиотики, вода","Пробиотики","Стресс — ось «кишечник–мозг» (3D)"]}
+];
+
+/* БАД по блокам; contra(P) -> {level:'bad'|'warn', text} или null */
+const cPreg=P=>P.preg!=="none";
+const cAcid=P=>P.dx.has("гастрит / язва")||P.meds.has("ИПП (омепразол и т.п.)");
+const SUPP=[
+  [ {name:"Пищеварительные ферменты",form:"капсулы, с едой",dose:"1 капсула в начале еды",
+     contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null},
+    {name:"Бетаин HCl",form:"капсулы, с белковой едой",dose:"начать с 1, титровать",
+     contra:P=>cAcid(P)?{level:"bad",text:"нельзя при гастрите/язве или на фоне ИПП"}:(cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null)} ],
+  [ {name:"DGL (солодка без глицирризина)",form:"жевательные таблетки",dose:"перед едой",
+     contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null},
+    {name:"L-глутамин",form:"порошок",dose:"3–5 г в день",
+     contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null},
+    {name:"Цинк-карнозин",form:"капсулы",dose:"по инструкции, курсом",
+     contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null} ],
+  [ {name:"Панкреатические ферменты",form:"капсулы, с едой",dose:"по назначению врача",
+     contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null} ],
+  [ {name:"Пробиотики (мультиштаммовые)",form:"капсулы",dose:"1 в день, курсом",
+     contra:P=>P.dx.has("аутоиммунное")?{level:"warn",text:"при аутоиммунном — обсуди с врачом"}:null},
+    {name:"Псиллиум (клетчатка)",form:"порошок",dose:"1 ч.л., запивать водой",
+     contra:P=>null},
+    {name:"Магний цитрат",form:"порошок/капсулы",dose:"200–400 мг вечером",
+     contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null} ]
+];
+
+const FULL=[["нет",0],["иногда",1],["часто",4],["оч.часто",8]];
+const BIN=[["нет",0],["да",8]];
+DATA.forEach(s=>s.items.forEach(it=>it.v=-1));
+const body=document.getElementById("body");
+
+DATA.forEach((sub,si)=>{
+  const hue=HUES[si];
+  const card=document.createElement("div"); card.className="card";
+  const hd=document.createElement("div"); hd.className="hd";
+  hd.style.background=hue.bg;
+  hd.innerHTML='<span class="nm" style="color:'+hue.fg+'">'+sub.name+'</span><span class="band" id="band-'+si+'">—</span>';
+  card.appendChild(hd);
+  const bd=document.createElement("div"); bd.className="bd";
+  sub.items.forEach((it,ii)=>{
+    const row=document.createElement("div"); row.className="row";
+    const lab=document.createElement("div"); lab.className="lab"; lab.textContent=it.t; row.appendChild(lab);
+    const seg=document.createElement("div"); seg.className="seg";
+    const opts=it.binary?BIN:FULL;
+    opts.forEach((o,oi)=>{
+      const b=document.createElement("button"); b.textContent=o[0];
+      b.onclick=()=>{
+        it.v=o[1];
+        [...seg.children].forEach((c,ci)=>{
+          const on=ci===oi;
+          c.style.background=on?hue.sel:"transparent";
+          c.style.color=on?hue.fg:"var(--sub)";
+          c.style.borderColor=on?"transparent":"var(--border-strong)";
+        });
+        recalc(si); summary();
+      };
+      seg.appendChild(b);
+    });
+    row.appendChild(seg); bd.appendChild(row);
+  });
+  card.appendChild(bd);
+  body.appendChild(card);
+});
+
+function score(sub){ return sub.items.reduce((a,it)=>a+(it.v>0?it.v:0),0); }
+function bandOf(sub){
+  const sum=score(sub);
+  if(sum>=16) return {sum,label:"выраженно",focus:true,bg:"var(--bad-bg)",fg:"var(--bad-fg)"};
+  if(sum>=6)  return {sum,label:"умеренно",focus:true,bg:"var(--warn-bg)",fg:"var(--warn-fg)"};
+  if(sum>0)   return {sum,label:"низкий",focus:false,bg:"var(--ok-bg)",fg:"var(--ok-fg)"};
+  return {sum:0,label:"—",focus:false,bg:"var(--soft)",fg:"var(--muted)"};
+}
+function recalc(si){
+  const b=bandOf(DATA[si]); const el=document.getElementById("band-"+si);
+  el.textContent=b.sum>0?("балл "+b.sum+" · "+b.label):"—";
+  el.style.background=b.bg; el.style.color=b.fg;
+}
+function summary(){
+  let answered=0,total=0;
+  DATA.forEach(s=>s.items.forEach(it=>{total++; if(it.v>=0)answered++;}));
+  document.getElementById("count").textContent="отвечено: "+answered+" / "+total;
+  const flagged=DATA.map((s,i)=>({i,name:s.name,b:bandOf(s)})).filter(x=>x.b.focus).sort((a,b)=>b.b.sum-a.b.sum);
+  const host=document.getElementById("summary");
+  host.innerHTML=flagged.length
+    ? flagged.map(x=>'<div class="srow"><span>'+x.name+'</span><span class="band" style="background:'+x.b.bg+';color:'+x.b.fg+'">балл '+x.b.sum+' · '+x.b.label+'</span></div>').join("")
+    : '<div style="font-size:14px;color:var(--muted)">пока ничего в фокусе — заполни опросник</div>';
+}
+
+function flaggedBlocks(){
+  return DATA.map((s,i)=>({i,name:s.name,b:bandOf(s)})).filter(x=>x.b.focus).sort((a,b)=>b.b.sum-a.b.sum);
+}
+
+function renderResults(){
+  const warn=document.getElementById("warn");
+  let rf=false; DATA.forEach(s=>s.items.forEach(it=>{ if(it.redflag&&it.v>=4) rf=true; }));
+  warn.innerHTML=rf?'<div class="warnbox">⚠ Есть тревожный симптом (боль/трудность при глотании). Это повод показаться врачу очно, не откладывая.</div>':'';
+  const flagged=flaggedBlocks();
+  const host=document.getElementById("results");
+  if(!flagged.length){ host.innerHTML='<div class="card"><div class="bd" style="padding:14px">По ЖКТ сейчас всё спокойно — ни один блок не в фокусе.</div></div>'; return; }
+  host.innerHTML=flagged.map(x=>{
+    const hue=HUES[x.i], r=RECS[x.i];
+    return '<div class="card">'
+      +'<div class="hd" style="background:'+hue.bg+'"><span class="nm" style="color:'+hue.fg+'">'+x.name+'</span>'
+      +'<span class="band" style="background:'+x.b.bg+';color:'+x.b.fg+'">балл '+x.b.sum+'</span></div>'
+      +'<div class="bd" style="padding:8px 14px 12px">'
+      +'<div class="glabel">анализы — обсудить с врачом</div>'
+      + r.labs.map(l=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span>'+l+'</span></div>').join('')
+      +'<div class="glabel">направления поддержки</div>'
+      + r.dirs.map(d=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span>'+d+'</span></div>').join('')
+      +'</div></div>';
+  }).join("");
+}
+
+function renderSupps(){
+  const flagged=flaggedBlocks();
+  const host=document.getElementById("supps");
+  const cart=[];
+  if(!flagged.length){ host.innerHTML='<div class="card"><div class="bd" style="padding:14px">Нет блоков в фокусе — рекомендаций пока нет.</div></div>'; document.getElementById("cart").innerHTML='<div style="font-size:14px;color:var(--muted)">пусто</div>'; return; }
+  host.innerHTML=flagged.map(x=>{
+    const hue=HUES[x.i], list=SUPP[x.i];
+    const rows=list.map(s=>{
+      const c=s.contra(PROFILE);
+      const blocked=c&&c.level==="bad";
+      if(!blocked) cart.push(s.name);
+      return '<div class="supp'+(blocked?' blocked':'')+'">'
+        +'<div class="top"><span class="snm">'+s.name+'</span><span class="src">ИИ</span></div>'
+        +'<div class="dose">'+s.form+' · '+s.dose+'</div>'
+        +'<div class="why">почему: блок «'+x.name+'» в фокусе (балл '+x.b.sum+')</div>'
+        + (c?'<div class="flag '+(c.level==="bad"?"bad":"warn")+'">'+(c.level==="bad"?"⛔ ":"⚠ ")+c.text+'</div>':'')
+        +'</div>';
+    }).join('');
+    return '<div class="card"><div class="hd" style="background:'+hue.bg+'"><span class="nm" style="color:'+hue.fg+'">'+x.name+'</span></div><div class="bd" style="padding:2px 14px 8px">'+rows+'</div></div>';
+  }).join("");
+  const uniq=[...new Set(cart)];
+  document.getElementById("cart").innerHTML = uniq.length
+    ? uniq.map(n=>'<div class="srow"><span>'+n+'</span><span class="band" style="background:var(--ok-bg);color:var(--ok-fg)">в корзину</span></div>').join('')
+    : '<div style="font-size:14px;color:var(--muted)">всё рекомендованное отфильтровано профилем — обсуди с врачом</div>';
+}
+
+/* ---------- навигация ---------- */
+function show(id){
+  ["screen-profile","screen-q","screen-r","screen-s"].forEach(s=>document.getElementById(s).classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+  window.scrollTo(0,0);
+}
+document.getElementById("toQ").onclick=()=>show("screen-q");
+document.getElementById("backP").onclick=()=>show("screen-profile");
+document.getElementById("next").onclick=()=>{ renderResults(); show("screen-r"); };
+document.getElementById("backQ").onclick=()=>show("screen-q");
+document.getElementById("toS").onclick=()=>{ renderSupps(); show("screen-s"); };
+document.getElementById("backR").onclick=()=>show("screen-r");
+document.getElementById("toSchedule").onclick=()=>alert("Следующий этап: из листа покупок собираем схему приёма (что, сколько, когда) и включаем пуши «выпей X» на экране «сегодня».");
+
+try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
+summary();
+</script>
+</body>
+</html>
