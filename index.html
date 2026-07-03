@@ -83,6 +83,9 @@
   .editbar{display:flex;justify-content:flex-end;margin:-2px 2px 8px}
   .editbtn{font-size:13px;padding:5px 12px;border-radius:999px;background:transparent;border:0.5px solid var(--border-strong);color:var(--muted);cursor:pointer;font-family:inherit}
   .item .del{margin-left:auto;width:26px;height:26px;border:none;background:var(--soft);color:var(--muted);border-radius:50%;font-size:17px;line-height:1;cursor:pointer;flex-shrink:0}
+  .item .anch{width:26px;height:26px;border:none;background:transparent;border-radius:50%;font-size:15px;line-height:1;cursor:pointer;flex-shrink:0;opacity:.3;filter:grayscale(1)}
+  .item .anch.on{opacity:1;filter:none;background:var(--soft)}
+  .anchdot{font-size:11px;margin-left:6px;opacity:.55}
   .addrow{display:flex;align-items:center;gap:6px;padding:9px 0 5px;border-top:0.5px solid var(--border)}
   .addrow .ai-t{flex:1;min-width:0;height:34px;border:0.5px solid var(--border-strong);border-radius:8px;padding:0 9px;font-size:14px;background:var(--card);color:var(--text);font-family:inherit}
   .addrow .ai-tm{width:62px;height:34px;border:0.5px solid var(--border-strong);border-radius:8px;padding:0 6px;font-size:13px;background:var(--card);color:var(--text);font-family:inherit}
@@ -201,13 +204,13 @@ var DATA=[
   {dim:"1D · биохимия", bg:"var(--sage-bg)", fg:"var(--sage-fg)", items:[
     {t:"омега-3 · с завтраком", done:true},
     {t:"витамин D3 + K2", time:"с обедом", done:false},
-    {t:"магний глицинат", time:"22:00", done:false}]},
+    {t:"магний глицинат", time:"22:00", anchor:true, done:false}]},
   {dim:"2D · физика", bg:"var(--peach-bg)", fg:"var(--peach-fg)", items:[
     {t:"растяжка 15 мин", done:true},
     {t:"силовая: ноги", time:"18:00", done:false},
     {t:"уход за кожей + SPF", beauty:true, done:false}]},
   {dim:"3D · психика", bg:"var(--lav-bg)", fg:"var(--lav-fg)", items:[
-    {t:"дыхание 4·7·8", done:true},
+    {t:"дыхание 4·7·8", anchor:true, done:true},
     {t:"прогулка без телефона", done:false},
     {t:"вечерний ритуал", beauty:true, done:false}]}
 ];
@@ -221,8 +224,8 @@ var host=document.getElementById("sections");
 var editMode=false;
 var PLANKEY="3dw_plan_v1";
 var DAYKEY="3dw_done_"+new Date().toISOString().slice(0,10);
-function savePlan(){try{localStorage.setItem(PLANKEY,JSON.stringify(DATA.map(function(s){return s.items.map(function(i){return {t:i.t,time:i.time||"",beauty:!!i.beauty};});})));}catch(e){}}
-function loadPlan(){try{var raw=localStorage.getItem(PLANKEY);if(!raw)return;JSON.parse(raw).forEach(function(items,si){if(DATA[si])DATA[si].items=items.map(function(o){return {t:o.t,time:o.time,beauty:o.beauty,done:false};});});}catch(e){}}
+function savePlan(){try{localStorage.setItem(PLANKEY,JSON.stringify(DATA.map(function(s){return s.items.map(function(i){return {t:i.t,time:i.time||"",beauty:!!i.beauty,anchor:!!i.anchor};});})));}catch(e){}}
+function loadPlan(){try{var raw=localStorage.getItem(PLANKEY);if(!raw)return;JSON.parse(raw).forEach(function(items,si){if(DATA[si])DATA[si].items=items.map(function(o){return {t:o.t,time:o.time,beauty:o.beauty,anchor:!!o.anchor,done:false};});});}catch(e){}}
 function saveState(){try{localStorage.setItem(DAYKEY,JSON.stringify(DATA.map(function(s){return s.items.map(function(i){return i.done?1:0;});})));}catch(e){}}
 function loadState(){try{var raw=localStorage.getItem(DAYKEY);if(!raw)return;var st=JSON.parse(raw);DATA.forEach(function(s,si){s.items.forEach(function(it,ii){if(st[si]&&st[si][ii]!=null)it.done=!!st[si][ii];});});}catch(e){}}
 
@@ -232,18 +235,25 @@ function render(){
     var card=document.createElement("div"); card.className="card";
     card.innerHTML='<div class="hd"><span class="hdic" style="color:'+sec.fg+'">'+ICONS[si]+'</span><span class="pill" style="background:'+sec.bg+';color:'+sec.fg+'">'+sec.dim+'</span></div>';
     var gentle = (energy==="low" && !editMode);
+    var hasAnchors = sec.items.some(function(i){ return i.anchor && !i.done; });
     var firstUndoneShown = false, hidden = 0;
     sec.items.forEach(function(it,ii){
       if(gentle && !it.done){
-        if(firstUndoneShown){ hidden++; return; }
-        firstUndoneShown = true;
+        if(hasAnchors){
+          if(!it.anchor){ hidden++; return; }
+        }else{
+          if(firstUndoneShown){ hidden++; return; }
+          firstUndoneShown = true;
+        }
       }
       var row=document.createElement("div"); row.className="item"+(it.done?" done":"");
+      var mark = it.anchor ? '<span class="anchdot" title="опора">🪨</span>' : '';
       if(editMode){
-        row.innerHTML='<span class="lab">'+it.t+(it.beauty?'<span class="tag">✨</span>':'')+'</span>'+(it.time?'<span class="time">'+it.time+'</span>':'')+'<button class="del" aria-label="удалить">×</button>';
+        row.innerHTML='<span class="lab">'+it.t+(it.beauty?'<span class="tag">✨</span>':'')+'</span>'+(it.time?'<span class="time">'+it.time+'</span>':'')+'<button class="anch'+(it.anchor?' on':'')+'" aria-label="опора" title="опора — остаётся в тяжёлый день">🪨</button><button class="del" aria-label="удалить">×</button>';
+        row.querySelector(".anch").addEventListener("click",function(){ it.anchor=!it.anchor; savePlan(); render(); });
         row.querySelector(".del").addEventListener("click",function(){ DATA[si].items.splice(ii,1); savePlan(); render(); update(); });
       }else{
-        row.innerHTML='<span class="tick">'+CHECK+'</span><span class="lab">'+it.t+(it.beauty?'<span class="tag">✨ бьюти</span>':'')+'</span>'+(it.time?'<span class="time">'+it.time+'</span>':'');
+        row.innerHTML='<span class="tick">'+CHECK+'</span><span class="lab">'+it.t+mark+(it.beauty?'<span class="tag">✨ бьюти</span>':'')+'</span>'+(it.time?'<span class="time">'+it.time+'</span>':'');
         row.addEventListener("click",function(){ it.done=!it.done; render(); update(); });
       }
       card.appendChild(row);
@@ -255,8 +265,8 @@ function render(){
     }
     if(editMode){
       var add=document.createElement("div"); add.className="addrow";
-      add.innerHTML='<input class="ai-t" placeholder="новое дело…"><input class="ai-tm" placeholder="время"><label class="ai-bt"><input type="checkbox" class="ai-b">✨</label><button class="ai-add" aria-label="добавить">＋</button>';
-      var addFn=function(){var t=add.querySelector(".ai-t").value.trim();if(!t)return;DATA[si].items.push({t:t,time:add.querySelector(".ai-tm").value.trim(),beauty:add.querySelector(".ai-b").checked,done:false});savePlan();render();update();};
+      add.innerHTML='<input class="ai-t" placeholder="новое дело…"><input class="ai-tm" placeholder="время"><label class="ai-bt"><input type="checkbox" class="ai-b">✨</label><label class="ai-bt" title="опора"><input type="checkbox" class="ai-a">🪨</label><button class="ai-add" aria-label="добавить">＋</button>';
+      var addFn=function(){var t=add.querySelector(".ai-t").value.trim();if(!t)return;DATA[si].items.push({t:t,time:add.querySelector(".ai-tm").value.trim(),beauty:add.querySelector(".ai-b").checked,anchor:add.querySelector(".ai-a").checked,done:false});savePlan();render();update();};
       add.querySelector(".ai-add").addEventListener("click",addFn);
       add.querySelector(".ai-t").addEventListener("keydown",function(e){if(e.key==="Enter")addFn();});
       card.appendChild(add);
@@ -272,7 +282,7 @@ function update(){
 var EKEY="3dw_energy_"+new Date().toISOString().slice(0,10);
 var energy=null;
 var ENOTES={
-  low:"сегодня бережный день. по одному маленькому шагу — и этого правда достаточно.",
+  low:"сегодня бережный день. на экране остались только опоры — и этого правда достаточно.",
   mid:"спокойный темп. делай, что делается, — остальное подождёт.",
   high:"пусть день идёт в удовольствие."
 };
