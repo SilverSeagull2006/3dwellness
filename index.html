@@ -36,9 +36,19 @@
   .sky .alt{position:absolute;right:16px;top:18px;z-index:2;font-size:12.5px;
     color:#4c5560;background:rgba(255,255,255,.5);padding:4px 10px;border-radius:999px}
 
-  .barwrap{height:8px;border-radius:999px;background:var(--soft);overflow:hidden;margin:0 2px 18px}
-  .barwrap>span{display:block;height:100%;width:0;border-radius:999px;
-    background:linear-gradient(90deg,#bfe3d3,#cdc6ec);transition:width .5s ease}
+  .energy{background:var(--card);border:0.5px solid var(--border);border-radius:16px;
+    padding:14px;margin-bottom:16px}
+  .energy .eq{font-size:15px;font-weight:500;margin-bottom:10px}
+  .eopts{display:flex;gap:8px}
+  .eopts button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+    padding:9px 4px;border-radius:12px;border:0.5px solid var(--border-strong);
+    background:transparent;color:var(--muted);font-size:12.5px;cursor:pointer;font-family:inherit;
+    transition:background .2s,color .2s}
+  .eopts button.on{background:linear-gradient(135deg,#e0efe8,#e6e2f5);color:#3d4654;border-color:transparent;font-weight:600}
+  .eopts .eic{font-size:19px}
+  .enote{font-size:13px;color:var(--muted);line-height:1.45;margin-top:10px;min-height:0}
+  .enote:empty{display:none}
+  .softrest{font-size:13px;color:var(--sub);padding:9px 0 4px;border-top:0.5px solid var(--border)}
 
   .now{border-radius:16px;padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:12px;
     background:linear-gradient(135deg,#e6f1ec,#e9e5f6);border:0.5px solid var(--border)}
@@ -134,7 +144,15 @@
 </div>
 
 <div class="wrap">
-  <div class="barwrap"><span id="fill"></span></div>
+  <div class="energy" id="energyCard">
+    <div class="eq">как ты сегодня — сколько сил?</div>
+    <div class="eopts">
+      <button data-e="low"><span class="eic">🌫</span><span>совсем мало</span></button>
+      <button data-e="mid"><span class="eic">🌥</span><span>средне</span></button>
+      <button data-e="high"><span class="eic">🌤</span><span>есть силы</span></button>
+    </div>
+    <div class="enote" id="enote"></div>
+  </div>
 
   <div class="now">
     <span class="ic"><svg width="22" height="22" viewBox="0 0 44 44" fill="none" stroke="#4a5a6a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 19 h14 a7 7 0 0 1 0 14 h-14 a7 7 0 0 1 0 -14 z"/><path d="M20 19 v14"/></svg></span>
@@ -213,17 +231,28 @@ function render(){
   DATA.forEach(function(sec,si){
     var card=document.createElement("div"); card.className="card";
     card.innerHTML='<div class="hd"><span class="hdic" style="color:'+sec.fg+'">'+ICONS[si]+'</span><span class="pill" style="background:'+sec.bg+';color:'+sec.fg+'">'+sec.dim+'</span></div>';
+    var gentle = (energy==="low" && !editMode);
+    var firstUndoneShown = false, hidden = 0;
     sec.items.forEach(function(it,ii){
+      if(gentle && !it.done){
+        if(firstUndoneShown){ hidden++; return; }
+        firstUndoneShown = true;
+      }
       var row=document.createElement("div"); row.className="item"+(it.done?" done":"");
       if(editMode){
         row.innerHTML='<span class="lab">'+it.t+(it.beauty?'<span class="tag">✨</span>':'')+'</span>'+(it.time?'<span class="time">'+it.time+'</span>':'')+'<button class="del" aria-label="удалить">×</button>';
         row.querySelector(".del").addEventListener("click",function(){ DATA[si].items.splice(ii,1); savePlan(); render(); update(); });
       }else{
         row.innerHTML='<span class="tick">'+CHECK+'</span><span class="lab">'+it.t+(it.beauty?'<span class="tag">✨ бьюти</span>':'')+'</span>'+(it.time?'<span class="time">'+it.time+'</span>':'');
-        row.addEventListener("click",function(){ it.done=!it.done; row.classList.toggle("done"); update(); });
+        row.addEventListener("click",function(){ it.done=!it.done; render(); update(); });
       }
       card.appendChild(row);
     });
+    if(gentle && hidden>0){
+      var soft=document.createElement("div"); soft.className="softrest";
+      soft.textContent="остальное сегодня подождёт — и это нормально";
+      card.appendChild(soft);
+    }
     if(editMode){
       var add=document.createElement("div"); add.className="addrow";
       add.innerHTML='<input class="ai-t" placeholder="новое дело…"><input class="ai-tm" placeholder="время"><label class="ai-bt"><input type="checkbox" class="ai-b">✨</label><button class="ai-add" aria-label="добавить">＋</button>';
@@ -236,12 +265,34 @@ function render(){
   });
 }
 function update(){
-  var done=0,total=0;
-  DATA.forEach(function(s){s.items.forEach(function(i){total++;if(i.done)done++;});});
-  var pct=total?done/total:0;
-  document.getElementById("fill").style.width=Math.round(pct*100)+"%";
   saveState();
 }
+
+/* ---- энергия дня ---- */
+var EKEY="3dw_energy_"+new Date().toISOString().slice(0,10);
+var energy=null;
+var ENOTES={
+  low:"сегодня бережный день. по одному маленькому шагу — и этого правда достаточно.",
+  mid:"спокойный темп. делай, что делается, — остальное подождёт.",
+  high:"пусть день идёт в удовольствие."
+};
+function setEnergy(e){
+  energy=e;
+  try{localStorage.setItem(EKEY,e);}catch(_){}
+  paintEnergy(); render();
+}
+function paintEnergy(){
+  document.querySelectorAll(".eopts button").forEach(function(b){
+    b.classList.toggle("on", b.dataset.e===energy);
+  });
+  document.getElementById("enote").textContent = energy ? ENOTES[energy] : "";
+}
+function loadEnergy(){
+  try{ var e=localStorage.getItem(EKEY); if(e) energy=e; }catch(_){}
+}
+document.querySelectorAll(".eopts button").forEach(function(b){
+  b.addEventListener("click", function(){ setEnergy(b.dataset.e); });
+});
 function markNow(){
   var it=DATA[0].items[2]; if(it) it.done=true; render(); update();
 }
@@ -290,7 +341,7 @@ function closeBreath(){ stopBreath(); document.getElementById("ov").classList.re
 var d=new Date();
 document.getElementById("dt").textContent=d.toLocaleDateString("ru-RU",{weekday:"long",day:"numeric",month:"long"});
 try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
-loadPlan(); loadState(); render(); update(); paintChips();
+loadPlan(); loadState(); loadEnergy(); paintEnergy(); render(); update(); paintChips();
 </script>
 </body>
 </html>
