@@ -246,47 +246,87 @@ const RECS=[
    dirs:["Меньше жирной и жареной пищи, дробное питание","Достаточно воды в течение дня","Поддержка желчеоттока — по назначению врача","Пожелтение глаз/кожи или боль с температурой — повод к врачу без промедления"]}
 ];
 
-/* БАД по блокам; contra(P) -> {level:'bad'|'warn', text} или null */
+/* ---------- общая библиотека БАД (единая база; разделы опросника только ссылаются на неё по имени) ---------- */
+const BADLIB={
+  "Пищеварительные ферменты":{substance:"смесь ферментов (протеазы, амилаза, липаза)",form:"капсулы",
+    dose:"по инструкции на упаковке, с первым кусочком еды",
+    source:"нет единого клинического стандарта — активность (FIP/USP-единицы) у каждого бренда своя",sourceUrl:"",
+    why:"помогают расщеплять белки/жиры/углеводы, если своих ферментов не хватает — при тяжести и несварении после еды"},
+  "Бетаин HCl":{substance:"соляная кислота (в форме бетаина)",form:"капсулы, с белковой едой",
+    dose:"начать с 500–650 мг (1 капсула); нет тепла/жжения — на следующий приём +1 капсула; как только почувствуешь жжение — вернуться на дозу назад",
+    source:"клинический обзор титрации при функциональной гипохлоргидрии",sourceUrl:"https://pmc.ncbi.nlm.nih.gov/articles/PMC7238915/",
+    note:"дополнительно не сочетать с НПВС (ибупрофен и т.п.); титрация — под контролем врача, не самоэксперимент",
+    why:"восполняет недостаток кислотности желудка — если её мало, еда хуже переваривается и хуже усваиваются нутриенты"},
+  "DGL (солодка без глицирризина)":{substance:"экстракт солодки без глицирризина",form:"жевательные таблетки",
+    dose:"380 мг, разжевать за 20 мин до еды, до 3 раз в день",
+    source:"клинические испытания при язвенной болезни",sourceUrl:"",
+    why:"защищает и восстанавливает слизистую желудка, снижая раздражение — без гормонального эффекта обычной солодки"},
+  "L-глутамин":{substance:"аминокислота глутамин",form:"порошок",
+    dose:"5 г в день для начала, курсом",
+    source:"типичная поддерживающая доза в исследованиях по здоровью кишечника",sourceUrl:"",
+    why:"основное «топливо» для клеток кишечной стенки — поддерживает её целостность и восстановление"},
+  "Цинк-карнозин":{substance:"хелат цинка с карнозином",form:"капсулы",
+    dose:"75 мг 2 раза в день (≈32–34 мг цинка/день — в пределах верхнего безопасного уровня для цинка)",
+    source:"клинические испытания при заживлении слизистой желудка",sourceUrl:"https://pmc.ncbi.nlm.nih.gov/articles/PMC1856764/",
+    why:"защищает и помогает заживлению слизистой желудка — изучался как поддержка при гастрите"},
+  "Панкреатические ферменты":{substance:"панкреатин (протеазы, амилаза, липаза)",form:"капсулы, с едой",
+    dose:"по назначению врача — стартово от 40 000 ЕД липазы на приём пищи, доза индивидуальна",
+    source:"клинические рекомендации по заместительной ферментной терапии (PERT)",sourceUrl:"https://pmc.ncbi.nlm.nih.gov/articles/PMC6858980/",
+    why:"замещает работу поджелудочной, если она не справляется сама — применяется при подтверждённой недостаточности, не «на всякий случай»"},
+  "Пробиотики (мультиштаммовые)":{substance:"живые культуры бактерий (неск. штаммов)",form:"капсулы",
+    dose:"5–10 млрд КОЕ в день, курсом",
+    source:"типичный диапазон для общей поддержки ЖКТ (NIH ODS + клинические испытания)",sourceUrl:"https://ods.od.nih.gov/factsheets/Probiotics-HealthProfessional/",
+    why:"поддерживают баланс микрофлоры кишечника — актуальны после антибиотиков, при нарушениях стула"},
+  "Псиллиум (клетчатка)":{substance:"растворимая клетчатка из шелухи подорожника",form:"порошок",
+    dose:"5–10 г в день, начать с половины и постепенно увеличивать; обязательно запивать большим количеством воды",
+    source:"типичный диапазон в клинических испытаниях",sourceUrl:"",
+    why:"формирует объём стула и мягко нормализует его консистенцию — и при запоре, и при поносе"},
+  "Магний цитрат":{substance:"магний (в форме цитрата)",form:"порошок/капсулы",
+    dose:"200–350 мг вечером",
+    source:"NIH ODS — верхний безопасный уровень для магния из добавок 350 мг/день (взрослые)",sourceUrl:"https://ods.od.nih.gov/factsheets/Magnesium-HealthProfessional/",
+    why:"участвует в работе мышц и нервной системы, помогает расслаблению — опора для сна и снижения спазмов"},
+  "Расторопша (силимарин)":{substance:"силимарин (экстракт расторопши)",form:"капсулы",
+    dose:"140–420 мг силимарина в день, в 2–3 приёма, с едой",
+    source:"NCCIH: данные по эффективности при болезнях печени противоречивы/ограничены; доза — из клинических испытаний",sourceUrl:"https://www.nccih.nih.gov/health/milk-thistle",
+    why:"традиционно используется для поддержки печени; NCCIH честно отмечает, что доказательства пока неоднозначны"},
+  "Артишок (экстракт)":{substance:"экстракт листьев артишока",form:"капсулы, перед едой",
+    dose:"320–640 мг в день",
+    source:"клинические испытания при функциональной диспепсии",sourceUrl:"https://pubmed.ncbi.nlm.nih.gov/14653829/",
+    why:"стимулирует желчеотделение и пищеварение — помогает при тяжести после жирной еды"},
+  "Куркумин":{substance:"куркумин (экстракт куркумы)",form:"капсулы, с едой",
+    dose:"500–1000 мг в день (пиперин в составе усиливает усвоение)",
+    source:"NCCIH: обычный оральный куркумин/куркума в рекомендуемых количествах, вероятно, безопасен до 2–3 месяцев",sourceUrl:"https://www.nccih.nih.gov/health/turmeric",
+    note:"высокобиодоступные формы (с пиперином, липосомальные) при длительном приёме дольше 2–3 месяцев — по данным NCCIH, риск для печени; курсами и с перерывами",
+    why:"противовоспалительное и антиоксидантное действие — популярен для поддержки печени и суставов"}
+};
+
+/* БАД по блокам; contra(P) -> {level:'bad'|'warn', text} или null. Детали (доза/форма/источник) — в BADLIB выше */
 const cPreg=P=>P.preg!=="none";
 const cAcid=P=>P.dx.has("гастрит / язва")||P.meds.has("ИПП (омепразол и т.п.)");
 const SUPP=[
-  [ {name:"Пищеварительные ферменты",form:"капсулы, с едой",dose:"по инструкции на упаковке, с первым кусочком еды",
-     source:"нет единого клинического стандарта — активность (FIP/USP-единицы) у каждого бренда своя, ориентируйся на этикетку",
+  [ {name:"Пищеварительные ферменты",
      contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null},
-    {name:"Бетаин HCl",form:"капсулы, с белковой едой",dose:"начать с 500–650 мг (1 капсула); нет тепла/жжения — на следующий приём +1 капсула; как только почувствуешь жжение — вернуться на дозу назад",
-     source:"клинический обзор титрации при функциональной гипохлоргидрии (PMC7238915)",
-     note:"дополнительно не сочетать с НПВС (ибупрофен и т.п.); титрация — под контролем врача, не самоэксперимент",
+    {name:"Бетаин HCl",
      contra:P=>cAcid(P)?{level:"bad",text:"нельзя при гастрите/язве или на фоне ИПП"}:(cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null)} ],
-  [ {name:"DGL (солодка без глицирризина)",form:"жевательные таблетки",dose:"380 мг, разжевать за 20 мин до еды, до 3 раз в день",
-     source:"клинические испытания при язвенной болезни",
+  [ {name:"DGL (солодка без глицирризина)",
      contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null},
-    {name:"L-глутамин",form:"порошок",dose:"5 г в день для начала, курсом",
-     source:"типичная поддерживающая доза в исследованиях по здоровью кишечника",
+    {name:"L-глутамин",
      contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null},
-    {name:"Цинк-карнозин",form:"капсулы",dose:"75 мг 2 раза в день (≈32–34 мг цинка/день — в пределах верхнего безопасного уровня для цинка)",
-     source:"клинические испытания при заживлении слизистой желудка (PMC1856764)",
+    {name:"Цинк-карнозин",
      contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null} ],
-  [ {name:"Панкреатические ферменты",form:"капсулы, с едой",dose:"по назначению врача — стартово от 40 000 ЕД липазы на приём пищи, доза индивидуальна",
-     source:"клинические рекомендации по заместительной ферментной терапии (PERT)",
+  [ {name:"Панкреатические ферменты",
      contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null} ],
-  [ {name:"Пробиотики (мультиштаммовые)",form:"капсулы",dose:"5–10 млрд КОЕ в день, курсом",
-     source:"типичный диапазон для общей поддержки ЖКТ (NIH ODS + клинические испытания)",
+  [ {name:"Пробиотики (мультиштаммовые)",
      contra:P=>P.dx.has("аутоиммунное")?{level:"warn",text:"при аутоиммунном — обсуди с врачом"}:null},
-    {name:"Псиллиум (клетчатка)",form:"порошок",dose:"5–10 г в день, начать с половины и постепенно увеличивать; обязательно запивать большим количеством воды",
-     source:"типичный диапазон в клинических испытаниях",
+    {name:"Псиллиум (клетчатка)",
      contra:P=>null},
-    {name:"Магний цитрат",form:"порошок/капсулы",dose:"200–350 мг вечером",
-     source:"NIH ODS — верхний безопасный уровень для магния из добавок 350 мг/день (взрослые)",
+    {name:"Магний цитрат",
      contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null} ],
-  [ {name:"Расторопша (силимарин)",form:"капсулы",dose:"140–420 мг силимарина в день, в 2–3 приёма, с едой",
-     source:"NCCIH: данные по эффективности при болезнях печени противоречивы/ограничены; доза — из клинических испытаний",
+  [ {name:"Расторопша (силимарин)",
      contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null},
-    {name:"Артишок (экстракт)",form:"капсулы, перед едой",dose:"320–640 мг в день",
-     source:"клинические испытания при функциональной диспепсии",
+    {name:"Артишок (экстракт)",
      contra:P=>P.dx.has("камни в желчном")?{level:"bad",text:"желчегонные нельзя при камнях в желчном — риск колики"}:(cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null)},
-    {name:"Куркумин",form:"капсулы, с едой",dose:"500–1000 мг в день (пиперин в составе усиливает усвоение)",
-     source:"NCCIH: обычный оральный куркумин/куркума в рекомендуемых количествах, вероятно, безопасен до 2–3 месяцев",
-     note:"высокобиодоступные формы (с пиперином, липосомальные) при длительном приёме дольше 2–3 месяцев — по данным NCCIH, риск для печени; курсами и с перерывами",
+    {name:"Куркумин",
      contra:P=>P.meds.has("антикоагулянт")?{level:"bad",text:"усиливает действие антикоагулянтов — обсуди с врачом"}:(cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null)} ]
 ];
 
@@ -385,24 +425,39 @@ function renderSupps(){
   if(!flagged.length){ host.innerHTML='<div class="card"><div class="bd" style="padding:14px">Нет блоков в фокусе — рекомендаций пока нет.</div></div>'; CART=[]; paintCart(); return; }
   host.innerHTML=flagged.map(x=>{
     const hue=HUES[x.i], list=SUPP[x.i];
-    const rows=list.map(s=>{
+    const rows=list.map((s,ii)=>{
+      const lib=BADLIB[s.name]||{};
       const c=s.contra(PROFILE);
       const blocked=c&&c.level==="bad";
-      if(!blocked) cart.push({name:s.name, form:s.form, dose:s.dose});
+      if(!blocked) cart.push({name:s.name, form:lib.form, dose:lib.dose, source:lib.source, sourceUrl:lib.sourceUrl});
+      const detId="det-"+x.i+"-"+ii;
       return '<div class="supp'+(blocked?' blocked':'')+'">'
         +'<div class="top"><span class="snm">'+s.name+'</span><span class="src">ИИ</span></div>'
-        +'<div class="dose">'+s.form+' · '+s.dose+'</div>'
-        + (s.source?'<div style="font-size:11px;color:var(--sub);margin-top:1px">источник дозы: '+s.source+'</div>':'')
-        + (s.note?'<div style="font-size:12px;color:var(--warn-fg);margin-top:3px">⚠ '+s.note+'</div>':'')
-        +'<div class="why">почему: блок «'+x.name+'» в фокусе (балл '+x.b.sum+')</div>'
+        +'<div class="dose">'+(lib.form||'')+'</div>'
         + (c?'<div class="flag '+(c.level==="bad"?"bad":"warn")+'">'+(c.level==="bad"?"⛔ ":"⚠ ")+c.text+'</div>':'')
+        +'<button class="detoggle" data-t="'+detId+'" style="background:none;border:none;color:var(--sub);font-size:12.5px;padding:5px 0;cursor:pointer">подробнее ▾</button>'
+        +'<div class="det" id="'+detId+'" style="display:none;font-size:13px;line-height:1.5;margin-top:2px">'
+          + (lib.why?'<div style="margin-bottom:5px">'+lib.why+'</div>':'')
+          + '<div style="color:var(--muted)">доза: '+(lib.dose||'—')+'</div>'
+          + (lib.note?'<div style="color:var(--warn-fg);margin-top:4px">⚠ '+lib.note+'</div>':'')
+          + (lib.source?'<div style="color:var(--sub);font-size:11px;margin-top:4px">источник: '+(lib.sourceUrl?'<a href="'+lib.sourceUrl+'" target="_blank" rel="noopener" style="color:var(--sub)">'+lib.source+'</a>':lib.source)+'</div>':'')
+          + '<div class="why" style="margin-top:5px">почему предложено: блок «'+x.name+'» в фокусе (балл '+x.b.sum+')</div>'
+        +'</div>'
         +'</div>';
     }).join('');
     return '<div class="card"><div class="hd" style="background:'+hue.bg+'"><span class="nm" style="color:'+hue.fg+'">'+x.name+'</span></div><div class="bd" style="padding:2px 14px 8px">'+rows+'</div></div>';
   }).join("");
+  host.querySelectorAll(".detoggle").forEach(b=>{
+    b.addEventListener("click",()=>{
+      const d=document.getElementById(b.dataset.t);
+      const open=d.style.display!=="none";
+      d.style.display=open?"none":"block";
+      b.textContent=open?"подробнее ▾":"свернуть ▴";
+    });
+  });
   const seen={}; const uniq=[];
   cart.forEach(c=>{ if(!seen[c.name]){ seen[c.name]=true; uniq.push(c); } });
-  CART = uniq.map((c,i)=>({name:c.name, form:c.form, dose:c.dose, checked:i<3, time:"08:00"}));
+  CART = uniq.map((c,i)=>({name:c.name, form:c.form, dose:c.dose, source:c.source, sourceUrl:c.sourceUrl, checked:i<3, time:"08:00"}));
   paintCart();
 }
 function paintCart(){
@@ -410,10 +465,21 @@ function paintCart(){
   document.getElementById("cartHint").textContent="";
   if(!CART.length){ host.innerHTML='<div style="font-size:14px;color:var(--muted)">всё рекомендованное отфильтровано профилем — обсуди с врачом</div>'; return; }
   host.innerHTML = CART.map((c,i)=>
-    '<div class="srow" style="align-items:center"><label style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer;min-width:0"><input type="checkbox" data-i="'+i+'"'+(c.checked?' checked':'')+'><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+c.name+' <span style="color:var(--sub);font-size:12px">— '+c.form+'</span></span></label><input type="time" data-ti="'+i+'" value="'+c.time+'" style="border:1px solid var(--border-strong);border-radius:8px;padding:3px 6px;font-size:13px;font-family:inherit;background:var(--card);color:var(--text);flex-shrink:0"></div>'
+    '<div>'
+    +'<div class="srow" style="align-items:center"><label style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer;min-width:0"><input type="checkbox" data-i="'+i+'"'+(c.checked?' checked':'')+'><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+c.name+' <span style="color:var(--sub);font-size:12px">— '+c.form+'</span></span></label>'
+    +'<button class="cinfo" data-ti="'+i+'" style="background:none;border:none;color:var(--sub);font-size:15px;cursor:pointer;padding:0 4px" aria-label="подробнее">ⓘ</button>'
+    +'<input type="time" data-tm="'+i+'" value="'+c.time+'" style="border:1px solid var(--border-strong);border-radius:8px;padding:3px 6px;font-size:13px;font-family:inherit;background:var(--card);color:var(--text);flex-shrink:0"></div>'
+    +'<div class="cdet" id="cdet-'+i+'" style="display:none;font-size:12.5px;color:var(--muted);padding:0 0 8px 32px;line-height:1.5">доза: '+(c.dose||'—')+(c.source?'<br>источник: '+(c.sourceUrl?'<a href="'+c.sourceUrl+'" target="_blank" rel="noopener" style="color:var(--muted)">'+c.source+'</a>':c.source):'')+'</div>'
+    +'</div>'
   ).join('');
-  host.querySelectorAll('input[data-ti]').forEach(ti=>{
-    ti.addEventListener('change',()=>{ CART[+ti.dataset.ti].time = ti.value || "08:00"; });
+  host.querySelectorAll('.cinfo').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const d=document.getElementById('cdet-'+b.dataset.ti);
+      d.style.display=d.style.display==='none'?'block':'none';
+    });
+  });
+  host.querySelectorAll('input[data-tm]').forEach(ti=>{
+    ti.addEventListener('change',()=>{ CART[+ti.dataset.tm].time = ti.value || "08:00"; });
   });
   host.querySelectorAll('input[type=checkbox]').forEach(cb=>{
     cb.addEventListener('change',()=>{
