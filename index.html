@@ -102,6 +102,20 @@
   .addrow .ai-tm{width:62px;height:34px;border:0.5px solid var(--border-strong);border-radius:8px;padding:0 6px;font-size:13px;background:var(--card);color:var(--text);font-family:inherit}
   .addrow .ai-bt{display:flex;align-items:center;gap:2px;font-size:14px;color:var(--muted);cursor:pointer}
   .addrow .ai-add{width:34px;height:34px;border:none;background:var(--accent);color:#fff;border-radius:8px;font-size:18px;line-height:1;cursor:pointer;flex-shrink:0}
+  .addtrig{width:100%;padding:10px 0;margin-top:2px;border:none;border-top:0.5px solid var(--border);
+    background:transparent;color:var(--muted);font-size:13.5px;cursor:pointer;font-family:inherit;text-align:center}
+  .cattabs{display:flex;gap:6px;margin:2px 0 12px}
+  .cattabs button{flex:1;font-size:12.5px;padding:7px 4px;border-radius:10px;border:0.5px solid var(--border-strong);
+    background:transparent;color:var(--muted);cursor:pointer;font-family:inherit}
+  .cattabs button.on{background:linear-gradient(135deg,#e0efe8,#e6e2f5);color:#3d4654;border-color:transparent;font-weight:600}
+  .catbody{max-height:320px;overflow-y:auto;text-align:left}
+  .catrow{display:flex;align-items:center;gap:10px;padding:10px 4px;border-top:0.5px solid var(--border)}
+  .catrow:first-child{border-top:none}
+  .catrow .lab{flex:1;font-size:14.5px}
+  .catrow .add{width:28px;height:28px;border:none;border-radius:50%;background:var(--soft);color:var(--muted);
+    font-size:16px;line-height:1;cursor:pointer;flex-shrink:0}
+  .catempty{font-size:13.5px;color:var(--muted);line-height:1.6;padding:10px 4px}
+  .catempty a{color:#3d6b52}
 
   .fab{position:fixed;right:18px;bottom:20px;z-index:20;display:flex;align-items:center;gap:8px;
     height:52px;padding:0 18px 0 14px;border-radius:999px;border:none;cursor:pointer;color:#37485a;
@@ -206,6 +220,7 @@
     </div>
     <div style="font-size:14.5px;line-height:1.55;color:var(--text)">
       <p style="margin:0 0 10px">в тяжёлый день приложение уберёт всё лишнее и оставит только опоры — то, что держит тебя.</p>
+      <p style="margin:0 0 10px">в списке дел опорные рутины помечены вот этим значком <span style="display:inline-flex;vertical-align:-3px;color:#3d6b52"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="5.6" r="2.2"/><circle cx="15.6" cy="9" r="1.7"/><path d="M5.5 21C5 15.5 7 12.3 10 12.3 11.7 12.3 12.9 13.2 13.7 14.8"/><path d="M18.2 21C18.6 17.3 17.5 14.6 15.3 14.6 14.2 14.6 13.4 15.2 12.9 16.2"/><path d="M8.3 13.6C10.7 17 14.3 17.6 16.7 15.4"/></svg></span> — «обнимает младшего», чтобы сразу быть на виду.</p>
       <p style="margin:0 0 6px;color:var(--muted);font-size:13px;font-weight:600">что стоит делать опорой:</p>
       <p style="margin:0 0 4px">· то, что нельзя ронять медицински — лекарства и ключевые бады</p>
       <p style="margin:0 0 4px">· то, что снижает кортизол — дыхание, ритуал сна</p>
@@ -214,6 +229,16 @@
       <p style="margin:0">и даже пропущенная опора — без вины. опора держит тебя, а не ты её.</p>
     </div>
     <div class="row2" style="margin-top:16px"><button class="go" onclick="closeAnchorIntro()">понятно — выбрать опоры</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="onbOv">
+  <div class="sheet" style="text-align:left">
+    <h3 style="margin:0 0 8px">прежде чем начнём</h3>
+    <div style="font-size:14.5px;line-height:1.55;color:var(--text);margin-bottom:12px">начнём с малого — 1-2 дела, не больше. если что-то из этого ты и так делаешь каждый день стабильно — отметь, чтобы не потерять. остальное добавишь потом, когда будет свой темп.</div>
+    <div id="onbList" style="max-height:280px;overflow-y:auto"></div>
+    <div id="onbHint" style="font-size:12.5px;color:var(--sub);min-height:16px;margin-top:2px"></div>
+    <div class="row2" style="margin-top:12px"><button onclick="skipOnboarding()">пропустить</button><button class="go" onclick="finishOnboarding()">готово</button></div>
   </div>
 </div>
 
@@ -228,6 +253,19 @@
     </div>
     <div id="modeList"></div>
     <div class="row2" style="margin-top:8px"><button onclick="closeModeSheet()">закрыть</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="catOv">
+  <div class="sheet" style="text-align:left;max-width:380px">
+    <h3 style="margin:0 0 10px">добавить дело</h3>
+    <div class="cattabs" id="catTabs">
+      <button data-tab="own">своё</button>
+      <button data-tab="ai">для тебя</button>
+      <button data-tab="lib">общий список</button>
+    </div>
+    <div class="catbody" id="catBody"></div>
+    <div class="row2" style="margin-top:14px"><button onclick="closeCatalog()">закрыть</button></div>
   </div>
 </div>
 
@@ -312,12 +350,9 @@ function render(){
       card.appendChild(soft);
     }
     if(editMode){
-      var add=document.createElement("div"); add.className="addrow";
-      add.innerHTML='<input class="ai-t" placeholder="новое дело…"><input class="ai-tm" placeholder="время"><label class="ai-bt"><input type="checkbox" class="ai-b">✨</label><label class="ai-bt" title="опора"><input type="checkbox" class="ai-a">'+LH+'</label><button class="ai-add" aria-label="добавить">＋</button>';
-      var addFn=function(){var t=add.querySelector(".ai-t").value.trim();if(!t)return;DATA[si].items.push({t:t,time:add.querySelector(".ai-tm").value.trim(),beauty:add.querySelector(".ai-b").checked,anchor:add.querySelector(".ai-a").checked,done:false});savePlan();render();update();};
-      add.querySelector(".ai-add").addEventListener("click",addFn);
-      add.querySelector(".ai-t").addEventListener("keydown",function(e){if(e.key==="Enter")addFn();});
-      card.appendChild(add);
+      var addtrig=document.createElement("button"); addtrig.className="addtrig"; addtrig.textContent="+ добавить дело";
+      addtrig.addEventListener("click",function(){ openCatalog(si); });
+      card.appendChild(addtrig);
     }
     host.appendChild(card);
   });
@@ -381,16 +416,135 @@ function paintMode(){
 }
 function paintModeList(){
   var host=document.getElementById("modeList"); if(!host) return; host.innerHTML="";
+  var normalOn = !curMode;
+  var normal=document.createElement("button"); normal.className="modebtn"+(normalOn?" on":"");
+  normal.innerHTML='<span class="ic">🌿</span><span style="flex:1">обычный день'+(normalOn?" · сейчас так":"")+'</span>';
+  normal.onclick=function(){ setMode(null); };
+  host.appendChild(normal);
   MODES.forEach(function(m){
     var active = curMode && curMode.key===m.key;
     var row=document.createElement("button"); row.className="modebtn"+(active?" on":"");
-    row.innerHTML='<span class="ic">'+m.icon+'</span><span style="flex:1">'+m.label+(active?" · активен сейчас, нажми чтобы выключить":"")+'</span>';
-    row.onclick=function(){ setMode(active?null:m.key); };
+    row.innerHTML='<span class="ic">'+m.icon+'</span><span style="flex:1">'+m.label+(active?" · активен сейчас":"")+'</span>';
+    row.onclick=function(){ setMode(m.key); };
     host.appendChild(row);
   });
 }
 function openModeSheet(){ paintModeList(); document.getElementById("modeOv").classList.add("on"); }
 function closeModeSheet(){ document.getElementById("modeOv").classList.remove("on"); }
+
+/* ---- каталог дел: своё / для тебя (ИИ) / общий список ---- */
+var CATALOG=[
+  [ // 1D · биохимия
+    {t:"омега-3", time:"с завтраком"},
+    {t:"витамин D3 + K2", time:"с обедом"},
+    {t:"магний глицинат", time:"22:00", anchor:true},
+    {t:"пробиотик", time:"с завтраком"},
+    {t:"коллаген", time:"утром"},
+    {t:"витамин C", time:"днём"}
+  ],
+  [ // 2D · физика
+    {t:"растяжка 15 мин"},
+    {t:"силовая: верх тела", time:"18:00"},
+    {t:"силовая: ноги", time:"18:00"},
+    {t:"кардио 20 мин"},
+    {t:"уход за кожей + SPF", beauty:true},
+    {t:"контрастный душ", beauty:true}
+  ],
+  [ // 3D · психика
+    {t:"дыхание 4·7·8", anchor:true},
+    {t:"прогулка без телефона"},
+    {t:"вечерний ритуал", beauty:true},
+    {t:"дневник на 3 строки"},
+    {t:"10 минут тишины"},
+    {t:"звонок близкому человеку"}
+  ]
+];
+var AISUGGEST=[[],[],[]]; // заполнится, когда опросник/анализы свяжутся с этим экраном
+var catSection=null, catTab="own";
+function openCatalog(si){ catSection=si; catTab="own"; document.getElementById("catOv").classList.add("on"); paintCatTabs(); paintCatalog(); }
+function closeCatalog(){ document.getElementById("catOv").classList.remove("on"); }
+function setCatTab(tab){ catTab=tab; paintCatTabs(); paintCatalog(); }
+function paintCatTabs(){
+  document.querySelectorAll("#catTabs button").forEach(function(b){ b.classList.toggle("on", b.dataset.tab===catTab); });
+}
+function addFromCatalog(item){
+  DATA[catSection].items.push({t:item.t, time:item.time||"", beauty:!!item.beauty, anchor:!!item.anchor, done:false});
+  savePlan(); render(); update(); closeCatalog();
+}
+function catRow(item){
+  var row=document.createElement("div"); row.className="catrow";
+  row.innerHTML='<span class="lab">'+item.t+(item.beauty?' <span class="tag">✨</span>':'')+(item.anchor?' '+LH:'')+(item.time?' <span class="time">'+item.time+'</span>':'')+'</span><button class="add" aria-label="добавить">＋</button>';
+  row.querySelector(".add").addEventListener("click",function(){ addFromCatalog(item); });
+  return row;
+}
+function paintCatalog(){
+  var body=document.getElementById("catBody"); body.innerHTML="";
+  if(catTab==="own"){
+    var add=document.createElement("div"); add.className="addrow"; add.style.borderTop="none"; add.style.padding="0 0 4px";
+    add.innerHTML='<input class="ai-t" placeholder="новое дело…"><input class="ai-tm" placeholder="время"><label class="ai-bt"><input type="checkbox" class="ai-b">✨</label><label class="ai-bt" title="опора"><input type="checkbox" class="ai-a">'+LH+'</label><button class="ai-add" aria-label="добавить">＋</button>';
+    var addFn=function(){
+      var t=add.querySelector(".ai-t").value.trim(); if(!t) return;
+      addFromCatalog({t:t, time:add.querySelector(".ai-tm").value.trim(), beauty:add.querySelector(".ai-b").checked, anchor:add.querySelector(".ai-a").checked});
+    };
+    add.querySelector(".ai-add").addEventListener("click",addFn);
+    add.querySelector(".ai-t").addEventListener("keydown",function(e){ if(e.key==="Enter") addFn(); });
+    body.appendChild(add);
+  }else if(catTab==="ai"){
+    var list=AISUGGEST[catSection]||[];
+    if(!list.length){
+      var e=document.createElement("div"); e.className="catempty";
+      e.innerHTML="здесь появятся дела, подобранные под тебя — по опроснику и анализам. пока список пуст: <a href=\"опросник.html\">пройти опросник →</a>";
+      body.appendChild(e);
+    }else{
+      list.forEach(function(item){ body.appendChild(catRow(item)); });
+    }
+  }else{
+    (CATALOG[catSection]||[]).forEach(function(item){ body.appendChild(catRow(item)); });
+  }
+}
+document.querySelectorAll("#catTabs button").forEach(function(b){ b.addEventListener("click",function(){ setCatTab(b.dataset.tab); }); });
+
+/* ---- первый запуск: что ты уже делаешь ---- */
+var ONB_MAX=2;
+var onbPicked=[];
+var DIMICON=["🧪","🏃","🌙"];
+function needsOnboarding(){
+  try{ return !localStorage.getItem(PLANKEY) && !localStorage.getItem("3dw_onboard_seen"); }catch(_){ return false; }
+}
+function paintOnbList(){
+  var host=document.getElementById("onbList"); host.innerHTML="";
+  CATALOG.forEach(function(list,si){
+    list.slice(0,2).forEach(function(item){
+      var row=document.createElement("button"); row.className="modebtn";
+      row.innerHTML='<span class="ic">'+DIMICON[si]+'</span><span style="flex:1">'+item.t+'</span>';
+      row.onclick=function(){ toggleOnbPick(si,item,row); };
+      host.appendChild(row);
+    });
+  });
+}
+function toggleOnbPick(si,item,row){
+  var idx=onbPicked.findIndex(function(p){ return p.si===si && p.item.t===item.t; });
+  if(idx>=0){ onbPicked.splice(idx,1); row.classList.remove("on"); document.getElementById("onbHint").textContent=""; return; }
+  if(onbPicked.length>=ONB_MAX){ document.getElementById("onbHint").textContent="начнём с "+ONB_MAX+" — самого важного. остальное добавишь позже."; return; }
+  onbPicked.push({si:si,item:item}); row.classList.add("on"); document.getElementById("onbHint").textContent="";
+}
+function closeOnboarding(){
+  try{ localStorage.setItem("3dw_onboard_seen","1"); }catch(_){}
+  savePlan(); document.getElementById("onbOv").classList.remove("on"); render(); update();
+}
+function skipOnboarding(){ closeOnboarding(); }
+function finishOnboarding(){
+  onbPicked.forEach(function(p){
+    DATA[p.si].items.push({t:p.item.t, time:p.item.time||"", beauty:!!p.item.beauty, anchor:true, done:false});
+  });
+  closeOnboarding();
+}
+function maybeShowOnboarding(){
+  if(!needsOnboarding()) return;
+  DATA.forEach(function(s){ s.items=[]; });
+  onbPicked=[]; paintOnbList(); render(); update();
+  document.getElementById("onbOv").classList.add("on");
+}
 
 function markNow(){
   var it=DATA[0].items[2]; if(it) it.done=true; render(); update();
@@ -454,6 +608,7 @@ var d=new Date();
 document.getElementById("dt").textContent=d.toLocaleDateString("ru-RU",{weekday:"long",day:"numeric",month:"long"});
 try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
 loadPlan(); loadState(); loadEnergy(); loadMode(); paintEnergy(); paintMode(); render(); update(); paintChips();
+maybeShowOnboarding();
 </script>
 </body>
 </html>

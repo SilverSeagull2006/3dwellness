@@ -136,11 +136,13 @@
   <div id="supps"></div>
   <div class="summary">
     <h2>лист покупок</h2>
+    <div style="font-size:12.5px;color:var(--muted);margin-bottom:6px">выбери 2–3 самых важных — начнём с малого, остальное добавишь позже, когда будет привычно</div>
     <div id="cart"></div>
+    <div id="cartHint" style="font-size:12.5px;color:var(--warn-fg);min-height:16px;margin-top:4px"></div>
   </div>
-  <button class="btn" id="toSchedule">в схему приёма → напоминания</button>
+  <button class="btn" id="toSchedule">перенести выбранное в мой день →</button>
   <button class="btn ghost" id="backR">← анализы</button>
-  <div class="foot">схема приёма и пуши «выпей X» — следующий этап, встроится в экран «сегодня»</div>
+  <div class="foot">выбранное появится в 3dWellness «сегодня» — можно сразу отмечать. схема с точным временем приёма — следующий этап</div>
 </div>
 
 <script>
@@ -335,17 +337,18 @@ function renderResults(){
   }).join("");
 }
 
+var CART=[];
 function renderSupps(){
   const flagged=flaggedBlocks();
   const host=document.getElementById("supps");
   const cart=[];
-  if(!flagged.length){ host.innerHTML='<div class="card"><div class="bd" style="padding:14px">Нет блоков в фокусе — рекомендаций пока нет.</div></div>'; document.getElementById("cart").innerHTML='<div style="font-size:14px;color:var(--muted)">пусто</div>'; return; }
+  if(!flagged.length){ host.innerHTML='<div class="card"><div class="bd" style="padding:14px">Нет блоков в фокусе — рекомендаций пока нет.</div></div>'; CART=[]; paintCart(); return; }
   host.innerHTML=flagged.map(x=>{
     const hue=HUES[x.i], list=SUPP[x.i];
     const rows=list.map(s=>{
       const c=s.contra(PROFILE);
       const blocked=c&&c.level==="bad";
-      if(!blocked) cart.push(s.name);
+      if(!blocked) cart.push({name:s.name, form:s.form, dose:s.dose});
       return '<div class="supp'+(blocked?' blocked':'')+'">'
         +'<div class="top"><span class="snm">'+s.name+'</span><span class="src">ИИ</span></div>'
         +'<div class="dose">'+s.form+' · '+s.dose+'</div>'
@@ -355,10 +358,29 @@ function renderSupps(){
     }).join('');
     return '<div class="card"><div class="hd" style="background:'+hue.bg+'"><span class="nm" style="color:'+hue.fg+'">'+x.name+'</span></div><div class="bd" style="padding:2px 14px 8px">'+rows+'</div></div>';
   }).join("");
-  const uniq=[...new Set(cart)];
-  document.getElementById("cart").innerHTML = uniq.length
-    ? uniq.map(n=>'<div class="srow"><span>'+n+'</span><span class="band" style="background:var(--ok-bg);color:var(--ok-fg)">в корзину</span></div>').join('')
-    : '<div style="font-size:14px;color:var(--muted)">всё рекомендованное отфильтровано профилем — обсуди с врачом</div>';
+  const seen={}; const uniq=[];
+  cart.forEach(c=>{ if(!seen[c.name]){ seen[c.name]=true; uniq.push(c); } });
+  CART = uniq.map((c,i)=>({name:c.name, form:c.form, dose:c.dose, checked:i<3}));
+  paintCart();
+}
+function paintCart(){
+  const host=document.getElementById("cart");
+  document.getElementById("cartHint").textContent="";
+  if(!CART.length){ host.innerHTML='<div style="font-size:14px;color:var(--muted)">всё рекомендованное отфильтровано профилем — обсуди с врачом</div>'; return; }
+  host.innerHTML = CART.map((c,i)=>
+    '<label class="srow" style="cursor:pointer"><span style="display:flex;align-items:center;gap:8px"><input type="checkbox" data-i="'+i+'"'+(c.checked?' checked':'')+'>'+c.name+' <span style="color:var(--sub);font-size:12px">— '+c.form+' · '+c.dose+'</span></span></label>'
+  ).join('');
+  host.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+    cb.addEventListener('change',()=>{
+      const i=+cb.dataset.i;
+      if(cb.checked){
+        const others=CART.filter((c,j)=>j!==i && c.checked).length;
+        if(others>=3){ cb.checked=false; document.getElementById("cartHint").textContent="начнём с 2–3 — самого важного. остальное добавишь позже."; return; }
+      }
+      CART[i].checked=cb.checked;
+      document.getElementById("cartHint").textContent="";
+    });
+  });
 }
 
 /* ---------- навигация ---------- */
@@ -373,7 +395,18 @@ document.getElementById("next").onclick=()=>{ renderResults(); show("screen-r");
 document.getElementById("backQ").onclick=()=>show("screen-q");
 document.getElementById("toS").onclick=()=>{ renderSupps(); show("screen-s"); };
 document.getElementById("backR").onclick=()=>show("screen-r");
-document.getElementById("toSchedule").onclick=()=>alert("Следующий этап: из листа покупок собираем схему приёма (что, сколько, когда) и включаем пуши «выпей X» на экране «сегодня».");
+document.getElementById("toSchedule").onclick=()=>{
+  const selected=CART.filter(c=>c.checked);
+  if(!selected.length){ alert("выбери хотя бы одно — или пропусти этот шаг и вернись позже."); return; }
+  const KEY="3dw_plan_v1";
+  let plan=null;
+  try{ const raw=localStorage.getItem(KEY); plan = raw ? JSON.parse(raw) : null; }catch(_){ plan=null; }
+  if(!plan || !plan.length) plan=[[],[],[]];
+  const have=new Set(plan[0].map(it=>it.t));
+  selected.forEach(c=>{ if(!have.has(c.name)){ plan[0].push({t:c.name, time:c.form+' · '+c.dose, beauty:false, anchor:false}); have.add(c.name); } });
+  try{ localStorage.setItem(KEY, JSON.stringify(plan)); }catch(_){}
+  window.location.href="index.html";
+};
 
 try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
 summary();
