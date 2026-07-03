@@ -194,7 +194,7 @@
   <div class="editbar"><button class="editbtn" onclick="openAnchorIntro(false)">об опорах</button><button id="editBtn" class="editbtn" onclick="toggleEdit()">✏️ изменить</button></div>
   <div id="sections"></div>
 
-  <div class="foot">любить себя — значит выбирать заботу, снова и снова 🕊️</div>
+  <div class="foot" id="footPhrase"></div>
 </div>
 
 <div class="seafoot">
@@ -636,8 +636,32 @@ function toggleBreath(){ running?stopBreath():startBreath(); }
 function openBreath(){ document.getElementById("ov").classList.add("on"); paintChips(); }
 function closeBreath(){ stopBreath(); document.getElementById("ov").classList.remove("on"); }
 
+/* ---- нижняя фраза дня: меняется по кругу раз в день ---- */
+var FOOT_PHRASES=[
+  "любовь к себе — это действия, пусть маленькие",
+  "я не обязана заслуживать отдых",
+  "сон — это вклад в завтрашнюю меня",
+  "моё тело не должно сначала сломаться, чтобы я о нём позаботилась",
+  "я выбираю то, что поддерживает меня",
+  "маленькие действия важнее идеальных планов",
+  "мало тоже считается",
+  "я не обязана делать всё. но могу сделать что-то",
+  "отдых — часть пути, а не награда",
+  "я имею право замедлиться",
+  "быть на своей стороне — ежедневный выбор",
+  "моя энергия — ресурс, а не бесконечный запас",
+  "я заслуживаю заботы не за достижения, а потому что я есть",
+  "любить себя — значит выбирать заботу, снова и снова"
+];
+function paintFootPhrase(){
+  var dayNum=Math.floor(Date.now()/86400000);
+  var i=((dayNum%FOOT_PHRASES.length)+FOOT_PHRASES.length)%FOOT_PHRASES.length;
+  document.getElementById("footPhrase").textContent=FOOT_PHRASES[i]+" 🕊️";
+}
+
 var d=new Date();
 document.getElementById("dt").textContent=d.toLocaleDateString("ru-RU",{weekday:"long",day:"numeric",month:"long"});
+paintFootPhrase();
 try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
 loadPlan(); loadState(); loadEnergy(); loadMode(); paintEnergy(); paintMode(); render(); update(); paintChips();
 maybeShowOnboarding();
