@@ -182,7 +182,7 @@
       <button data-e="high"><span class="eic">🌤</span><span>есть силы</span></button>
     </div>
     <div class="enote" id="enote"></div>
-    <div class="modelink" id="modeLink" onclick="openModeSheet()">особый период — болею, отпуск, пауза?</div>
+    <div class="modelink" id="modeLink" onclick="openModeSheet()">особый период — болею, путешествую, куча дел, грущу?</div>
   </div>
 
   <div class="now">
@@ -430,8 +430,7 @@ var MODES=[
   {key:"sick", icon:"🤒", label:"болею", note:"тело сейчас важнее любых планов — пусть остаются только опоры."},
   {key:"trip", icon:"🧳", label:"путешествую", note:"протоколы подождут — держись за опоры, остальное вернётся вместе с тобой."},
   {key:"crunch", icon:"🌪️", label:"куча дел", note:"сейчас вся энергия там — здесь пусть будут только опоры, остальное подождёт без вины."},
-  {key:"sad", icon:"🌧️", label:"грущу", note:"грусть тоже забирает силы — пусть сегодня будут только опоры, и этого достаточно."},
-  {key:"pause", icon:"🌙", label:"пауза", note:"иногда нужно просто меньше — и опор для этого достаточно."}
+  {key:"sad", icon:"🌧️", label:"грущу", note:"грусть тоже забирает силы — пусть сегодня будут только опоры, и этого достаточно."}
 ];
 var curMode=null;
 function loadMode(){ try{ var raw=localStorage.getItem(MODEKEY); if(raw) curMode=JSON.parse(raw); }catch(_){} }
