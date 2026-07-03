@@ -70,6 +70,14 @@
   .tag{font-size:11px;padding:1px 8px;border-radius:999px;margin-left:6px;white-space:nowrap;
     background:var(--pink-bg);color:var(--pink-fg)}
   .foot{text-align:center;font-size:13px;color:var(--sub);padding-top:6px}
+  .editbar{display:flex;justify-content:flex-end;margin:-2px 2px 8px}
+  .editbtn{font-size:13px;padding:5px 12px;border-radius:999px;background:transparent;border:0.5px solid var(--border-strong);color:var(--muted);cursor:pointer;font-family:inherit}
+  .item .del{margin-left:auto;width:26px;height:26px;border:none;background:var(--soft);color:var(--muted);border-radius:50%;font-size:17px;line-height:1;cursor:pointer;flex-shrink:0}
+  .addrow{display:flex;align-items:center;gap:6px;padding:9px 0 5px;border-top:0.5px solid var(--border)}
+  .addrow .ai-t{flex:1;min-width:0;height:34px;border:0.5px solid var(--border-strong);border-radius:8px;padding:0 9px;font-size:14px;background:var(--card);color:var(--text);font-family:inherit}
+  .addrow .ai-tm{width:62px;height:34px;border:0.5px solid var(--border-strong);border-radius:8px;padding:0 6px;font-size:13px;background:var(--card);color:var(--text);font-family:inherit}
+  .addrow .ai-bt{display:flex;align-items:center;gap:2px;font-size:14px;color:var(--muted);cursor:pointer}
+  .addrow .ai-add{width:34px;height:34px;border:none;background:var(--accent);color:#fff;border-radius:8px;font-size:18px;line-height:1;cursor:pointer;flex-shrink:0}
 
   .fab{position:fixed;right:18px;bottom:20px;z-index:20;display:flex;align-items:center;gap:8px;
     height:52px;padding:0 18px 0 14px;border-radius:999px;border:none;cursor:pointer;color:#37485a;
@@ -134,6 +142,7 @@
     <button onclick="markNow()">готово</button>
   </div>
 
+  <div class="editbar"><button id="editBtn" class="editbtn" onclick="toggleEdit()">✏️ изменить</button></div>
   <div id="sections"></div>
 
   <div class="foot">спокойно, вечер длинный 🕊️</div>
@@ -191,7 +200,11 @@ var ICONS=[
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5C10.4 8 10.4 11 12 13 13.6 11 13.6 8 12 5Z"/><path d="M12 13C9 11.4 7.6 8.5 8.2 6 10 7.4 11.4 10.2 12 13Z"/><path d="M12 13C15 11.4 16.4 8.5 15.8 6 14 7.4 12.6 10.2 12 13Z"/><path d="M12 14C8.5 13.6 4.8 14.6 3.5 16.5 6.8 17.4 10.2 16.4 12 14.5"/><path d="M12 14C15.5 13.6 19.2 14.6 20.5 16.5 17.2 17.4 13.8 16.4 12 14.5"/></svg>'
 ];
 var host=document.getElementById("sections");
-var DAYKEY="3dw_"+new Date().toISOString().slice(0,10);
+var editMode=false;
+var PLANKEY="3dw_plan_v1";
+var DAYKEY="3dw_done_"+new Date().toISOString().slice(0,10);
+function savePlan(){try{localStorage.setItem(PLANKEY,JSON.stringify(DATA.map(function(s){return s.items.map(function(i){return {t:i.t,time:i.time||"",beauty:!!i.beauty};});})));}catch(e){}}
+function loadPlan(){try{var raw=localStorage.getItem(PLANKEY);if(!raw)return;JSON.parse(raw).forEach(function(items,si){if(DATA[si])DATA[si].items=items.map(function(o){return {t:o.t,time:o.time,beauty:o.beauty,done:false};});});}catch(e){}}
 function saveState(){try{localStorage.setItem(DAYKEY,JSON.stringify(DATA.map(function(s){return s.items.map(function(i){return i.done?1:0;});})));}catch(e){}}
 function loadState(){try{var raw=localStorage.getItem(DAYKEY);if(!raw)return;var st=JSON.parse(raw);DATA.forEach(function(s,si){s.items.forEach(function(it,ii){if(st[si]&&st[si][ii]!=null)it.done=!!st[si][ii];});});}catch(e){}}
 
@@ -200,12 +213,25 @@ function render(){
   DATA.forEach(function(sec,si){
     var card=document.createElement("div"); card.className="card";
     card.innerHTML='<div class="hd"><span class="hdic" style="color:'+sec.fg+'">'+ICONS[si]+'</span><span class="pill" style="background:'+sec.bg+';color:'+sec.fg+'">'+sec.dim+'</span></div>';
-    sec.items.forEach(function(it){
+    sec.items.forEach(function(it,ii){
       var row=document.createElement("div"); row.className="item"+(it.done?" done":"");
-      row.innerHTML='<span class="tick">'+CHECK+'</span><span class="lab">'+it.t+(it.beauty?'<span class="tag">✨ бьюти</span>':'')+'</span>'+(it.time?'<span class="time">'+it.time+'</span>':'');
-      row.addEventListener("click",function(){ it.done=!it.done; row.classList.toggle("done"); update(); });
+      if(editMode){
+        row.innerHTML='<span class="lab">'+it.t+(it.beauty?'<span class="tag">✨</span>':'')+'</span>'+(it.time?'<span class="time">'+it.time+'</span>':'')+'<button class="del" aria-label="удалить">×</button>';
+        row.querySelector(".del").addEventListener("click",function(){ DATA[si].items.splice(ii,1); savePlan(); render(); update(); });
+      }else{
+        row.innerHTML='<span class="tick">'+CHECK+'</span><span class="lab">'+it.t+(it.beauty?'<span class="tag">✨ бьюти</span>':'')+'</span>'+(it.time?'<span class="time">'+it.time+'</span>':'');
+        row.addEventListener("click",function(){ it.done=!it.done; row.classList.toggle("done"); update(); });
+      }
       card.appendChild(row);
     });
+    if(editMode){
+      var add=document.createElement("div"); add.className="addrow";
+      add.innerHTML='<input class="ai-t" placeholder="новое дело…"><input class="ai-tm" placeholder="время"><label class="ai-bt"><input type="checkbox" class="ai-b">✨</label><button class="ai-add" aria-label="добавить">＋</button>';
+      var addFn=function(){var t=add.querySelector(".ai-t").value.trim();if(!t)return;DATA[si].items.push({t:t,time:add.querySelector(".ai-tm").value.trim(),beauty:add.querySelector(".ai-b").checked,done:false});savePlan();render();update();};
+      add.querySelector(".ai-add").addEventListener("click",addFn);
+      add.querySelector(".ai-t").addEventListener("keydown",function(e){if(e.key==="Enter")addFn();});
+      card.appendChild(add);
+    }
     host.appendChild(card);
   });
 }
@@ -217,8 +243,9 @@ function update(){
   saveState();
 }
 function markNow(){
-  var it=DATA[0].items[2]; it.done=true; render(); update();
+  var it=DATA[0].items[2]; if(it) it.done=true; render(); update();
 }
+function toggleEdit(){ editMode=!editMode; document.getElementById("editBtn").textContent=editMode?"готово ✓":"✏️ изменить"; render(); }
 
 /* ---- дыхание ---- */
 var PATTERNS=[
@@ -263,7 +290,7 @@ function closeBreath(){ stopBreath(); document.getElementById("ov").classList.re
 var d=new Date();
 document.getElementById("dt").textContent=d.toLocaleDateString("ru-RU",{weekday:"long",day:"numeric",month:"long"});
 try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
-loadState(); render(); update(); paintChips();
+loadPlan(); loadState(); render(); update(); paintChips();
 </script>
 </body>
 </html>
