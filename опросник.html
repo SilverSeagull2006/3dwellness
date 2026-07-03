@@ -250,29 +250,43 @@ const RECS=[
 const cPreg=P=>P.preg!=="none";
 const cAcid=P=>P.dx.has("гастрит / язва")||P.meds.has("ИПП (омепразол и т.п.)");
 const SUPP=[
-  [ {name:"Пищеварительные ферменты",form:"капсулы, с едой",dose:"1 капсула в начале еды",
+  [ {name:"Пищеварительные ферменты",form:"капсулы, с едой",dose:"по инструкции на упаковке, с первым кусочком еды",
+     source:"нет единого клинического стандарта — активность (FIP/USP-единицы) у каждого бренда своя, ориентируйся на этикетку",
      contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null},
-    {name:"Бетаин HCl",form:"капсулы, с белковой едой",dose:"начать с 1, титровать",
+    {name:"Бетаин HCl",form:"капсулы, с белковой едой",dose:"начать с 500–650 мг (1 капсула); нет тепла/жжения — на следующий приём +1 капсула; как только почувствуешь жжение — вернуться на дозу назад",
+     source:"клинический обзор титрации при функциональной гипохлоргидрии (PMC7238915)",
+     note:"дополнительно не сочетать с НПВС (ибупрофен и т.п.); титрация — под контролем врача, не самоэксперимент",
      contra:P=>cAcid(P)?{level:"bad",text:"нельзя при гастрите/язве или на фоне ИПП"}:(cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null)} ],
-  [ {name:"DGL (солодка без глицирризина)",form:"жевательные таблетки",dose:"перед едой",
+  [ {name:"DGL (солодка без глицирризина)",form:"жевательные таблетки",dose:"380 мг, разжевать за 20 мин до еды, до 3 раз в день",
+     source:"клинические испытания при язвенной болезни",
      contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null},
-    {name:"L-глутамин",form:"порошок",dose:"3–5 г в день",
+    {name:"L-глутамин",form:"порошок",dose:"5 г в день для начала, курсом",
+     source:"типичная поддерживающая доза в исследованиях по здоровью кишечника",
      contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null},
-    {name:"Цинк-карнозин",form:"капсулы",dose:"по инструкции, курсом",
+    {name:"Цинк-карнозин",form:"капсулы",dose:"75 мг 2 раза в день (≈32–34 мг цинка/день — в пределах верхнего безопасного уровня для цинка)",
+     source:"клинические испытания при заживлении слизистой желудка (PMC1856764)",
      contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null} ],
-  [ {name:"Панкреатические ферменты",form:"капсулы, с едой",dose:"по назначению врача",
+  [ {name:"Панкреатические ферменты",form:"капсулы, с едой",dose:"по назначению врача — стартово от 40 000 ЕД липазы на приём пищи, доза индивидуальна",
+     source:"клинические рекомендации по заместительной ферментной терапии (PERT)",
      contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null} ],
-  [ {name:"Пробиотики (мультиштаммовые)",form:"капсулы",dose:"1 в день, курсом",
+  [ {name:"Пробиотики (мультиштаммовые)",form:"капсулы",dose:"5–10 млрд КОЕ в день, курсом",
+     source:"типичный диапазон для общей поддержки ЖКТ (NIH ODS + клинические испытания)",
      contra:P=>P.dx.has("аутоиммунное")?{level:"warn",text:"при аутоиммунном — обсуди с врачом"}:null},
-    {name:"Псиллиум (клетчатка)",form:"порошок",dose:"1 ч.л., запивать водой",
+    {name:"Псиллиум (клетчатка)",form:"порошок",dose:"5–10 г в день, начать с половины и постепенно увеличивать; обязательно запивать большим количеством воды",
+     source:"типичный диапазон в клинических испытаниях",
      contra:P=>null},
-    {name:"Магний цитрат",form:"порошок/капсулы",dose:"200–400 мг вечером",
+    {name:"Магний цитрат",form:"порошок/капсулы",dose:"200–350 мг вечером",
+     source:"NIH ODS — верхний безопасный уровень для магния из добавок 350 мг/день (взрослые)",
      contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null} ],
-  [ {name:"Расторопша (силимарин)",form:"капсулы",dose:"по инструкции, курсом",
+  [ {name:"Расторопша (силимарин)",form:"капсулы",dose:"140–420 мг силимарина в день, в 2–3 приёма, с едой",
+     source:"NCCIH: данные по эффективности при болезнях печени противоречивы/ограничены; доза — из клинических испытаний",
      contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null},
-    {name:"Артишок (экстракт)",form:"капсулы, перед едой",dose:"по инструкции",
+    {name:"Артишок (экстракт)",form:"капсулы, перед едой",dose:"320–640 мг в день",
+     source:"клинические испытания при функциональной диспепсии",
      contra:P=>P.dx.has("камни в желчном")?{level:"bad",text:"желчегонные нельзя при камнях в желчном — риск колики"}:(cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null)},
-    {name:"Куркумин",form:"капсулы, с едой",dose:"по инструкции",
+    {name:"Куркумин",form:"капсулы, с едой",dose:"500–1000 мг в день (пиперин в составе усиливает усвоение)",
+     source:"NCCIH: обычный оральный куркумин/куркума в рекомендуемых количествах, вероятно, безопасен до 2–3 месяцев",
+     note:"высокобиодоступные формы (с пиперином, липосомальные) при длительном приёме дольше 2–3 месяцев — по данным NCCIH, риск для печени; курсами и с перерывами",
      contra:P=>P.meds.has("антикоагулянт")?{level:"bad",text:"усиливает действие антикоагулянтов — обсуди с врачом"}:(cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null)} ]
 ];
 
@@ -378,6 +392,8 @@ function renderSupps(){
       return '<div class="supp'+(blocked?' blocked':'')+'">'
         +'<div class="top"><span class="snm">'+s.name+'</span><span class="src">ИИ</span></div>'
         +'<div class="dose">'+s.form+' · '+s.dose+'</div>'
+        + (s.source?'<div style="font-size:11px;color:var(--sub);margin-top:1px">источник дозы: '+s.source+'</div>':'')
+        + (s.note?'<div style="font-size:12px;color:var(--warn-fg);margin-top:3px">⚠ '+s.note+'</div>':'')
         +'<div class="why">почему: блок «'+x.name+'» в фокусе (балл '+x.b.sum+')</div>'
         + (c?'<div class="flag '+(c.level==="bad"?"bad":"warn")+'">'+(c.level==="bad"?"⛔ ":"⚠ ")+c.text+'</div>':'')
         +'</div>';
@@ -394,7 +410,7 @@ function paintCart(){
   document.getElementById("cartHint").textContent="";
   if(!CART.length){ host.innerHTML='<div style="font-size:14px;color:var(--muted)">всё рекомендованное отфильтровано профилем — обсуди с врачом</div>'; return; }
   host.innerHTML = CART.map((c,i)=>
-    '<div class="srow" style="align-items:center"><label style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer"><input type="checkbox" data-i="'+i+'"'+(c.checked?' checked':'')+'>'+c.name+' <span style="color:var(--sub);font-size:12px">— '+c.form+' · '+c.dose+'</span></label><input type="time" data-ti="'+i+'" value="'+c.time+'" style="border:1px solid var(--border-strong);border-radius:8px;padding:3px 6px;font-size:13px;font-family:inherit;background:var(--card);color:var(--text)"></div>'
+    '<div class="srow" style="align-items:center"><label style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer;min-width:0"><input type="checkbox" data-i="'+i+'"'+(c.checked?' checked':'')+'><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+c.name+' <span style="color:var(--sub);font-size:12px">— '+c.form+'</span></span></label><input type="time" data-ti="'+i+'" value="'+c.time+'" style="border:1px solid var(--border-strong);border-radius:8px;padding:3px 6px;font-size:13px;font-family:inherit;background:var(--card);color:var(--text);flex-shrink:0"></div>'
   ).join('');
   host.querySelectorAll('input[data-ti]').forEach(ti=>{
     ti.addEventListener('change',()=>{ CART[+ti.dataset.ti].time = ti.value || "08:00"; });
