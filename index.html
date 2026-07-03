@@ -91,7 +91,8 @@
   .tag{font-size:11px;padding:1px 8px;border-radius:999px;margin-left:6px;white-space:nowrap;
     background:var(--pink-bg);color:var(--pink-fg)}
   .foot{text-align:center;font-size:13px;color:var(--sub);padding-top:6px}
-  .editbar{display:flex;justify-content:flex-end;gap:8px;margin:-2px 2px 8px}
+  .editbar{display:flex;justify-content:space-between;gap:8px;margin:-2px 2px 8px}
+  .editbar .grp{display:flex;gap:8px}
   .editbtn{font-size:13px;padding:5px 12px;border-radius:999px;background:transparent;border:0.5px solid var(--border-strong);color:var(--muted);cursor:pointer;font-family:inherit}
   .item .del{margin-left:auto;width:26px;height:26px;border:none;background:var(--soft);color:var(--muted);border-radius:50%;font-size:17px;line-height:1;cursor:pointer;flex-shrink:0}
   .item .anch{width:26px;height:26px;border:none;background:transparent;border-radius:50%;font-size:15px;line-height:1;cursor:pointer;flex-shrink:0;opacity:.3;filter:grayscale(1)}
@@ -190,7 +191,10 @@
     <button>готово</button>
   </div>
 
-  <div class="editbar"><button class="editbtn" onclick="openAnchorIntro(false)">об опорах</button><button id="editBtn" class="editbtn" onclick="toggleEdit()">✏️ изменить</button></div>
+  <div class="editbar">
+    <a class="editbtn" href="опросник.html" style="text-decoration:none;display:inline-block">📋 опросник</a>
+    <div class="grp"><button class="editbtn" onclick="openAnchorIntro(false)">об опорах</button><button id="editBtn" class="editbtn" onclick="toggleEdit()">✏️ изменить</button></div>
+  </div>
   <div id="sections"></div>
 
   <div class="foot">спокойно, вечер длинный 🕊️</div>
