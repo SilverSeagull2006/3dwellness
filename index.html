@@ -187,7 +187,7 @@
   <div class="now">
     <span class="ic"><svg width="22" height="22" viewBox="0 0 44 44" fill="none" stroke="#4a5a6a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 19 h14 a7 7 0 0 1 0 14 h-14 a7 7 0 0 1 0 -14 z"/><path d="M20 19 v14"/></svg></span>
     <div class="t"><div class="lb">сейчас · 14:00</div><div class="ti">выпей магний, 200 мг</div></div>
-    <button onclick="markNow()">готово</button>
+    <button>готово</button>
   </div>
 
   <div class="editbar"><button class="editbtn" onclick="openAnchorIntro(false)">об опорах</button><button id="editBtn" class="editbtn" onclick="toggleEdit()">✏️ изменить</button></div>
@@ -356,9 +356,43 @@ function render(){
     }
     host.appendChild(card);
   });
+  paintNow();
 }
 function update(){
   saveState();
+}
+
+/* ---- виджет «сейчас»: сам находит ближайшее невыполненное дело ---- */
+function parseTime(t){ var m=/^(\d{1,2}):(\d{2})$/.exec(t||""); return m ? (+m[1])*60+(+m[2]) : null; }
+function findNowItem(){
+  var nowMin=new Date().getHours()*60+new Date().getMinutes();
+  var timed=[], anchors=[], any=[];
+  DATA.forEach(function(sec,si){
+    sec.items.forEach(function(it){
+      if(it.done) return;
+      var tm=parseTime(it.time);
+      if(tm!=null) timed.push({tm:tm,it:it}); else if(it.anchor) anchors.push({it:it});
+      any.push({it:it});
+    });
+  });
+  if(timed.length){
+    var upcoming=timed.filter(function(x){return x.tm>=nowMin;}).sort(function(a,b){return a.tm-b.tm;});
+    if(upcoming.length) return upcoming[0].it;
+    timed.sort(function(a,b){return a.tm-b.tm;});
+    return timed[0].it;
+  }
+  if(anchors.length) return anchors[0].it;
+  if(any.length) return any[0].it;
+  return null;
+}
+function paintNow(){
+  var box=document.querySelector(".now"); if(!box) return;
+  var it=findNowItem();
+  if(!it){ box.style.display="none"; return; }
+  box.style.display="";
+  box.querySelector(".lb").textContent = it.time ? "сейчас · "+it.time : "сейчас";
+  box.querySelector(".ti").textContent = it.t;
+  box.querySelector("button").onclick=function(){ it.done=true; render(); update(); };
 }
 
 /* ---- энергия дня ---- */
@@ -546,9 +580,6 @@ function maybeShowOnboarding(){
   document.getElementById("onbOv").classList.add("on");
 }
 
-function markNow(){
-  var it=DATA[0].items[2]; if(it) it.done=true; render(); update();
-}
 var LH='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="10" cy="5.6" r="2.2"/><circle cx="15.6" cy="9" r="1.7"/><path d="M5.5 21C5 15.5 7 12.3 10 12.3 11.7 12.3 12.9 13.2 13.7 14.8"/><path d="M18.2 21C18.6 17.3 17.5 14.6 15.3 14.6 14.2 14.6 13.4 15.2 12.9 16.2"/><path d="M8.3 13.6C10.7 17 14.3 17.6 16.7 15.4"/></svg>';
 var pendingEdit=false;
 function introSeen(){ try{return !!localStorage.getItem("3dw_anchors_intro");}catch(_){return true;} }
