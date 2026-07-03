@@ -80,7 +80,7 @@
   .tag{font-size:11px;padding:1px 8px;border-radius:999px;margin-left:6px;white-space:nowrap;
     background:var(--pink-bg);color:var(--pink-fg)}
   .foot{text-align:center;font-size:13px;color:var(--sub);padding-top:6px}
-  .editbar{display:flex;justify-content:flex-end;margin:-2px 2px 8px}
+  .editbar{display:flex;justify-content:flex-end;gap:8px;margin:-2px 2px 8px}
   .editbtn{font-size:13px;padding:5px 12px;border-radius:999px;background:transparent;border:0.5px solid var(--border-strong);color:var(--muted);cursor:pointer;font-family:inherit}
   .item .del{margin-left:auto;width:26px;height:26px;border:none;background:var(--soft);color:var(--muted);border-radius:50%;font-size:17px;line-height:1;cursor:pointer;flex-shrink:0}
   .item .anch{width:26px;height:26px;border:none;background:transparent;border-radius:50%;font-size:15px;line-height:1;cursor:pointer;flex-shrink:0;opacity:.3;filter:grayscale(1)}
@@ -163,7 +163,7 @@
     <button onclick="markNow()">готово</button>
   </div>
 
-  <div class="editbar"><button id="editBtn" class="editbtn" onclick="toggleEdit()">✏️ изменить</button></div>
+  <div class="editbar"><button class="editbtn" onclick="openAnchorIntro(false)">об опорах</button><button id="editBtn" class="editbtn" onclick="toggleEdit()">✏️ изменить</button></div>
   <div id="sections"></div>
 
   <div class="foot">спокойно, вечер длинный 🕊️</div>
@@ -184,6 +184,25 @@
   <svg viewBox="0 0 24 24" fill="none" stroke="#37485a" stroke-width="1.7"><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="8" opacity="0.6"/></svg>
   дыши
 </button>
+
+<div class="overlay" id="anchOv">
+  <div class="sheet" style="text-align:left">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <span style="display:flex;color:#5b6b78"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11.1 8.5 10 21"/><path d="M12.9 8.5 14 21"/><path d="M10.6 8.5h2.8"/><circle cx="12" cy="5.8" r="1.7"/><path d="M8.9 4.5 6.6 3"/><path d="M15.1 4.5 17.4 3"/><path d="M7 21h10"/></svg></span>
+      <h3 style="margin:0">опоры</h3>
+    </div>
+    <div style="font-size:14.5px;line-height:1.55;color:var(--text)">
+      <p style="margin:0 0 10px">в тяжёлый день приложение уберёт всё лишнее и оставит только опоры — то, что держит тебя.</p>
+      <p style="margin:0 0 6px;color:var(--muted);font-size:13px;font-weight:600">что стоит делать опорой:</p>
+      <p style="margin:0 0 4px">· то, что нельзя ронять медицински — лекарства и ключевые бады</p>
+      <p style="margin:0 0 4px">· то, что снижает кортизол — дыхание, ритуал сна</p>
+      <p style="margin:0 0 10px">· одна маленькая телесная вещь — вода, пять минут воздуха</p>
+      <p style="margin:0 0 4px">опор должно быть мало — одна-три.</p>
+      <p style="margin:0">и даже пропущенная опора — без вины. опора держит тебя, а не ты её.</p>
+    </div>
+    <div class="row2" style="margin-top:16px"><button class="go" onclick="closeAnchorIntro()">понятно — выбрать опоры</button></div>
+  </div>
+</div>
 
 <div class="overlay" id="ov">
   <div class="sheet">
@@ -247,9 +266,9 @@ function render(){
         }
       }
       var row=document.createElement("div"); row.className="item"+(it.done?" done":"");
-      var mark = it.anchor ? '<span class="anchdot" title="опора">🪨</span>' : '';
+      var mark = it.anchor ? '<span class="anchdot" title="опора">'+LH+'</span>' : '';
       if(editMode){
-        row.innerHTML='<span class="lab">'+it.t+(it.beauty?'<span class="tag">✨</span>':'')+'</span>'+(it.time?'<span class="time">'+it.time+'</span>':'')+'<button class="anch'+(it.anchor?' on':'')+'" aria-label="опора" title="опора — остаётся в тяжёлый день">🪨</button><button class="del" aria-label="удалить">×</button>';
+        row.innerHTML='<span class="lab">'+it.t+(it.beauty?'<span class="tag">✨</span>':'')+'</span>'+(it.time?'<span class="time">'+it.time+'</span>':'')+'<button class="anch'+(it.anchor?' on':'')+'" aria-label="опора" title="опора — остаётся в тяжёлый день">'+LH+'</button><button class="del" aria-label="удалить">×</button>';
         row.querySelector(".anch").addEventListener("click",function(){ it.anchor=!it.anchor; savePlan(); render(); });
         row.querySelector(".del").addEventListener("click",function(){ DATA[si].items.splice(ii,1); savePlan(); render(); update(); });
       }else{
@@ -265,7 +284,7 @@ function render(){
     }
     if(editMode){
       var add=document.createElement("div"); add.className="addrow";
-      add.innerHTML='<input class="ai-t" placeholder="новое дело…"><input class="ai-tm" placeholder="время"><label class="ai-bt"><input type="checkbox" class="ai-b">✨</label><label class="ai-bt" title="опора"><input type="checkbox" class="ai-a">🪨</label><button class="ai-add" aria-label="добавить">＋</button>';
+      add.innerHTML='<input class="ai-t" placeholder="новое дело…"><input class="ai-tm" placeholder="время"><label class="ai-bt"><input type="checkbox" class="ai-b">✨</label><label class="ai-bt" title="опора"><input type="checkbox" class="ai-a">'+LH+'</label><button class="ai-add" aria-label="добавить">＋</button>';
       var addFn=function(){var t=add.querySelector(".ai-t").value.trim();if(!t)return;DATA[si].items.push({t:t,time:add.querySelector(".ai-tm").value.trim(),beauty:add.querySelector(".ai-b").checked,anchor:add.querySelector(".ai-a").checked,done:false});savePlan();render();update();};
       add.querySelector(".ai-add").addEventListener("click",addFn);
       add.querySelector(".ai-t").addEventListener("keydown",function(e){if(e.key==="Enter")addFn();});
@@ -306,7 +325,20 @@ document.querySelectorAll(".eopts button").forEach(function(b){
 function markNow(){
   var it=DATA[0].items[2]; if(it) it.done=true; render(); update();
 }
-function toggleEdit(){ editMode=!editMode; document.getElementById("editBtn").textContent=editMode?"готово ✓":"✏️ изменить"; render(); }
+var LH='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M11.1 8.5 10 21"/><path d="M12.9 8.5 14 21"/><path d="M10.6 8.5h2.8"/><circle cx="12" cy="5.8" r="1.7"/><path d="M8.9 4.5 6.6 3"/><path d="M15.1 4.5 17.4 3"/><path d="M7 21h10"/></svg>';
+var pendingEdit=false;
+function introSeen(){ try{return !!localStorage.getItem("3dw_anchors_intro");}catch(_){return true;} }
+function openAnchorIntro(thenEdit){ pendingEdit=!!thenEdit; document.getElementById("anchOv").classList.add("on"); }
+function closeAnchorIntro(){
+  try{localStorage.setItem("3dw_anchors_intro","1");}catch(_){}
+  document.getElementById("anchOv").classList.remove("on");
+  if(pendingEdit && !editMode){ pendingEdit=false; applyEdit(true); }
+}
+function applyEdit(on){ editMode=on; document.getElementById("editBtn").textContent=editMode?"готово ✓":"✏️ изменить"; render(); }
+function toggleEdit(){
+  if(!editMode && !introSeen()){ openAnchorIntro(true); return; }
+  applyEdit(!editMode);
+}
 
 /* ---- дыхание ---- */
 var PATTERNS=[
