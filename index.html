@@ -188,7 +188,7 @@
 <div class="overlay" id="anchOv">
   <div class="sheet" style="text-align:left">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-      <span style="display:flex;color:#5b6b78"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11.1 8.5 10 21"/><path d="M12.9 8.5 14 21"/><path d="M10.6 8.5h2.8"/><circle cx="12" cy="5.8" r="1.7"/><path d="M8.9 4.5 6.6 3"/><path d="M15.1 4.5 17.4 3"/><path d="M7 21h10"/></svg></span>
+      <span style="display:flex;color:#3d6b52"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="5.6" r="2.2"/><circle cx="15.6" cy="9" r="1.7"/><path d="M5.5 21C5 15.5 7 12.3 10 12.3 11.7 12.3 12.9 13.2 13.7 14.8"/><path d="M18.2 21C18.6 17.3 17.5 14.6 15.3 14.6 14.2 14.6 13.4 15.2 12.9 16.2"/><path d="M8.3 13.6C10.7 17 14.3 17.6 16.7 15.4"/></svg></span>
       <h3 style="margin:0">опоры</h3>
     </div>
     <div style="font-size:14.5px;line-height:1.55;color:var(--text)">
@@ -325,7 +325,7 @@ document.querySelectorAll(".eopts button").forEach(function(b){
 function markNow(){
   var it=DATA[0].items[2]; if(it) it.done=true; render(); update();
 }
-var LH='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M11.1 8.5 10 21"/><path d="M12.9 8.5 14 21"/><path d="M10.6 8.5h2.8"/><circle cx="12" cy="5.8" r="1.7"/><path d="M8.9 4.5 6.6 3"/><path d="M15.1 4.5 17.4 3"/><path d="M7 21h10"/></svg>';
+var LH='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="10" cy="5.6" r="2.2"/><circle cx="15.6" cy="9" r="1.7"/><path d="M5.5 21C5 15.5 7 12.3 10 12.3 11.7 12.3 12.9 13.2 13.7 14.8"/><path d="M18.2 21C18.6 17.3 17.5 14.6 15.3 14.6 14.2 14.6 13.4 15.2 12.9 16.2"/><path d="M8.3 13.6C10.7 17 14.3 17.6 16.7 15.4"/></svg>';
 var pendingEdit=false;
 function introSeen(){ try{return !!localStorage.getItem("3dw_anchors_intro");}catch(_){return true;} }
 function openAnchorIntro(thenEdit){ pendingEdit=!!thenEdit; document.getElementById("anchOv").classList.add("on"); }
