@@ -360,7 +360,7 @@ function renderSupps(){
   }).join("");
   const seen={}; const uniq=[];
   cart.forEach(c=>{ if(!seen[c.name]){ seen[c.name]=true; uniq.push(c); } });
-  CART = uniq.map((c,i)=>({name:c.name, form:c.form, dose:c.dose, checked:i<3}));
+  CART = uniq.map((c,i)=>({name:c.name, form:c.form, dose:c.dose, checked:i<3, time:"08:00"}));
   paintCart();
 }
 function paintCart(){
@@ -368,8 +368,11 @@ function paintCart(){
   document.getElementById("cartHint").textContent="";
   if(!CART.length){ host.innerHTML='<div style="font-size:14px;color:var(--muted)">всё рекомендованное отфильтровано профилем — обсуди с врачом</div>'; return; }
   host.innerHTML = CART.map((c,i)=>
-    '<label class="srow" style="cursor:pointer"><span style="display:flex;align-items:center;gap:8px"><input type="checkbox" data-i="'+i+'"'+(c.checked?' checked':'')+'>'+c.name+' <span style="color:var(--sub);font-size:12px">— '+c.form+' · '+c.dose+'</span></span></label>'
+    '<div class="srow" style="align-items:center"><label style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer"><input type="checkbox" data-i="'+i+'"'+(c.checked?' checked':'')+'>'+c.name+' <span style="color:var(--sub);font-size:12px">— '+c.form+' · '+c.dose+'</span></label><input type="time" data-ti="'+i+'" value="'+c.time+'" style="border:1px solid var(--border-strong);border-radius:8px;padding:3px 6px;font-size:13px;font-family:inherit;background:var(--card);color:var(--text)"></div>'
   ).join('');
+  host.querySelectorAll('input[data-ti]').forEach(ti=>{
+    ti.addEventListener('change',()=>{ CART[+ti.dataset.ti].time = ti.value || "08:00"; });
+  });
   host.querySelectorAll('input[type=checkbox]').forEach(cb=>{
     cb.addEventListener('change',()=>{
       const i=+cb.dataset.i;
@@ -403,7 +406,10 @@ document.getElementById("toSchedule").onclick=()=>{
   try{ const raw=localStorage.getItem(KEY); plan = raw ? JSON.parse(raw) : null; }catch(_){ plan=null; }
   if(!plan || !plan.length) plan=[[],[],[]];
   const have=new Set(plan[0].map(it=>it.t));
-  selected.forEach(c=>{ if(!have.has(c.name)){ plan[0].push({t:c.name, time:c.form+' · '+c.dose, beauty:false, anchor:false}); have.add(c.name); } });
+  selected.forEach(c=>{
+    const label=c.name+' · '+c.form+' '+c.dose;
+    if(!have.has(label)){ plan[0].push({t:label, time:c.time||"", beauty:false, anchor:false}); have.add(label); }
+  });
   try{ localStorage.setItem(KEY, JSON.stringify(plan)); }catch(_){}
   window.location.href="index.html";
 };
