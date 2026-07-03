@@ -49,6 +49,17 @@
   .enote{font-size:13px;color:var(--muted);line-height:1.45;margin-top:10px;min-height:0}
   .enote:empty{display:none}
   .softrest{font-size:13px;color:var(--sub);padding:9px 0 4px;border-top:0.5px solid var(--border)}
+  .modebanner{display:none;font-size:13px;color:#3d4654;line-height:1.45;
+    background:linear-gradient(135deg,#e6f1ec,#e9e5f6);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+  .modebanner.on{display:block}
+  .modebanner button{margin-left:2px;margin-top:6px}
+  .modelink{font-size:12.5px;color:var(--sub);text-align:center;padding-top:10px;margin-top:2px;
+    border-top:0.5px solid var(--border);cursor:pointer}
+  .modebtn{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 12px;
+    border-radius:12px;border:0.5px solid var(--border-strong);background:transparent;color:var(--text);
+    font-family:inherit;font-size:14px;cursor:pointer;margin-bottom:8px}
+  .modebtn.on{background:linear-gradient(135deg,#e0efe8,#e6e2f5);border-color:transparent;font-weight:600}
+  .modebtn .ic{font-size:18px}
 
   .now{border-radius:16px;padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:12px;
     background:linear-gradient(135deg,#e6f1ec,#e9e5f6);border:0.5px solid var(--border)}
@@ -148,6 +159,7 @@
 
 <div class="wrap">
   <div class="energy" id="energyCard">
+    <div class="modebanner" id="modeBanner"></div>
     <div class="eq">как ты сегодня — сколько сил?</div>
     <div class="eopts">
       <button data-e="low"><span class="eic">🌫</span><span>совсем мало</span></button>
@@ -155,6 +167,7 @@
       <button data-e="high"><span class="eic">🌤</span><span>есть силы</span></button>
     </div>
     <div class="enote" id="enote"></div>
+    <div class="modelink" id="modeLink" onclick="openModeSheet()">особый период — болею, отпуск, пауза?</div>
   </div>
 
   <div class="now">
@@ -201,6 +214,20 @@
       <p style="margin:0">и даже пропущенная опора — без вины. опора держит тебя, а не ты её.</p>
     </div>
     <div class="row2" style="margin-top:16px"><button class="go" onclick="closeAnchorIntro()">понятно — выбрать опоры</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="modeOv">
+  <div class="sheet" style="text-align:left">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <span style="font-size:22px">🌙</span>
+      <h3 style="margin:0">особый период</h3>
+    </div>
+    <div style="font-size:14.5px;line-height:1.55;color:var(--text);margin-bottom:12px">
+      бывают дни и недели, когда обычный темп не подходит. включи режим — и на экране останутся только опоры, пока ты не выключишь его сама. без вины, без объяснений.
+    </div>
+    <div id="modeList"></div>
+    <div class="row2" style="margin-top:8px"><button onclick="closeModeSheet()">закрыть</button></div>
   </div>
 </div>
 
@@ -253,7 +280,7 @@ function render(){
   DATA.forEach(function(sec,si){
     var card=document.createElement("div"); card.className="card";
     card.innerHTML='<div class="hd"><span class="hdic" style="color:'+sec.fg+'">'+ICONS[si]+'</span><span class="pill" style="background:'+sec.bg+';color:'+sec.fg+'">'+sec.dim+'</span></div>';
-    var gentle = (energy==="low" && !editMode);
+    var gentle = ((energy==="low" || curMode) && !editMode);
     var hasAnchors = sec.items.some(function(i){ return i.anchor && !i.done; });
     var firstUndoneShown = false, hidden = 0;
     sec.items.forEach(function(it,ii){
@@ -279,7 +306,9 @@ function render(){
     });
     if(gentle && hidden>0){
       var soft=document.createElement("div"); soft.className="softrest";
-      soft.textContent="остальное сегодня подождёт — и это нормально";
+      soft.textContent = curMode
+        ? "режим «"+MODES.find(function(m){return m.key===curMode.key;}).label+"» — остальное подождёт, без вины"
+        : "остальное сегодня подождёт — и это нормально";
       card.appendChild(soft);
     }
     if(editMode){
@@ -322,6 +351,47 @@ function loadEnergy(){
 document.querySelectorAll(".eopts button").forEach(function(b){
   b.addEventListener("click", function(){ setEnergy(b.dataset.e); });
 });
+/* ---- особый период (режимы) ---- */
+var MODEKEY="3dw_mode";
+var MODES=[
+  {key:"sick", icon:"🤒", label:"болею", note:"тело сейчас важнее любых планов — пусть остаются только опоры."},
+  {key:"trip", icon:"🧳", label:"путешествую", note:"протоколы подождут — держись за опоры, остальное вернётся вместе с тобой."},
+  {key:"pause", icon:"🌙", label:"пауза", note:"иногда нужно просто меньше — и опор для этого достаточно."}
+];
+var curMode=null;
+function loadMode(){ try{ var raw=localStorage.getItem(MODEKEY); if(raw) curMode=JSON.parse(raw); }catch(_){} }
+function saveMode(){ try{ if(curMode) localStorage.setItem(MODEKEY, JSON.stringify(curMode)); else localStorage.removeItem(MODEKEY); }catch(_){} }
+function fmtDate(s){ try{ return new Date(s+"T00:00:00").toLocaleDateString("ru-RU",{day:"numeric",month:"long"}); }catch(_){ return s; } }
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function setMode(key){
+  curMode = key ? {key:key, since: todayStr()} : null;
+  saveMode(); paintMode(); paintModeList(); render();
+}
+function paintMode(){
+  var b=document.getElementById("modeBanner"), l=document.getElementById("modeLink");
+  if(curMode){
+    var m=MODES.find(function(x){return x.key===curMode.key;});
+    b.classList.add("on");
+    b.innerHTML=m.icon+' режим «'+m.label+'» · с '+fmtDate(curMode.since)+'<br>'+m.note+'<br><button class="editbtn" onclick="openModeSheet()">изменить режим</button>';
+    l.style.display="none";
+  }else{
+    b.classList.remove("on"); b.innerHTML="";
+    l.style.display="";
+  }
+}
+function paintModeList(){
+  var host=document.getElementById("modeList"); if(!host) return; host.innerHTML="";
+  MODES.forEach(function(m){
+    var active = curMode && curMode.key===m.key;
+    var row=document.createElement("button"); row.className="modebtn"+(active?" on":"");
+    row.innerHTML='<span class="ic">'+m.icon+'</span><span style="flex:1">'+m.label+(active?" · активен сейчас, нажми чтобы выключить":"")+'</span>';
+    row.onclick=function(){ setMode(active?null:m.key); };
+    host.appendChild(row);
+  });
+}
+function openModeSheet(){ paintModeList(); document.getElementById("modeOv").classList.add("on"); }
+function closeModeSheet(){ document.getElementById("modeOv").classList.remove("on"); }
+
 function markNow(){
   var it=DATA[0].items[2]; if(it) it.done=true; render(); update();
 }
@@ -383,7 +453,7 @@ function closeBreath(){ stopBreath(); document.getElementById("ov").classList.re
 var d=new Date();
 document.getElementById("dt").textContent=d.toLocaleDateString("ru-RU",{weekday:"long",day:"numeric",month:"long"});
 try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
-loadPlan(); loadState(); loadEnergy(); paintEnergy(); render(); update(); paintChips();
+loadPlan(); loadState(); loadEnergy(); loadMode(); paintEnergy(); paintMode(); render(); update(); paintChips();
 </script>
 </body>
 </html>
