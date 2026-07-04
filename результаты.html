@@ -17,6 +17,7 @@
     --ok-bg:#e3f3ec; --ok-fg:#1f6d54;
     --warn-bg:#f7ecd6; --warn-fg:#86611f;
     --bad-bg:#f7ddd3; --bad-fg:#8a3f24;
+    --info-bg:#e9edfb; --info-fg:#3f4a8f;
   }
   @media (prefers-color-scheme:dark){
     :root{--bg:#1a1a18;--card:#262523;--soft:#302f2c;
@@ -45,6 +46,19 @@
   .foot{text-align:center;font-size:12.5px;color:var(--sub);padding-top:14px;line-height:1.5}
   .cta{display:block;text-align:center;background:#bfe3d3;color:#1f6d54;font-weight:700;
     padding:12px;border-radius:12px;text-decoration:none;font-size:14.5px;margin-top:6px}
+  .srow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px solid var(--border);font-size:14px}
+  .srow:first-of-type{border-top:none}
+  .supp{border-top:1px solid var(--border);padding:10px 0}
+  .supp:first-child{border-top:none}
+  .supp .top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .supp .snm{font-size:15px;font-weight:600}
+  .src{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--info-bg);color:var(--info-fg);white-space:nowrap}
+  .dose{font-size:13px;color:var(--muted);margin-top:2px}
+  .flag{font-size:12.5px;padding:5px 9px;border-radius:8px;margin-top:6px;line-height:1.35}
+  .flag.warn{background:var(--warn-bg);color:var(--warn-fg)}
+  .flag.bad{background:var(--bad-bg);color:var(--bad-fg)}
+  .blocked .snm,.blocked .dose{opacity:.5;text-decoration:line-through}
+  .hint{font-size:12.5px;color:var(--warn-fg);min-height:16px;margin-top:2px}
 </style>
 </head>
 <body>
@@ -59,6 +73,18 @@
   <h1>мои результаты</h1>
   <div class="lead">итог по всем пройденным темам опросника — без повторного прохождения. балл считается по последним сохранённым ответам.</div>
   <div id="host"></div>
+
+  <div id="suppSection" style="display:none">
+    <div class="glabel" style="margin:14px 0 2px 2px">БАД, которые могут помочь</div>
+    <div id="supps"></div>
+    <div class="card" style="margin-top:12px">
+      <div class="glabel">перенести в мой день</div>
+      <div id="cart"></div>
+      <div class="hint" id="cartHint"></div>
+      <button class="cta" id="toSchedule" style="width:100%;border:none;cursor:pointer;font-family:inherit">перенести выбранное в мой день →</button>
+    </div>
+  </div>
+
   <a class="cta" href="итог.html">что делать дальше — сводка →</a>
   <a class="cta" href="опросник.html" style="background:transparent;border:1px solid var(--border-strong);color:var(--muted);margin-top:8px">пройти ещё темы или обновить ответы</a>
   <div class="foot">анализы — ориентир для разговора с врачом, не диагноз. цифры — черновая калибровка, будет уточняться.</div>
@@ -105,7 +131,104 @@ function render(){
       + r.dirs.map(d=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span>'+d+'</span></div>').join('')
       +'</div></div>';
   }).join('');
+
+  renderSupps(flagged);
 }
+
+var CART=[];
+function renderSupps(flagged){
+  const section=document.getElementById("suppSection");
+  const host=document.getElementById("supps");
+  const profile=loadFullProfile();
+  const cart=[];
+  const withSupp=flagged.filter(x=>SUPP[x.i]);
+  if(!withSupp.length){ section.style.display="none"; return; }
+  section.style.display="block";
+  host.innerHTML=withSupp.map(x=>{
+    const hue=HUES[x.i], list=SUPP[x.i];
+    const rows=list.map((s,ii)=>{
+      const lib=BADLIB[s.name]||{};
+      const c=s.contra(profile);
+      const blocked=c&&c.level==="bad";
+      if(!blocked) cart.push({name:s.name, form:lib.form, dose:lib.dose, source:lib.source, sourceUrl:lib.sourceUrl});
+      const detId="rdet-"+x.i+"-"+ii;
+      return '<div class="supp'+(blocked?' blocked':'')+'">'
+        +'<div class="top"><span class="snm">'+s.name+'</span><span class="src">ИИ</span></div>'
+        +'<div class="dose">'+(lib.form||'')+'</div>'
+        + (c?'<div class="flag '+(c.level==="bad"?"bad":"warn")+'">'+(c.level==="bad"?"⛔ ":"⚠ ")+c.text+'</div>':'')
+        +'<button class="detoggle" data-t="'+detId+'" style="background:none;border:none;color:var(--sub);font-size:12.5px;padding:5px 0;cursor:pointer">подробнее ▾</button>'
+        +'<div class="det" id="'+detId+'" style="display:none;font-size:13px;line-height:1.5;margin-top:2px">'
+          + (lib.why?'<div style="margin-bottom:5px">'+lib.why+'</div>':'')
+          + '<div style="color:var(--muted)">доза: '+(lib.dose||'—')+'</div>'
+          + (lib.note?'<div style="color:var(--warn-fg);margin-top:4px">⚠ '+lib.note+'</div>':'')
+          + (lib.source?'<div style="color:var(--sub);font-size:11px;margin-top:4px">источник: '+(lib.sourceUrl?'<a href="'+lib.sourceUrl+'" target="_blank" rel="noopener" style="color:var(--sub)">'+lib.source+'</a>':lib.source)+'</div>':'')
+        +'</div>'
+        +'</div>';
+    }).join('');
+    return '<div class="card"><div class="hd" style="background:'+hue.bg+'"><span class="nm" style="color:'+hue.fg+'">'+x.name+'</span></div><div class="bd" style="padding:2px 14px 8px">'+rows+'</div></div>';
+  }).join("");
+  host.querySelectorAll(".detoggle").forEach(b=>{
+    b.addEventListener("click",()=>{
+      const d=document.getElementById(b.dataset.t);
+      const open=d.style.display!=="none";
+      d.style.display=open?"none":"block";
+      b.textContent=open?"подробнее ▾":"свернуть ▴";
+    });
+  });
+  const seen={}; const uniq=[];
+  cart.forEach(c=>{ if(!seen[c.name]){ seen[c.name]=true; uniq.push(c); } });
+  CART = uniq.map((c,i)=>({name:c.name, form:c.form, dose:c.dose, source:c.source, sourceUrl:c.sourceUrl, checked:i<3, time:"08:00"}));
+  paintCart();
+}
+function paintCart(){
+  const host=document.getElementById("cart");
+  document.getElementById("cartHint").textContent="";
+  if(!CART.length){ host.innerHTML='<div style="font-size:14px;color:var(--muted)">всё рекомендованное отфильтровано профилем — обсуди с врачом</div>'; return; }
+  host.innerHTML = CART.map((c,i)=>
+    '<div>'
+    +'<div class="srow" style="align-items:center"><label style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer;min-width:0"><input type="checkbox" data-i="'+i+'"'+(c.checked?' checked':'')+'><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+c.name+' <span style="color:var(--sub);font-size:12px">— '+c.form+'</span></span></label>'
+    +'<button class="cinfo" data-ti="'+i+'" style="background:none;border:none;color:var(--sub);font-size:15px;cursor:pointer;padding:0 4px" aria-label="подробнее">ⓘ</button>'
+    +'<input type="time" data-tm="'+i+'" value="'+c.time+'" style="border:1px solid var(--border-strong);border-radius:8px;padding:3px 6px;font-size:13px;font-family:inherit;background:var(--card);color:var(--text);flex-shrink:0"></div>'
+    +'<div class="cdet" id="rcdet-'+i+'" style="display:none;font-size:12.5px;color:var(--muted);padding:0 0 8px 32px;line-height:1.5">доза: '+(c.dose||'—')+(c.source?'<br>источник: '+(c.sourceUrl?'<a href="'+c.sourceUrl+'" target="_blank" rel="noopener" style="color:var(--muted)">'+c.source+'</a>':c.source):'')+'</div>'
+    +'</div>'
+  ).join('');
+  host.querySelectorAll('.cinfo').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const d=document.getElementById('rcdet-'+b.dataset.ti);
+      d.style.display=d.style.display==='none'?'block':'none';
+    });
+  });
+  host.querySelectorAll('input[data-tm]').forEach(ti=>{
+    ti.addEventListener('change',()=>{ CART[+ti.dataset.tm].time = ti.value || "08:00"; });
+  });
+  host.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+    cb.addEventListener('change',()=>{
+      const i=+cb.dataset.i;
+      if(cb.checked){
+        const others=CART.filter((c,j)=>j!==i && c.checked).length;
+        if(others>=3){ cb.checked=false; document.getElementById("cartHint").textContent="начнём с 2–3 — самого важного на сегодня. вернёшься ещё раз и добавишь остальное, это не потолок навсегда."; return; }
+      }
+      CART[i].checked=cb.checked;
+      document.getElementById("cartHint").textContent="";
+    });
+  });
+}
+document.getElementById("toSchedule").addEventListener("click",()=>{
+  const selected=CART.filter(c=>c.checked);
+  if(!selected.length){ alert("выбери хотя бы одно — или пропусти этот шаг и вернись позже."); return; }
+  const KEY="3dw_plan_v1";
+  let plan=null;
+  try{ const raw=localStorage.getItem(KEY); plan = raw ? JSON.parse(raw) : null; }catch(_){ plan=null; }
+  if(!plan || !plan.length) plan=[[],[],[]];
+  const have=new Set(plan[0].map(it=>it.t));
+  selected.forEach(c=>{
+    const label=c.name+' · '+c.form+' '+c.dose;
+    if(!have.has(label)){ plan[0].push({t:label, time:c.time||"", beauty:false, anchor:false}); have.add(label); }
+  });
+  try{ localStorage.setItem(KEY, JSON.stringify(plan)); }catch(_){}
+  window.location.href="index.html";
+});
+
 try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
 render();
 </script>
