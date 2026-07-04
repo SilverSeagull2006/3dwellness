@@ -14,6 +14,9 @@
     --bg:#faf8f4; --card:#fff; --soft:#f0eee7;
     --text:#1a1a18; --muted:#75746e; --sub:#93928b;
     --border:rgba(0,0,0,.09); --border-strong:rgba(0,0,0,.18);
+    --ok-bg:#e3f3ec; --ok-fg:#1f6d54;
+    --warn-bg:#f7ecd6; --warn-fg:#86611f;
+    --bad-bg:#f7ddd3; --bad-fg:#8a3f24;
   }
   @media (prefers-color-scheme:dark){
     :root{--bg:#1a1a18;--card:#262523;--soft:#302f2c;
@@ -83,14 +86,18 @@ function render(){
     host.innerHTML='<div class="empty">по всему, что пройдено — сейчас спокойно, ни один блок не в фокусе 🕊️</div>';
     return;
   }
+  const profile=loadDemoProfile();
   host.innerHTML=flagged.map(x=>{
     const hue=HUES[x.i], r=RECS[x.i];
+    const extra=demoLabsFor(x.i, profile);
     return '<div class="card">'
       +'<div class="hd" style="background:'+hue.bg+'"><span class="nm" style="color:'+hue.fg+'">'+x.name+'</span>'
       +'<span class="band" style="background:'+x.b.bg+';color:'+x.b.fg+'">балл '+x.b.sum+' · '+x.b.label+'</span></div>'
       +'<div class="bd">'
       +'<div class="glabel">анализы — обсудить с врачом</div>'
       + r.labs.map(l=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span>'+l+'</span></div>').join('')
+      + extra.map(d=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span>'+d.text
+          +'<div style="font-size:12px;color:var(--sub);margin-top:2px">по возрасту/полу — '+d.why+' · источник: <a href="'+d.sourceUrl+'" target="_blank" rel="noopener" style="color:var(--sub)">'+d.source+'</a></div></span></div>').join('')
       +'<div class="glabel">направления поддержки</div>'
       + r.dirs.map(d=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span>'+d+'</span></div>').join('')
       +'</div></div>';
