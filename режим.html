@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>3dWellness — мой режим</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="опросник-данные.js"></script>
+<style>
+  :root{
+    --bg:#faf8f4; --card:#fff; --soft:#f0eee7;
+    --text:#1a1a18; --muted:#75746e; --sub:#93928b;
+    --border:rgba(0,0,0,.09); --border-strong:rgba(0,0,0,.18);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#1a1a18;--card:#262523;--soft:#302f2c;
+      --text:#f4f3ee;--muted:#a8a69f;--sub:#8d8b84;
+      --border:rgba(255,255,255,.11);--border-strong:rgba(255,255,255,.22);}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:'Nunito',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:460px;margin:0 auto;padding:16px 18px 30px}
+  .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:13px;flex-wrap:wrap;gap:4px 10px}
+  .top a{color:var(--muted);text-decoration:none}
+  h1{font-size:20px;font-weight:700;margin:10px 0 4px}
+  .lead{font-size:13.5px;color:var(--muted);line-height:1.5;margin-bottom:16px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:12px;overflow:hidden}
+  .hd{padding:10px 14px;font-size:14.5px;font-weight:700}
+  .bd{padding:2px 14px 10px}
+  .kind{font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.03em;margin:8px 0 2px}
+  .row{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13.5px;border-top:1px solid var(--border)}
+  .row:first-of-type{border-top:none}
+  .tm{color:var(--sub);font-size:12px;margin-left:auto;white-space:nowrap}
+  .empty{font-size:14px;color:var(--muted);padding:20px 2px;text-align:center;line-height:1.6}
+  .empty a{color:#1f6d54;font-weight:700;text-decoration:none}
+  .foot{text-align:center;font-size:12.5px;color:var(--sub);padding-top:14px;line-height:1.5}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top">
+    <a href="карта.html">← карта</a>
+    <a href="результаты.html">результаты</a>
+    <a href="итог.html">что делать дальше</a>
+    <a href="index.html">сегодня →</a>
+  </div>
+  <h1>мой режим</h1>
+  <div class="lead">то же самое, что в плане дня, но сгруппировано по системам организма — видно, что и почему в режиме, а не просто список дел.</div>
+  <div id="host"></div>
+  <div class="foot">меняется вместе с планом дня — правь состав на экране «сегодня» (✏️ изменить) или добавляй из «результатов»</div>
+</div>
+
+<script>
+function loadPlan(){
+  try{ const raw=localStorage.getItem("3dw_plan_v1"); return raw?JSON.parse(raw):[[],[],[]]; }catch(_){ return [[],[],[]]; }
+}
+const DIMS=["1D · биохимия","2D · физика","3D · психика"];
+function render(){
+  const plan=loadPlan();
+  const host=document.getElementById("host");
+  const groups={}; // blockName -> {supp:[], dir:[]}
+  const loose=[]; // без привязки к системе (добавлено вручную/из каталога)
+  let any=false;
+
+  plan.forEach((items,si)=>{
+    items.forEach(it=>{
+      any=true;
+      if(it.source && it.source.block){
+        const key=it.source.block;
+        if(!groups[key]) groups[key]={supp:[],dir:[]};
+        (it.source.kind==="dir"?groups[key].dir:groups[key].supp).push(it);
+      } else {
+        loose.push({...it, dim:DIMS[si]});
+      }
+    });
+  });
+
+  if(!any){ host.innerHTML='<div class="empty">пока пусто — <a href="результаты.html">посмотреть результаты опросника →</a></div>'; return; }
+
+  const blockNames=Object.keys(groups);
+  let html="";
+  blockNames.forEach(name=>{
+    const g=groups[name];
+    const hueEntry=DATA.findIndex(d=>d.name===name);
+    const hue=hueEntry>=0?HUES[hueEntry]:{bg:"var(--soft)",fg:"var(--text)"};
+    html+='<div class="card"><div class="hd" style="background:'+hue.bg+';color:'+hue.fg+'">'+name+'</div><div class="bd">';
+    if(g.supp.length){
+      html+='<div class="kind">БАД</div>'+g.supp.map(it=>'<div class="row"><span>'+it.t+'</span><span class="tm">'+(it.time||"")+'</span></div>').join('');
+    }
+    if(g.dir.length){
+      html+='<div class="kind">привычки</div>'+g.dir.map(it=>'<div class="row"><span>'+it.t+'</span><span class="tm">'+(it.time||"")+'</span></div>').join('');
+    }
+    html+='</div></div>';
+  });
+  if(loose.length){
+    html+='<div class="card"><div class="hd">без привязки к системе</div><div class="bd">'
+      + loose.map(it=>'<div class="row"><span>'+it.t+'</span><span class="tm">'+(it.dim||"")+(it.time?' · '+it.time:'')+'</span></div>').join('')
+      +'</div></div>';
+  }
+  host.innerHTML=html;
+}
+try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
+render();
+</script>
+</body>
+</html>

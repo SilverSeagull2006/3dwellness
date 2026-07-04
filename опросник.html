@@ -84,6 +84,7 @@
   <a href="анализы.html" style="display:inline-block;font-size:13px;color:var(--muted);text-decoration:none;margin-bottom:2px;margin-right:14px">мои анализы</a>
   <a href="назначения.html" style="display:inline-block;font-size:13px;color:var(--muted);text-decoration:none;margin-bottom:2px;margin-right:14px">назначения врача</a>
   <a href="итог.html" style="display:inline-block;font-size:13px;color:var(--muted);text-decoration:none;margin-bottom:2px;margin-right:14px">что делать дальше</a>
+  <a href="режим.html" style="display:inline-block;font-size:13px;color:var(--muted);text-decoration:none;margin-bottom:2px;margin-right:14px">мой режим</a>
   <a href="index.html" style="display:inline-block;font-size:13px;color:var(--muted);text-decoration:none;margin-bottom:2px">сегодня →</a>
 </div>
 
@@ -416,12 +417,12 @@ function renderSupps(){
   const cart=[];
   if(!flagged.length){ host.innerHTML='<div class="card"><div class="bd" style="padding:14px">Нет блоков в фокусе — рекомендаций пока нет.</div></div>'; CART=[]; paintCart(); return; }
   host.innerHTML=flagged.map(x=>{
-    const hue=HUES[x.i], list=SUPP[x.i];
+    const hue=HUES[x.i], list=SUPP[x.i], dirs=RECS[x.i].dirs;
     const rows=list.map((s,ii)=>{
       const lib=BADLIB[s.name]||{};
       const c=s.contra(PROFILE);
       const blocked=c&&c.level==="bad";
-      if(!blocked) cart.push({name:s.name, form:lib.form, dose:lib.dose, source:lib.source, sourceUrl:lib.sourceUrl});
+      if(!blocked) cart.push({name:s.name, form:lib.form, dose:lib.dose, source:lib.source, sourceUrl:lib.sourceUrl, kind:"supp", block:x.name});
       const detId="det-"+x.i+"-"+ii;
       return '<div class="supp'+(blocked?' blocked':'')+'">'
         +'<div class="top"><span class="snm">'+s.name+'</span><span class="src">ИИ</span></div>'
@@ -437,6 +438,7 @@ function renderSupps(){
         +'</div>'
         +'</div>';
     }).join('');
+    dirs.forEach(d=>cart.push({name:d, form:"", dose:"", source:"", sourceUrl:"", kind:"dir", block:x.name}));
     return '<div class="card"><div class="hd" style="background:'+hue.bg+'"><span class="nm" style="color:'+hue.fg+'">'+x.name+'</span></div><div class="bd" style="padding:2px 14px 8px">'+rows+'</div></div>';
   }).join("");
   host.querySelectorAll(".detoggle").forEach(b=>{
@@ -449,21 +451,22 @@ function renderSupps(){
   });
   const seen={}; const uniq=[];
   cart.forEach(c=>{ if(!seen[c.name]){ seen[c.name]=true; uniq.push(c); } });
-  CART = uniq.map((c,i)=>({name:c.name, form:c.form, dose:c.dose, source:c.source, sourceUrl:c.sourceUrl, checked:i<3, time:"08:00"}));
+  CART = uniq.map((c,i)=>({name:c.name, form:c.form, dose:c.dose, source:c.source, sourceUrl:c.sourceUrl, kind:c.kind, block:c.block, checked:i<3, time:"08:00"}));
   paintCart();
 }
 function paintCart(){
   const host=document.getElementById("cart");
   document.getElementById("cartHint").textContent="";
   if(!CART.length){ host.innerHTML='<div style="font-size:14px;color:var(--muted)">всё рекомендованное отфильтровано профилем — обсуди с врачом</div>'; return; }
-  host.innerHTML = CART.map((c,i)=>
-    '<div>'
-    +'<div class="srow" style="align-items:center"><label style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer;min-width:0"><input type="checkbox" data-i="'+i+'"'+(c.checked?' checked':'')+'><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+c.name+' <span style="color:var(--sub);font-size:12px">— '+c.form+'</span></span></label>'
-    +'<button class="cinfo" data-ti="'+i+'" style="background:none;border:none;color:var(--sub);font-size:15px;cursor:pointer;padding:0 4px" aria-label="подробнее">ⓘ</button>'
+  host.innerHTML = CART.map((c,i)=>{
+    const kindTag='<span style="font-size:10.5px;font-weight:700;color:var(--sub);border:1px solid var(--border-strong);border-radius:6px;padding:1px 5px;margin-left:6px;vertical-align:middle">'+(c.kind==="dir"?"привычка":"БАД")+'</span>';
+    return '<div>'
+    +'<div class="srow" style="align-items:center"><label style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer;min-width:0"><input type="checkbox" data-i="'+i+'"'+(c.checked?' checked':'')+'><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+c.name+(c.form?' <span style="color:var(--sub);font-size:12px">— '+c.form+'</span>':'')+kindTag+'</span></label>'
+    +(c.kind==="dir"?'':'<button class="cinfo" data-ti="'+i+'" style="background:none;border:none;color:var(--sub);font-size:15px;cursor:pointer;padding:0 4px" aria-label="подробнее">ⓘ</button>')
     +'<input type="time" data-tm="'+i+'" value="'+c.time+'" style="border:1px solid var(--border-strong);border-radius:8px;padding:3px 6px;font-size:13px;font-family:inherit;background:var(--card);color:var(--text);flex-shrink:0"></div>'
-    +'<div class="cdet" id="cdet-'+i+'" style="display:none;font-size:12.5px;color:var(--muted);padding:0 0 8px 32px;line-height:1.5">доза: '+(c.dose||'—')+(c.source?'<br>источник: '+(c.sourceUrl?'<a href="'+c.sourceUrl+'" target="_blank" rel="noopener" style="color:var(--muted)">'+c.source+'</a>':c.source):'')+'</div>'
-    +'</div>'
-  ).join('');
+    +(c.kind==="dir"?'':'<div class="cdet" id="cdet-'+i+'" style="display:none;font-size:12.5px;color:var(--muted);padding:0 0 8px 32px;line-height:1.5">доза: '+(c.dose||'—')+(c.source?'<br>источник: '+(c.sourceUrl?'<a href="'+c.sourceUrl+'" target="_blank" rel="noopener" style="color:var(--muted)">'+c.source+'</a>':c.source):'')+'</div>')
+    +'</div>';
+  }).join('');
   host.querySelectorAll('.cinfo').forEach(b=>{
     b.addEventListener('click',()=>{
       const d=document.getElementById('cdet-'+b.dataset.ti);
@@ -508,8 +511,8 @@ document.getElementById("toSchedule").onclick=()=>{
   if(!plan || !plan.length) plan=[[],[],[]];
   const have=new Set(plan[0].map(it=>it.t));
   selected.forEach(c=>{
-    const label=c.name+' · '+c.form+' '+c.dose;
-    if(!have.has(label)){ plan[0].push({t:label, time:c.time||"", beauty:false, anchor:false}); have.add(label); }
+    const label=c.kind==="dir"?c.name:(c.name+' · '+c.form+' '+c.dose);
+    if(!have.has(label)){ plan[0].push({t:label, time:c.time||"", beauty:false, anchor:false, source:{block:c.block, kind:c.kind}}); have.add(label); }
   });
   try{ localStorage.setItem(KEY, JSON.stringify(plan)); }catch(_){}
   window.location.href="index.html";
