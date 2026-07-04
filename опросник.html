@@ -216,8 +216,8 @@ const TOPICS=[
   {label:"цинк", dataIdx:[13]},
   {label:"психический статус", dataIdx:[]},
   {label:"нейромедиаторы", dataIdx:[]},
-  {label:"скелетно-мышечная", dataIdx:[]},
-  {label:"контроль аппетита", dataIdx:[]}
+  {label:"скелетно-мышечная", dataIdx:[15,16,17]},
+  {label:"контроль аппетита", dataIdx:[18]}
 ];
 const TOPIC_SEL=new Set();
 function loadTopics(){ try{ const raw=localStorage.getItem("3dw_quiz_topics"); if(raw) JSON.parse(raw).forEach(l=>TOPIC_SEL.add(l)); }catch(_){} }
