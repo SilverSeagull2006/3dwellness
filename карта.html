@@ -11,7 +11,7 @@
 <style>
   :root{
     --text:#20242b; --muted:#6f7480;
-    --leaf-fg:#faf3e1;
+    --leaf-fg:#ffffff;
   }
   *{box-sizing:border-box}
   html,body{margin:0;min-height:100%;background:#5f6b78}
@@ -30,18 +30,18 @@
   .leaf{position:absolute;text-decoration:none;text-align:center;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     color:var(--leaf-fg)}
-  .leaf .t{font-size:15px;font-weight:700;line-height:1.15;text-shadow:0 1px 4px rgba(45,60,45,.45)}
-  .leaf .d{font-size:10.5px;font-weight:600;opacity:.9;margin-top:2px;line-height:1.25;max-width:120px;text-shadow:0 1px 4px rgba(45,60,45,.4)}
+  .leaf .t{font-size:15px;font-weight:800;line-height:1.15;text-shadow:0 1px 2px rgba(30,45,30,.55)}
+  .leaf .d{font-size:10.5px;font-weight:700;opacity:.95;margin-top:2px;line-height:1.25;max-width:120px;text-shadow:0 1px 2px rgba(30,45,30,.5)}
 
-  #leaf1{left:26%;top:67%;width:40%}
-  #leaf2{left:44%;top:50.5%;width:34%}
-  #leaf3{left:60%;top:39%;width:34%}
+  #leaf1{left:26%;top:70%;width:40%}
+  #leaf2{left:44%;top:51%;width:34%}
+  #leaf3{left:60%;top:36%;width:34%}
 
   .bottombar{margin-top:auto;position:relative;padding:14px 20px 26px;text-align:center}
-  .bottombar .row{display:flex;align-items:center;gap:8px;justify-content:center;font-size:12.5px;color:#e7ecf1;margin-bottom:8px}
+  .bottombar .row{display:flex;align-items:center;gap:8px;justify-content:flex-end;font-size:12.5px;font-weight:600;color:#fff;margin-bottom:8px;padding-right:4%}
   .bottombar button{font-size:12.5px;padding:6px 14px;border-radius:999px;border:0.5px solid rgba(255,255,255,.4);
-    background:rgba(255,255,255,.08);color:#e7ecf1;cursor:pointer;font-family:inherit}
-  .bottombar button.on{background:rgba(255,255,255,.85);color:#2f5d3f;font-weight:600;border-color:transparent}
+    background:rgba(255,255,255,.08);color:#fff;cursor:pointer;font-family:inherit;font-weight:600}
+  .bottombar button.on{background:rgba(255,255,255,.9);color:#2f5d3f;font-weight:700;border-color:transparent}
 </style>
 </head>
 <body>
