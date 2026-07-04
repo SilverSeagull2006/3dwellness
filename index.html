@@ -49,6 +49,8 @@
   .enote{font-size:13px;color:var(--muted);line-height:1.45;margin-top:10px;min-height:0}
   .enote:empty{display:none}
   .softrest{font-size:13px;color:var(--sub);padding:9px 0 4px;border-top:0.5px solid var(--border)}
+  .loadhint{font-size:13px;color:var(--sub);text-align:center;padding:4px 6px 10px;line-height:1.5}
+  .loadhint:empty{display:none}
   .modebanner{display:none;font-size:13px;color:#3d4654;line-height:1.45;
     background:linear-gradient(135deg,#e6f1ec,#e9e5f6);border-radius:12px;padding:10px 12px;margin-bottom:10px}
   .modebanner.on{display:block}
@@ -196,6 +198,7 @@
     <div style="display:flex;gap:8px"><button class="editbtn" onclick="openAnchorIntro(false)">об опорах</button><button id="editBtn" class="editbtn" onclick="toggleEdit()">✏️ изменить</button></div>
   </div>
   <div id="sections"></div>
+  <div class="loadhint" id="loadHint"></div>
 
   <div class="foot" id="footPhrase"></div>
 </div>
@@ -361,6 +364,16 @@ function render(){
     host.appendChild(card);
   });
   paintNow();
+  paintLoadHint();
+}
+/* ---- мягкий намёк, если дел в дне стало много ---- */
+var LOAD_LIMIT=8;
+function paintLoadHint(){
+  var el=document.getElementById("loadHint"); if(!el) return;
+  var undone=0; DATA.forEach(function(s){ s.items.forEach(function(it){ if(!it.done) undone++; }); });
+  el.textContent = undone>LOAD_LIMIT
+    ? "сейчас в дне "+undone+" дел — если чувствуется много, часть можно отложить на потом, без спешки"
+    : "";
 }
 function update(){
   saveState();
