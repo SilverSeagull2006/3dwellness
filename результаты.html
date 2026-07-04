@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>3dWellness — мои результаты</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="опросник-данные.js"></script>
+<style>
+  :root{
+    --bg:#faf8f4; --card:#fff; --soft:#f0eee7;
+    --text:#1a1a18; --muted:#75746e; --sub:#93928b;
+    --border:rgba(0,0,0,.09); --border-strong:rgba(0,0,0,.18);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#1a1a18;--card:#262523;--soft:#302f2c;
+      --text:#f4f3ee;--muted:#a8a69f;--sub:#8d8b84;
+      --border:rgba(255,255,255,.11);--border-strong:rgba(255,255,255,.22);}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:'Nunito',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:460px;margin:0 auto;padding:16px 18px 30px}
+  .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:13px}
+  .top a{color:var(--muted);text-decoration:none}
+  h1{font-size:20px;font-weight:700;margin:10px 0 4px}
+  .lead{font-size:13.5px;color:var(--muted);line-height:1.5;margin-bottom:16px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:12px;overflow:hidden}
+  .hd{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .hd .nm{font-size:14.5px;font-weight:700}
+  .band{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap}
+  .bd{padding:2px 14px 12px}
+  .glabel{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.04em;margin:8px 0 2px}
+  .li{display:flex;gap:8px;padding:4px 0;font-size:13.5px;line-height:1.35}
+  .li .dot{flex-shrink:0}
+  .empty{font-size:14px;color:var(--muted);padding:20px 2px;text-align:center;line-height:1.6}
+  .empty a{color:#1f6d54;font-weight:700;text-decoration:none}
+  .foot{text-align:center;font-size:12.5px;color:var(--sub);padding-top:14px;line-height:1.5}
+  .cta{display:block;text-align:center;background:#bfe3d3;color:#1f6d54;font-weight:700;
+    padding:12px;border-radius:12px;text-decoration:none;font-size:14.5px;margin-top:6px}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top">
+    <a href="карта.html">← карта</a>
+    <a href="опросник.html">опросник →</a>
+  </div>
+  <h1>мои результаты</h1>
+  <div class="lead">итог по всем пройденным темам опросника — без повторного прохождения. балл считается по последним сохранённым ответам.</div>
+  <div id="host"></div>
+  <a class="cta" href="опросник.html">пройти ещё темы или обновить ответы</a>
+  <div class="foot">анализы — ориентир для разговора с врачом, не диагноз. цифры — черновая калибровка, будет уточняться.</div>
+</div>
+
+<script>
+function loadAnswers(){
+  try{
+    const raw=localStorage.getItem("3dw_quiz_answers"); if(!raw) return false;
+    const saved=JSON.parse(raw);
+    let any=false;
+    DATA.forEach((s,si)=>{
+      if(!saved[si]) return;
+      s.items.forEach((it,ii)=>{ if(saved[si][ii]!=null){ it.v=saved[si][ii]; any=true; } });
+    });
+    return any;
+  }catch(_){ return false; }
+}
+function render(){
+  const has=loadAnswers();
+  const host=document.getElementById("host");
+  if(!has){
+    host.innerHTML='<div class="empty">пока ничего не пройдено — <a href="опросник.html">начать с опросника →</a></div>';
+    return;
+  }
+  const flagged=flaggedAll();
+  if(!flagged.length){
+    host.innerHTML='<div class="empty">по всему, что пройдено — сейчас спокойно, ни один блок не в фокусе 🕊️</div>';
+    return;
+  }
+  host.innerHTML=flagged.map(x=>{
+    const hue=HUES[x.i], r=RECS[x.i];
+    return '<div class="card">'
+      +'<div class="hd" style="background:'+hue.bg+'"><span class="nm" style="color:'+hue.fg+'">'+x.name+'</span>'
+      +'<span class="band" style="background:'+x.b.bg+';color:'+x.b.fg+'">балл '+x.b.sum+' · '+x.b.label+'</span></div>'
+      +'<div class="bd">'
+      +'<div class="glabel">анализы — обсудить с врачом</div>'
+      + r.labs.map(l=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span>'+l+'</span></div>').join('')
+      +'<div class="glabel">направления поддержки</div>'
+      + r.dirs.map(d=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span>'+d+'</span></div>').join('')
+      +'</div></div>';
+  }).join('');
+}
+try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
+render();
+</script>
+</body>
+</html>
