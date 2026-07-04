@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>3dWellness — мои анализы</title>
+<title>3dWellness — назначения врача</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,6 +14,7 @@
     --bg:#faf8f4; --card:#fff; --soft:#f0eee7;
     --text:#1a1a18; --muted:#75746e; --sub:#93928b;
     --border:rgba(0,0,0,.09); --border-strong:rgba(0,0,0,.18);
+    --ok-bg:#e3f3ec; --ok-fg:#1f6d54;
   }
   @media (prefers-color-scheme:dark){
     :root{--bg:#1a1a18;--card:#262523;--soft:#302f2c;
@@ -39,11 +40,17 @@
   .row2 .field{flex:1}
   .btn{width:100%;height:42px;font-size:15px;border-radius:12px;border:1px solid transparent;
     background:#bfe3d3;color:#1f6d54;font-weight:700;cursor:pointer;margin-top:2px}
-  .entry{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--border)}
+  .entry{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-top:1px solid var(--border)}
   .entry:first-of-type{border-top:none}
-  .entry .nm{flex:1;font-size:14px}
-  .entry .nm .val{font-weight:700}
-  .entry .dt{font-size:12px;color:var(--sub);white-space:nowrap}
+  .tick{width:22px;height:22px;border-radius:50%;border:2px solid var(--border-strong);flex-shrink:0;margin-top:1px;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s}
+  .tick svg{width:12px;height:12px;opacity:0;transition:.15s}
+  .entry.done .tick{background:#7bbfa3;border-color:#7bbfa3}
+  .entry.done .tick svg{opacity:1}
+  .nm{flex:1;font-size:14px;line-height:1.4}
+  .nm .doc{color:var(--sub);font-size:12px;display:block;margin-top:1px}
+  .entry.done .nm{color:var(--sub);text-decoration:line-through}
+  .dt{font-size:12px;color:var(--sub);white-space:nowrap;margin-top:2px}
   .del{background:none;border:none;color:var(--sub);font-size:18px;cursor:pointer;padding:0 2px;line-height:1}
   .empty{font-size:14px;color:var(--muted);padding:6px 2px}
   .foot{text-align:center;font-size:12.5px;color:var(--sub);padding-top:14px;line-height:1.5}
@@ -55,83 +62,86 @@
   <div class="top">
     <a href="карта.html">← карта</a>
     <a href="результаты.html">мои результаты</a>
-    <a href="назначения.html">назначения врача</a>
+    <a href="анализы.html">мои анализы</a>
     <a href="index.html">сегодня →</a>
   </div>
-  <h1>мои анализы</h1>
-  <div class="lead">сохраняем только цифры — не сами файлы. заносишь, что уже сдано, дальше сможем сверять с тем, что рекомендует опросник.</div>
+  <h1>назначения врача</h1>
+  <div class="lead">что врач уже порекомендовал — анализ сдать, к специалисту сходить и т.д. Отмечай, что уже выполнено, чтобы не дублировалось с тем, что подсказывает опросник.</div>
 
   <div class="card">
-    <div class="glabel">добавить результат</div>
+    <div class="glabel">добавить назначение</div>
     <div class="field">
-      <label for="fName">название анализа</label>
-      <input type="text" id="fName" list="labList" placeholder="начни печатать — подскажем" autocomplete="off">
+      <label for="fText">что рекомендовано</label>
+      <input type="text" id="fText" list="labList" placeholder="напр. ТТГ или «показаться эндокринологу»" autocomplete="off">
       <datalist id="labList"></datalist>
     </div>
     <div class="row2">
       <div class="field">
-        <label for="fValue">значение</label>
-        <input type="text" id="fValue" placeholder="напр. 2.1 или отрицательно">
+        <label for="fDoctor">врач / специалист</label>
+        <input type="text" id="fDoctor" placeholder="напр. эндокринолог Иванова">
       </div>
       <div class="field">
-        <label for="fUnit">единицы</label>
-        <input type="text" id="fUnit" placeholder="мЕд/л">
+        <label for="fDate">дата назначения</label>
+        <input type="date" id="fDate">
       </div>
-    </div>
-    <div class="field">
-      <label for="fDate">дата сдачи</label>
-      <input type="date" id="fDate">
     </div>
     <button class="btn" id="addBtn">добавить</button>
   </div>
 
   <div class="card">
-    <div class="glabel">уже внесено</div>
+    <div class="glabel">список назначений</div>
     <div id="host"></div>
   </div>
 
-  <div class="foot">анализы — ориентир для разговора с врачом, не диагноз</div>
+  <div class="foot">это не медкарта — просто чтобы держать в одном месте, что уже назначено</div>
 </div>
 
 <script>
-const KEY="3dw_labs";
-function loadLabs(){ try{ const raw=localStorage.getItem(KEY); return raw?JSON.parse(raw):[]; }catch(_){ return []; } }
-function saveLabs(list){ try{ localStorage.setItem(KEY, JSON.stringify(list)); }catch(_){} }
+const KEY="3dw_doctor_recs";
+const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
+function loadRecs(){ try{ const raw=localStorage.getItem(KEY); return raw?JSON.parse(raw):[]; }catch(_){ return []; } }
+function saveRecs(list){ try{ localStorage.setItem(KEY, JSON.stringify(list)); }catch(_){} }
 
 function render(){
-  const list=loadLabs();
+  const list=loadRecs();
   const host=document.getElementById("host");
-  if(!list.length){ host.innerHTML='<div class="empty">пока пусто — добавь первый результат выше</div>'; return; }
+  if(!list.length){ host.innerHTML='<div class="empty">пока пусто — добавь первое назначение выше</div>'; return; }
   const sorted=[...list].sort((a,b)=>(b.date||"").localeCompare(a.date||""));
   host.innerHTML=sorted.map(e=>{
     const dt=e.date?new Date(e.date).toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit",year:"numeric"}):"";
-    return '<div class="entry" data-id="'+e.id+'">'
-      +'<span class="nm">'+e.name+' — <span class="val">'+e.value+(e.unit?' '+e.unit:'')+'</span></span>'
+    return '<div class="entry'+(e.done?' done':'')+'" data-id="'+e.id+'">'
+      +'<span class="tick" data-tick="'+e.id+'">'+CHECK+'</span>'
+      +'<span class="nm">'+e.text+(e.doctor?'<span class="doc">'+e.doctor+'</span>':'')+'</span>'
       +'<span class="dt">'+dt+'</span>'
       +'<button class="del" data-id="'+e.id+'" aria-label="удалить">✕</button>'
       +'</div>';
   }).join('');
+  host.querySelectorAll("[data-tick]").forEach(t=>{
+    t.addEventListener("click",()=>{
+      const id=t.dataset.tick;
+      const list=loadRecs();
+      const item=list.find(e=>e.id===id);
+      if(item){ item.done=!item.done; saveRecs(list); render(); }
+    });
+  });
   host.querySelectorAll(".del").forEach(b=>{
     b.addEventListener("click",()=>{
-      const id=b.dataset.id;
-      saveLabs(loadLabs().filter(e=>e.id!==id));
+      saveRecs(loadRecs().filter(e=>e.id!==b.dataset.id));
       render();
     });
   });
 }
 
 document.getElementById("addBtn").addEventListener("click",()=>{
-  const name=document.getElementById("fName").value.trim();
-  const value=document.getElementById("fValue").value.trim();
-  const unit=document.getElementById("fUnit").value.trim();
+  const text=document.getElementById("fText").value.trim();
+  const doctor=document.getElementById("fDoctor").value.trim();
   const date=document.getElementById("fDate").value;
-  if(!name || !value){ alert("укажи хотя бы название и значение"); return; }
-  const list=loadLabs();
-  list.push({id:Date.now()+"-"+Math.random().toString(36).slice(2,7), name, value, unit, date});
-  saveLabs(list);
-  document.getElementById("fName").value="";
-  document.getElementById("fValue").value="";
-  document.getElementById("fUnit").value="";
+  if(!text){ alert("укажи, что рекомендовано"); return; }
+  const list=loadRecs();
+  list.push({id:Date.now()+"-"+Math.random().toString(36).slice(2,7), text, doctor, date, done:false});
+  saveRecs(list);
+  document.getElementById("fText").value="";
+  document.getElementById("fDoctor").value="";
   document.getElementById("fDate").value="";
   render();
 });
