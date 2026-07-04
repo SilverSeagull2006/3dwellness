@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="опросник-данные.js"></script>
 <style>
   :root{
     --bg:#faf8f4; --card:#fff; --soft:#f0eee7;
@@ -63,7 +64,8 @@
     <div class="glabel">добавить результат</div>
     <div class="field">
       <label for="fName">название анализа</label>
-      <input type="text" id="fName" placeholder="напр. ТТГ">
+      <input type="text" id="fName" list="labList" placeholder="начни печатать — подскажем" autocomplete="off">
+      <datalist id="labList"></datalist>
     </div>
     <div class="row2">
       <div class="field">
@@ -132,6 +134,8 @@ document.getElementById("addBtn").addEventListener("click",()=>{
   document.getElementById("fDate").value="";
   render();
 });
+
+document.getElementById("labList").innerHTML = LABTESTS.map(t=>'<option value="'+t+'">').join("");
 
 try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
 render();
