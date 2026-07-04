@@ -5,30 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>3dWellness — карта</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --text:#20242b; --muted:#6f7480;
-    --leaf-fg:#2f5d3f;
+    --leaf-fg:#faf3e1;
   }
   *{box-sizing:border-box}
   html,body{margin:0;min-height:100%;background:#5f6b78}
   body{color:var(--text);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-family:'Nunito',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     -webkit-font-smoothing:antialiased}
 
   .scene{position:relative;width:100%;min-height:100svh;
     background-image:url(карта_фон.png);background-size:cover;background-position:center;
     display:flex;flex-direction:column}
 
-  .title{position:absolute;top:6%;left:0;right:0;text-align:center;color:#3a3752}
+  .title{position:absolute;top:9%;left:0;right:0;text-align:center;color:#3a3752}
   .title h1{font-size:22px;font-weight:600;margin:0 0 4px;text-shadow:0 1px 8px rgba(255,255,255,.5)}
   .title p{font-size:13px;margin:0;opacity:.85;line-height:1.4;padding:0 14%;text-shadow:0 1px 8px rgba(255,255,255,.5)}
 
   .leaf{position:absolute;text-decoration:none;text-align:center;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     color:var(--leaf-fg)}
-  .leaf .t{font-size:15px;font-weight:700;line-height:1.15}
-  .leaf .d{font-size:10.5px;font-weight:500;opacity:.8;margin-top:2px;line-height:1.25;max-width:120px}
+  .leaf .t{font-size:15px;font-weight:700;line-height:1.15;text-shadow:0 1px 4px rgba(45,60,45,.45)}
+  .leaf .d{font-size:10.5px;font-weight:600;opacity:.9;margin-top:2px;line-height:1.25;max-width:120px;text-shadow:0 1px 4px rgba(45,60,45,.4)}
 
   #leaf1{left:26%;top:67%;width:40%}
   #leaf2{left:44%;top:50.5%;width:34%}
@@ -46,7 +49,7 @@
 <div class="scene">
   <div class="title">
     <h1>3dWellness</h1>
-    <p>идём по шагам, за руку. вот дорожка — куда бы ты ни зашла, отсюда видно всё</p>
+    <p>идём по шагам, за руку. вот дорожка — с любой точки пути видно всё</p>
   </div>
 
   <a class="leaf" id="leaf1" href="опросник.html">
