@@ -101,6 +101,25 @@
   <div class="lead">это «предохранитель»: по диагнозам и лекарствам мы проверяем БАД на противопоказания. Можно пропустить, но с ним рекомендации безопаснее.</div>
 
   <div class="card"><div class="bd" style="padding:12px 14px">
+    <div class="glabel">о тебе — для точных анализов и норм</div>
+    <div class="seghue" id="sexSeg" style="margin-bottom:10px">
+      <button data-v="f" class="on">женский</button>
+      <button data-v="m">мужской</button>
+    </div>
+    <div style="display:flex;gap:8px">
+      <label style="flex:1;font-size:12px;color:var(--muted)">возраст
+        <input type="number" id="ageInput" min="0" max="120" placeholder="лет" style="display:block;width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--border-strong);border-radius:10px;font-size:14px;font-family:inherit;background:var(--card);color:var(--text)">
+      </label>
+      <label style="flex:1;font-size:12px;color:var(--muted)">рост
+        <input type="number" id="heightInput" min="0" max="250" placeholder="см" style="display:block;width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--border-strong);border-radius:10px;font-size:14px;font-family:inherit;background:var(--card);color:var(--text)">
+      </label>
+      <label style="flex:1;font-size:12px;color:var(--muted)">вес
+        <input type="number" id="weightInput" min="0" max="300" placeholder="кг" style="display:block;width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--border-strong);border-radius:10px;font-size:14px;font-family:inherit;background:var(--card);color:var(--text)">
+      </label>
+    </div>
+  </div></div>
+
+  <div class="card"><div class="bd" style="padding:12px 14px">
     <div class="glabel">беременность / ГВ</div>
     <div class="seghue" id="pregSeg">
       <button data-v="none" class="on">нет</button>
@@ -236,21 +255,48 @@ loadTopics();
 /* ---------- профиль ---------- */
 const DX=["гипертония","диабет","щитовидка","камни в желчном","гастрит / язва","тревожно-депрессивное","аутоиммунное"];
 const MEDS=["антикоагулянт","антидепрессант (СИОЗС)","ИПП (омепразол и т.п.)","гормоны щитовидки","контрацептивы"];
-const PROFILE={preg:"none", dx:new Set(), meds:new Set()};
+const PROFILE={preg:"none", dx:new Set(), meds:new Set(), sex:"f", age:"", height:"", weight:""};
+const PROFKEY="3dw_profile";
+function saveProfile(){
+  try{ localStorage.setItem(PROFKEY, JSON.stringify({preg:PROFILE.preg, dx:[...PROFILE.dx], meds:[...PROFILE.meds], sex:PROFILE.sex, age:PROFILE.age, height:PROFILE.height, weight:PROFILE.weight})); }catch(_){}
+}
+function loadProfile(){
+  try{
+    const raw=localStorage.getItem(PROFKEY); if(!raw) return;
+    const saved=JSON.parse(raw);
+    PROFILE.preg=saved.preg||"none";
+    (saved.dx||[]).forEach(d=>PROFILE.dx.add(d));
+    (saved.meds||[]).forEach(m=>PROFILE.meds.add(m));
+    PROFILE.sex=saved.sex||"f";
+    PROFILE.age=saved.age||""; PROFILE.height=saved.height||""; PROFILE.weight=saved.weight||"";
+  }catch(_){}
+}
 
 function buildChips(hostId,list,set){
   const host=document.getElementById(hostId);
   list.forEach(name=>{
     const c=document.createElement("div"); c.className="chip"; c.textContent=name;
-    c.onclick=()=>{ if(set.has(name)){set.delete(name);c.classList.remove("on");} else {set.add(name);c.classList.add("on");} };
+    if(set.has(name)) c.classList.add("on");
+    c.onclick=()=>{ if(set.has(name)){set.delete(name);c.classList.remove("on");} else {set.add(name);c.classList.add("on");} saveProfile(); };
     host.appendChild(c);
   });
 }
+loadProfile();
 buildChips("dxChips",DX,PROFILE.dx);
 buildChips("medChips",MEDS,PROFILE.meds);
 document.querySelectorAll("#pregSeg button").forEach(b=>{
-  b.onclick=()=>{ document.querySelectorAll("#pregSeg button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); PROFILE.preg=b.dataset.v; };
+  if(b.dataset.v===PROFILE.preg){ document.querySelectorAll("#pregSeg button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); }
+  b.onclick=()=>{ document.querySelectorAll("#pregSeg button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); PROFILE.preg=b.dataset.v; saveProfile(); };
 });
+document.querySelectorAll("#sexSeg button").forEach(b=>{
+  if(b.dataset.v===PROFILE.sex){ document.querySelectorAll("#sexSeg button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); }
+  b.onclick=()=>{ document.querySelectorAll("#sexSeg button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); PROFILE.sex=b.dataset.v; saveProfile(); };
+});
+const ageInput=document.getElementById("ageInput"), heightInput=document.getElementById("heightInput"), weightInput=document.getElementById("weightInput");
+ageInput.value=PROFILE.age; heightInput.value=PROFILE.height; weightInput.value=PROFILE.weight;
+ageInput.oninput=()=>{ PROFILE.age=ageInput.value; saveProfile(); };
+heightInput.oninput=()=>{ PROFILE.height=heightInput.value; saveProfile(); };
+weightInput.oninput=()=>{ PROFILE.weight=weightInput.value; saveProfile(); };
 
 /* HUES, DATA, RECS — теперь в общем файле опросник-данные.js (используется и результаты.html) */
 
