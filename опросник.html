@@ -75,7 +75,8 @@
 <body>
 
 <div class="wrap" style="padding-bottom:0">
-  <a href="index.html" style="display:inline-block;font-size:13px;color:var(--muted);text-decoration:none;margin-bottom:2px">← сегодня</a>
+  <a href="карта.html" style="display:inline-block;font-size:13px;color:var(--muted);text-decoration:none;margin-bottom:2px;margin-right:14px">← карта</a>
+  <a href="index.html" style="display:inline-block;font-size:13px;color:var(--muted);text-decoration:none;margin-bottom:2px">сегодня →</a>
 </div>
 
 <!-- ЭКРАН: ТРИАЖ -->
@@ -151,7 +152,7 @@
   <div id="supps"></div>
   <div class="summary">
     <h2>список покупок</h2>
-    <div style="font-size:12.5px;color:var(--muted);margin-bottom:6px">выбери 2–3 самых важных — начнём с малого, остальное добавишь позже, когда будет привычно</div>
+    <div style="font-size:12.5px;color:var(--muted);margin-bottom:6px">выбери 2–3 самых важных на сегодня — это не предел навсегда, просто темп: вернёшься сюда ещё раз и добавишь остальное, когда будет привычно</div>
     <div id="cart"></div>
     <div id="cartHint" style="font-size:12.5px;color:var(--warn-fg);min-height:16px;margin-top:4px"></div>
   </div>
@@ -635,7 +636,7 @@ function paintCart(){
       const i=+cb.dataset.i;
       if(cb.checked){
         const others=CART.filter((c,j)=>j!==i && c.checked).length;
-        if(others>=3){ cb.checked=false; document.getElementById("cartHint").textContent="начнём с 2–3 — самого важного. остальное добавишь позже."; return; }
+        if(others>=3){ cb.checked=false; document.getElementById("cartHint").textContent="начнём с 2–3 — самого важного на сегодня. вернёшься ещё раз и добавишь остальное, это не потолок навсегда."; return; }
       }
       CART[i].checked=cb.checked;
       document.getElementById("cartHint").textContent="";

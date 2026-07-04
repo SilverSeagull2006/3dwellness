@@ -149,6 +149,13 @@
 </style>
 </head>
 <body>
+<script>
+try{
+  var pinned = localStorage.getItem("3dw_pin_today")==="1";
+  var mapSeen = localStorage.getItem("3dw_map_seen")==="1";
+  if(!pinned && !mapSeen){ window.location.replace("карта.html"); }
+}catch(e){}
+</script>
 
 <div class="sky">
   <svg viewBox="0 0 460 172" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -194,7 +201,10 @@
   </div>
 
   <div class="editbar">
-    <a href="опросник.html" style="font-size:12.5px;color:var(--sub);text-decoration:underline;align-self:center">опросник и БАД →</a>
+    <span style="display:flex;gap:10px">
+      <a href="карта.html" style="font-size:12.5px;color:var(--sub);text-decoration:underline;align-self:center">карта</a>
+      <a href="опросник.html" style="font-size:12.5px;color:var(--sub);text-decoration:underline;align-self:center">опросник и БАД →</a>
+    </span>
     <div style="display:flex;gap:8px"><button class="editbtn" onclick="openAnchorIntro(false)">об опорах</button><button id="editBtn" class="editbtn" onclick="toggleEdit()">✏️ изменить</button></div>
   </div>
   <div id="sections"></div>
