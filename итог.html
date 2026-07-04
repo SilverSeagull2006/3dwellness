@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>3dWellness — мои результаты</title>
+<title>3dWellness — что делать дальше</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,15 +36,18 @@
   .hd{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px}
   .hd .nm{font-size:14.5px;font-weight:700}
   .band{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap}
-  .bd{padding:2px 14px 12px}
+  .bd{padding:6px 14px 12px}
   .glabel{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.04em;margin:8px 0 2px}
-  .li{display:flex;gap:8px;padding:4px 0;font-size:13.5px;line-height:1.35}
-  .li .dot{flex-shrink:0}
+  .li{display:flex;align-items:flex-start;gap:8px;padding:5px 0;font-size:13.5px;line-height:1.35}
+  .tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap;margin-left:auto;flex-shrink:0}
+  .tag.done{background:var(--ok-bg);color:var(--ok-fg)}
+  .tag.planned{background:var(--warn-bg);color:var(--warn-fg)}
+  .tag.needed{background:var(--soft);color:var(--sub)}
+  .doclist{display:flex;flex-wrap:wrap;gap:8px;padding:2px 2px 4px}
+  .docchip{font-size:13px;font-weight:700;padding:6px 12px;border-radius:999px;background:var(--soft);color:var(--text)}
   .empty{font-size:14px;color:var(--muted);padding:20px 2px;text-align:center;line-height:1.6}
   .empty a{color:#1f6d54;font-weight:700;text-decoration:none}
   .foot{text-align:center;font-size:12.5px;color:var(--sub);padding-top:14px;line-height:1.5}
-  .cta{display:block;text-align:center;background:#bfe3d3;color:#1f6d54;font-weight:700;
-    padding:12px;border-radius:12px;text-decoration:none;font-size:14.5px;margin-top:6px}
 </style>
 </head>
 <body>
@@ -52,16 +55,15 @@
 <div class="wrap">
   <div class="top">
     <a href="карта.html">← карта</a>
-    <a href="анализы.html">мои анализы</a>
-    <a href="назначения.html">назначения врача</a>
-    <a href="опросник.html">опросник →</a>
+    <a href="результаты.html">результаты</a>
+    <a href="анализы.html">анализы</a>
+    <a href="назначения.html">назначения</a>
   </div>
-  <h1>мои результаты</h1>
-  <div class="lead">итог по всем пройденным темам опросника — без повторного прохождения. балл считается по последним сохранённым ответам.</div>
+  <h1>что делать дальше</h1>
+  <div class="lead">сводка по всему: что в фокусе по опроснику, что уже сдано/назначено, а что реально ещё стоит сделать. сверка приблизительная — если что-то распозналось неверно, проверь глазами.</div>
+  <div id="docHost"></div>
   <div id="host"></div>
-  <a class="cta" href="итог.html">что делать дальше — сводка →</a>
-  <a class="cta" href="опросник.html" style="background:transparent;border:1px solid var(--border-strong);color:var(--muted);margin-top:8px">пройти ещё темы или обновить ответы</a>
-  <div class="foot">анализы — ориентир для разговора с врачом, не диагноз. цифры — черновая калибровка, будет уточняться.</div>
+  <div class="foot">это не диагноз и не назначение — повод обсудить с врачом, что из списка действительно нужно именно тебе</div>
 </div>
 
 <script>
@@ -77,9 +79,11 @@ function loadAnswers(){
     return any;
   }catch(_){ return false; }
 }
+
 function render(){
   const has=loadAnswers();
   const host=document.getElementById("host");
+  const docHost=document.getElementById("docHost");
   if(!has){
     host.innerHTML='<div class="empty">пока ничего не пройдено — <a href="опросник.html">начать с опросника →</a></div>';
     return;
@@ -90,20 +94,35 @@ function render(){
     return;
   }
   const profile=loadDemoProfile();
+  const savedLabs=loadSavedLabs();
+  const savedRecs=loadSavedDoctorRecs();
+
+  const docSet=new Set();
+  flagged.forEach(x=>{ const d=DOCTORS[x.i]; if(d) docSet.add(d); });
+  if(docSet.size){
+    docHost.innerHTML='<div class="glabel" style="margin:6px 0 6px 2px">к каким врачам сходить</div><div class="doclist">'
+      + [...docSet].map(d=>{
+          const visited=savedRecs.some(r=>fuzzyIncludes(r.doctor, d));
+          return '<span class="docchip">'+d+(visited?' ✓':'')+'</span>';
+        }).join('')
+      +'</div>';
+  }
+
   host.innerHTML=flagged.map(x=>{
     const hue=HUES[x.i], r=RECS[x.i];
     const extra=demoLabsFor(x.i, profile);
+    const allLabs=[...r.labs, ...extra.map(d=>d.text)];
+    const rows=allLabs.map(l=>{
+      const st=labStatus(l, savedLabs, savedRecs);
+      let tag='<span class="tag needed">сдать</span>';
+      if(st.status==="done") tag='<span class="tag done">✓ сдано'+(st.date?' '+new Date(st.date).toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit",year:"numeric"}):'')+'</span>';
+      else if(st.status==="planned") tag='<span class="tag planned">назначено, ждём</span>';
+      return '<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span style="flex:1">'+l+'</span>'+tag+'</div>';
+    }).join('');
     return '<div class="card">'
       +'<div class="hd" style="background:'+hue.bg+'"><span class="nm" style="color:'+hue.fg+'">'+x.name+'</span>'
       +'<span class="band" style="background:'+x.b.bg+';color:'+x.b.fg+'">балл '+x.b.sum+' · '+x.b.label+'</span></div>'
-      +'<div class="bd">'
-      +'<div class="glabel">анализы — обсудить с врачом</div>'
-      + r.labs.map(l=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span>'+l+'</span></div>').join('')
-      + extra.map(d=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span>'+d.text
-          +'<div style="font-size:12px;color:var(--sub);margin-top:2px">по возрасту/полу — '+d.why+' · источник: <a href="'+d.sourceUrl+'" target="_blank" rel="noopener" style="color:var(--sub)">'+d.source+'</a></div></span></div>').join('')
-      +'<div class="glabel">направления поддержки</div>'
-      + r.dirs.map(d=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span>'+d+'</span></div>').join('')
-      +'</div></div>';
+      +'<div class="bd">'+rows+'</div></div>';
   }).join('');
 }
 try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}

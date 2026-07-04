@@ -331,3 +331,33 @@ function loadDemoProfile(){
     const p=JSON.parse(raw); return {sex:p.sex||"f", age:p.age||""};
   }catch(_){ return {sex:"f",age:""}; }
 }
+
+/* к какому врачу идти по блоку — общеизвестная специализация, не отдельно источник-верифицированный факт */
+const DOCTORS=[
+  "гастроэнтеролог","гастроэнтеролог","гастроэнтеролог","гастроэнтеролог",
+  "гастроэнтеролог / гепатолог",
+  "эндокринолог","эндокринолог","эндокринолог","эндокринолог",
+  "кардиолог","кардиолог",
+  "терапевт","терапевт","терапевт","терапевт"
+];
+
+/* сверка "что рекомендуется" с уже внесёнными анализами (3dw_labs) и назначениями врача (3dw_doctor_recs) —
+   сопоставление приблизительное (по вхождению подстроки), т.к. в RECS.labs строки описательные, а не атомарные */
+function loadSavedLabs(){
+  try{ const raw=localStorage.getItem("3dw_labs"); return raw?JSON.parse(raw):[]; }catch(_){ return []; }
+}
+function loadSavedDoctorRecs(){
+  try{ const raw=localStorage.getItem("3dw_doctor_recs"); return raw?JSON.parse(raw):[]; }catch(_){ return []; }
+}
+function fuzzyIncludes(a,b){
+  a=(a||"").toLowerCase(); b=(b||"").toLowerCase();
+  if(!a || !b) return false;
+  return a.includes(b) || b.includes(a);
+}
+function labStatus(labLine, savedLabs, savedRecs){
+  const done=savedLabs.find(l=>fuzzyIncludes(labLine, l.name));
+  if(done) return {status:"done", date:done.date, value:done.value, unit:done.unit};
+  const rec=savedRecs.find(r=>fuzzyIncludes(labLine, r.text));
+  if(rec) return {status: rec.done?"done":"planned", doctor:rec.doctor, date:rec.date};
+  return {status:"needed"};
+}
