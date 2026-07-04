@@ -78,8 +78,19 @@
   <a href="index.html" style="display:inline-block;font-size:13px;color:var(--muted);text-decoration:none;margin-bottom:2px">← сегодня</a>
 </div>
 
+<!-- ЭКРАН: ТРИАЖ -->
+<div class="wrap" id="screen-triage">
+  <h1>что тебя беспокоит?</h1>
+  <div class="lead">22 системы организма — это много. Отметь то, что откликается прямо сейчас, остальное подождёт своей очереди без спешки. Можно вернуться и добавить ещё в любой момент.</div>
+  <div class="card"><div class="bd" style="padding:12px 14px">
+    <div class="chips" id="topicChips"></div>
+  </div></div>
+  <button class="btn" id="toProfile">далее →</button>
+  <div class="foot">ничего страшного, если пока не готова выбирать — можно пропустить весь опросник</div>
+</div>
+
 <!-- ЭКРАН: ПРОФИЛЬ -->
-<div class="wrap" id="screen-profile">
+<div class="wrap hidden" id="screen-profile">
   <h1>для начала — всё о тебе</h1>
   <div class="lead">это «предохранитель»: по диагнозам и лекарствам мы проверяем БАД на противопоказания. Можно пропустить, но с ним рекомендации безопаснее.</div>
 
@@ -102,7 +113,7 @@
     <div class="chips" id="medChips"></div>
   </div></div>
 
-  <button class="btn" id="toQ">далее → опросник ЖКТ</button>
+  <button class="btn" id="toQ">далее → опросник</button>
   <div class="foot">данные остаются на устройстве · это не медкарта</div>
 </div>
 
@@ -150,6 +161,56 @@
 </div>
 
 <script>
+/* ---------- триаж тем ---------- */
+const TOPICS=[
+  {label:"ЖКТ (пищеварение)", dataIdx:[0,1,2,3]},
+  {label:"печень и желчный", dataIdx:[4]},
+  {label:"эндокринная (щитовидка/надпочечники)", dataIdx:[5,6]},
+  {label:"углеводный обмен", dataIdx:[]},
+  {label:"сердечно-сосудистая", dataIdx:[]},
+  {label:"иммунная", dataIdx:[]},
+  {label:"почки и мочевыделение", dataIdx:[]},
+  {label:"интоксикация", dataIdx:[]},
+  {label:"окислительный стресс", dataIdx:[]},
+  {label:"митохондрии / энергия", dataIdx:[]},
+  {label:"метилирование", dataIdx:[]},
+  {label:"системное воспаление", dataIdx:[]},
+  {label:"простата (для мужчин)", dataIdx:[]},
+  {label:"женская репродуктивная", dataIdx:[]},
+  {label:"омега-3", dataIdx:[]},
+  {label:"витамин D3", dataIdx:[]},
+  {label:"магний", dataIdx:[]},
+  {label:"цинк", dataIdx:[]},
+  {label:"психический статус", dataIdx:[]},
+  {label:"нейромедиаторы", dataIdx:[]},
+  {label:"скелетно-мышечная", dataIdx:[]},
+  {label:"контроль аппетита", dataIdx:[]}
+];
+const TOPIC_SEL=new Set();
+function loadTopics(){ try{ const raw=localStorage.getItem("3dw_quiz_topics"); if(raw) JSON.parse(raw).forEach(l=>TOPIC_SEL.add(l)); }catch(_){} }
+function saveTopics(){ try{ localStorage.setItem("3dw_quiz_topics", JSON.stringify([...TOPIC_SEL])); }catch(_){} }
+function buildTopicChips(){
+  const host=document.getElementById("topicChips"); host.innerHTML="";
+  TOPICS.forEach(t=>{
+    const built=t.dataIdx.length>0;
+    const c=document.createElement("div"); c.className="chip"+(TOPIC_SEL.has(t.label)?" on":"");
+    c.textContent=t.label+(built?"":" · скоро");
+    if(!built) c.style.opacity=".55";
+    c.onclick=()=>{
+      if(TOPIC_SEL.has(t.label)){TOPIC_SEL.delete(t.label);c.classList.remove("on");}
+      else {TOPIC_SEL.add(t.label);c.classList.add("on");}
+      saveTopics();
+    };
+    host.appendChild(c);
+  });
+}
+function allowedIdx(){
+  const set=new Set();
+  TOPICS.forEach(t=>{ if(TOPIC_SEL.has(t.label)) t.dataIdx.forEach(i=>set.add(i)); });
+  return set;
+}
+loadTopics();
+
 /* ---------- профиль ---------- */
 const DX=["гипертония","диабет","щитовидка","камни в желчном","гастрит / язва","тревожно-депрессивное","аутоиммунное"];
 const MEDS=["антикоагулянт","антидепрессант (СИОЗС)","ИПП (омепразол и т.п.)","гормоны щитовидки","контрацептивы"];
@@ -408,38 +469,50 @@ const BIN=[["нет",0],["да",8]];
 DATA.forEach(s=>s.items.forEach(it=>it.v=-1));
 const body=document.getElementById("body");
 
-DATA.forEach((sub,si)=>{
-  const hue=HUES[si];
-  const card=document.createElement("div"); card.className="card";
-  const hd=document.createElement("div"); hd.className="hd";
-  hd.style.background=hue.bg;
-  hd.innerHTML='<span class="nm" style="color:'+hue.fg+'">'+sub.name+'</span><span class="band" id="band-'+si+'">—</span>';
-  card.appendChild(hd);
-  const bd=document.createElement("div"); bd.className="bd";
-  sub.items.forEach((it,ii)=>{
-    const row=document.createElement("div"); row.className="row";
-    const lab=document.createElement("div"); lab.className="lab"; lab.textContent=it.t; row.appendChild(lab);
-    const seg=document.createElement("div"); seg.className="seg";
-    const opts=it.binary?BIN:FULL;
-    opts.forEach((o,oi)=>{
-      const b=document.createElement("button"); b.textContent=o[0];
-      b.onclick=()=>{
-        it.v=o[1];
-        [...seg.children].forEach((c,ci)=>{
-          const on=ci===oi;
-          c.style.background=on?hue.sel:"transparent";
-          c.style.color=on?hue.fg:"var(--sub)";
-          c.style.borderColor=on?"transparent":"var(--border-strong)";
-        });
-        recalc(si); summary();
-      };
-      seg.appendChild(b);
+function renderBody(){
+  body.innerHTML="";
+  const allowed=allowedIdx();
+  if(!allowed.size){
+    body.innerHTML='<div class="card"><div class="bd" style="padding:14px">пока не выбрано ни одной темы — <a href="#" id="toTriageBack">вернуться к выбору</a></div></div>';
+    const l=document.getElementById("toTriageBack");
+    if(l) l.onclick=(e)=>{ e.preventDefault(); show("screen-triage"); };
+    summary(); return;
+  }
+  DATA.forEach((sub,si)=>{
+    if(!allowed.has(si)) return;
+    const hue=HUES[si];
+    const card=document.createElement("div"); card.className="card";
+    const hd=document.createElement("div"); hd.className="hd";
+    hd.style.background=hue.bg;
+    hd.innerHTML='<span class="nm" style="color:'+hue.fg+'">'+sub.name+'</span><span class="band" id="band-'+si+'">—</span>';
+    card.appendChild(hd);
+    const bd=document.createElement("div"); bd.className="bd";
+    sub.items.forEach((it,ii)=>{
+      const row=document.createElement("div"); row.className="row";
+      const lab=document.createElement("div"); lab.className="lab"; lab.textContent=it.t; row.appendChild(lab);
+      const seg=document.createElement("div"); seg.className="seg";
+      const opts=it.binary?BIN:FULL;
+      opts.forEach((o,oi)=>{
+        const b=document.createElement("button"); b.textContent=o[0];
+        b.onclick=()=>{
+          it.v=o[1];
+          [...seg.children].forEach((c,ci)=>{
+            const on=ci===oi;
+            c.style.background=on?hue.sel:"transparent";
+            c.style.color=on?hue.fg:"var(--sub)";
+            c.style.borderColor=on?"transparent":"var(--border-strong)";
+          });
+          recalc(si); summary();
+        };
+        seg.appendChild(b);
+      });
+      row.appendChild(seg); bd.appendChild(row);
     });
-    row.appendChild(seg); bd.appendChild(row);
+    card.appendChild(bd);
+    body.appendChild(card);
   });
-  card.appendChild(bd);
-  body.appendChild(card);
-});
+  summary();
+}
 
 function score(sub){ return sub.items.reduce((a,it)=>a+(it.v>0?it.v:0),0); }
 function bandOf(sub){
@@ -455,10 +528,11 @@ function recalc(si){
   el.style.background=b.bg; el.style.color=b.fg;
 }
 function summary(){
+  const allowed=allowedIdx();
   let answered=0,total=0;
-  DATA.forEach(s=>s.items.forEach(it=>{total++; if(it.v>=0)answered++;}));
+  DATA.forEach((s,i)=>{ if(!allowed.has(i)) return; s.items.forEach(it=>{total++; if(it.v>=0)answered++;}); });
   document.getElementById("count").textContent="отвечено: "+answered+" / "+total;
-  const flagged=DATA.map((s,i)=>({i,name:s.name,b:bandOf(s)})).filter(x=>x.b.focus).sort((a,b)=>b.b.sum-a.b.sum);
+  const flagged=flaggedBlocks();
   const host=document.getElementById("summary");
   host.innerHTML=flagged.length
     ? flagged.map(x=>'<div class="srow"><span>'+x.name+'</span><span class="band" style="background:'+x.b.bg+';color:'+x.b.fg+'">балл '+x.b.sum+' · '+x.b.label+'</span></div>').join("")
@@ -466,12 +540,14 @@ function summary(){
 }
 
 function flaggedBlocks(){
-  return DATA.map((s,i)=>({i,name:s.name,b:bandOf(s)})).filter(x=>x.b.focus).sort((a,b)=>b.b.sum-a.b.sum);
+  const allowed=allowedIdx();
+  return DATA.map((s,i)=>({i,name:s.name,b:bandOf(s)})).filter(x=>allowed.has(x.i) && x.b.focus).sort((a,b)=>b.b.sum-a.b.sum);
 }
 
 function renderResults(){
   const warn=document.getElementById("warn");
-  const flags=[]; DATA.forEach(s=>s.items.forEach(it=>{ if(it.redflag&&it.v>=4) flags.push(it.t); }));
+  const allowed=allowedIdx();
+  const flags=[]; DATA.forEach((s,i)=>{ if(!allowed.has(i)) return; s.items.forEach(it=>{ if(it.redflag&&it.v>=4) flags.push(it.t); }); });
   warn.innerHTML=flags.length?'<div class="warnbox">⚠ Тревожный симптом: '+flags.join('; ')+'. Это повод показаться врачу очно, не откладывая.</div>':'';
   const flagged=flaggedBlocks();
   const host=document.getElementById("results");
@@ -569,11 +645,12 @@ function paintCart(){
 
 /* ---------- навигация ---------- */
 function show(id){
-  ["screen-profile","screen-q","screen-r","screen-s"].forEach(s=>document.getElementById(s).classList.add("hidden"));
+  ["screen-triage","screen-profile","screen-q","screen-r","screen-s"].forEach(s=>document.getElementById(s).classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
   window.scrollTo(0,0);
 }
-document.getElementById("toQ").onclick=()=>show("screen-q");
+document.getElementById("toProfile").onclick=()=>show("screen-profile");
+document.getElementById("toQ").onclick=()=>{ renderBody(); show("screen-q"); };
 document.getElementById("backP").onclick=()=>show("screen-profile");
 document.getElementById("next").onclick=()=>{ renderResults(); show("screen-r"); };
 document.getElementById("backQ").onclick=()=>show("screen-q");
@@ -596,6 +673,7 @@ document.getElementById("toSchedule").onclick=()=>{
 };
 
 try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
+buildTopicChips();
 summary();
 </script>
 </body>
