@@ -25,7 +25,9 @@
   body{margin:0;background:var(--bg);color:var(--text);
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     -webkit-font-smoothing:antialiased}
-  .wrap{max-width:460px;margin:0 auto;padding:26px 20px 30px}
+  .scene{position:relative;max-width:460px;margin:0 auto;height:260px;overflow:hidden;border-radius:0 0 26px 26px}
+  .scene svg{position:absolute;inset:0;width:100%;height:100%}
+  .wrap{max-width:460px;margin:0 auto;padding:18px 20px 30px}
   .hero{text-align:center;margin-bottom:6px}
   .hero h1{font-size:21px;font-weight:600;margin:0 0 6px}
   .hero p{font-size:14px;color:var(--muted);line-height:1.5;margin:0 0 8px}
@@ -52,6 +54,34 @@
 </style>
 </head>
 <body>
+
+<div class="scene">
+  <svg viewBox="0 0 400 260" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="sky2" x1="0" y1="1" x2="0.9" y2="0">
+        <stop offset="0" stop-color="#9aa8bb"/><stop offset="0.4" stop-color="#e0cdd9"/><stop offset="0.72" stop-color="#f3d9c4"/><stop offset="1" stop-color="#fdf3e4"/>
+      </linearGradient>
+      <radialGradient id="sun2" cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0" stop-color="#fdf3e4"/><stop offset="1" stop-color="#f6e0c9" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <rect width="400" height="260" fill="url(#sky2)"/>
+    <circle cx="330" cy="48" r="66" fill="url(#sun2)"/>
+    <circle cx="330" cy="48" r="15" fill="#fdeed8"/>
+    <path d="M0 198 C90 188 170 202 250 193 C310 187 360 196 400 189 L400 260 L0 260 Z" fill="#94a1b3" opacity=".55"/>
+    <path d="M0 218 C100 211 200 221 300 214 C340 210 370 216 400 212 L400 260 L0 260 Z" fill="#7c8a9e" opacity=".6"/>
+    <path d="M42 226 Q110 196 148 152 Q184 104 258 74 Q298 55 326 47" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="1 8" stroke-linecap="round" opacity=".8"/>
+    <g stroke="#3d6b52" stroke-width="1.3" fill="#cfe6d9">
+      <g transform="translate(148,152)"><ellipse rx="13" ry="5.5"/><line x1="0" y1="0" x2="11" y2="-2.5"/></g>
+      <g transform="translate(258,74)"><ellipse rx="15" ry="6.5"/><line x1="0" y1="0" x2="13" y2="-3"/></g>
+    </g>
+    <g transform="translate(62,212) rotate(-16) scale(1.35)" stroke="#5f6b78" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M-13 4 Q0 9 13 4 L10 6.5 Q0 9 -10 6.5 Z" fill="#fdf6ec"/>
+      <line x1="0" y1="4" x2="0" y2="-15"/>
+      <path d="M0 -15 L11 -1 L0 -1 Z" fill="#fdf6ec"/>
+    </g>
+  </svg>
+</div>
 
 <div class="wrap">
   <div class="hero">
