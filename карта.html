@@ -43,14 +43,10 @@
   #leaf2{left:44%;top:51%;width:34%}
   #leaf3{left:60.5%;top:35.5%;width:34%}
 
-  .bottombar{margin-top:auto;position:relative;padding:14px 20px 22px;text-align:center}
-  .daybtn{display:block;background:#bfe3d3;color:#1f6d54;text-decoration:none;font-weight:800;font-size:15px;
-    padding:13px;border-radius:14px;box-shadow:0 6px 16px rgba(20,40,30,.25);margin-bottom:10px}
-  .daybtn .sub{display:block;font-size:11.5px;font-weight:600;opacity:.85;margin-top:2px}
-  .row{display:flex;align-items:center;gap:8px;justify-content:flex-end;font-size:12.5px;font-weight:600;color:#fff;margin-bottom:8px;padding-right:4%}
-  .bottombar button{font-size:12.5px;padding:6px 14px;border-radius:999px;border:0.5px solid rgba(255,255,255,.4);
-    background:rgba(255,255,255,.08);color:#fff;cursor:pointer;font-family:inherit;font-weight:600}
-  .bottombar button.on{background:rgba(255,255,255,.9);color:#2f5d3f;font-weight:700;border-color:transparent}
+  .daybtn{position:fixed;left:16px;top:50%;transform:translateY(-50%);
+    width:50px;height:50px;border-radius:50%;background:#bfe3d3;color:#1f6d54;
+    display:flex;align-items:center;justify-content:center;font-size:21px;
+    text-decoration:none;box-shadow:0 6px 16px rgba(20,40,30,.3);z-index:3}
 </style>
 </head>
 <body>
@@ -75,27 +71,12 @@
     <span class="d">скоро</span>
   </span>
 
-  <div class="bottombar">
-    <a class="daybtn" href="index.html">Мой день →<span class="sub">твой ежедневный экран — доступен всегда</span></a>
-    <div class="row" id="pinLabel">открывать сразу «сегодня» в следующий раз?</div>
-    <button id="pinBtn" onclick="togglePin()">включить</button>
-  </div>
+  <a class="daybtn" href="index.html" aria-label="Мой день" title="Мой день">☀️</a>
 </div>
 
 <script>
 try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
 try{ localStorage.setItem("3dw_map_seen","1"); }catch(e){}
-function paintPin(){
-  var on=false; try{ on = localStorage.getItem("3dw_pin_today")==="1"; }catch(e){}
-  document.getElementById("pinBtn").textContent = on ? "включено ✓" : "включить";
-  document.getElementById("pinBtn").classList.toggle("on", on);
-}
-function togglePin(){
-  var on=false; try{ on = localStorage.getItem("3dw_pin_today")==="1"; }catch(e){}
-  try{ localStorage.setItem("3dw_pin_today", on ? "0" : "1"); }catch(e){}
-  paintPin();
-}
-paintPin();
 </script>
 </body>
 </html>
