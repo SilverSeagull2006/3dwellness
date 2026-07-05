@@ -463,7 +463,7 @@ const DATA=[
     {t:"выделение капель мочи после мочеиспускания"},
     {t:"необходимость в мочеиспускании ночью по нескольку раз"}]},
   {name:"женская репродуктивная — ПМС", items:[
-    {t:"онемение, пощипывание в руках и ступнях", binary:true, cluster:"mood"},
+    {t:"онемение, пощипывание в руках и ступнях", binary:true},
     {t:"легко впадаете в гнев и негодование", binary:true, cluster:"mood"},
     {t:"агрессивны или враждебны по отношению к семье/друзьям", binary:true, cluster:"mood"},
     {t:"вздутие живота, ощущение одутловатости", binary:true, cluster:"physical"},
@@ -472,14 +472,14 @@ const DATA=[
     {t:"появление уплотнений в молочных железах", binary:true, cluster:"physical"},
     {t:"выделения из сосков", binary:true, cluster:"physical"},
     {t:"тошнота и/или рвота", binary:true},
-    {t:"понос или запор", binary:true, cluster:"physical"},
+    {t:"понос или запор", binary:true},
     {t:"боль (в спине, суставах и т.д.)", binary:true},
     {t:"пристрастие к сладкому", binary:true},
     {t:"повышенный аппетит", binary:true},
     {t:"головные боли", binary:true, cluster:"mood"},
     {t:"легко впадаете в состояние подавленности, действия неуклюжи", binary:true, cluster:"mood"},
-    {t:"ощутимое сердцебиение", binary:true, cluster:"physical"},
-    {t:"головокружение или обморочное состояние", binary:true, cluster:"physical"},
+    {t:"ощутимое сердцебиение", binary:true},
+    {t:"головокружение или обморочное состояние", binary:true},
     {t:"спутанное сознание и забывчивость, мешающее работе", binary:true, cluster:"mood"},
     {t:"ощущение тоски и бессмысленности", binary:true, cluster:"mood"},
     {t:"трудно засыпать", binary:true, cluster:"mood"},
@@ -519,14 +519,14 @@ const DATA=[
     {t:"кровотечение во время овуляции (примерно на 14-й день цикла)"},
     {t:"ежемесячная боль в животе без кровотечения"},
     {t:"обильная цервикальная слизь"},
-    {t:"кожа усеяна прыщами и/или жирная"},
+    {t:"кожа усеяна прыщами и/или жирная", cluster:"androgen"},
     {t:"сильная потребность в половом сношении"},
     {t:"агрессивность"},
-    {t:"усиленный рост тёмных волос на лице и/или ногах", binary:true},
+    {t:"усиленный рост тёмных волос на лице и/или ногах", binary:true, cluster:"androgen"},
     {t:"слабое восприятие запахов", binary:true},
-    {t:"огрубевший голос", binary:true},
-    {t:"уменьшение груди", binary:true},
-    {t:"отступающая линия волос на голове", binary:true}]},
+    {t:"огрубевший голос", binary:true, cluster:"androgen"},
+    {t:"уменьшение груди", binary:true, cluster:"androgen"},
+    {t:"отступающая линия волос на голове", binary:true, cluster:"androgen"}]},
   {name:"женская репродуктивная — функция яичников", items:[
     {t:"вагинальные выделения"},
     {t:"водянистая или жидкая вагинальная секреция"},
@@ -673,7 +673,7 @@ function suppsFor(i,sub){
       clusters[name].supps.forEach(s=>{ if(!seen.has(s.name)){ seen.add(s.name); list.push(s); } });
     }
   });
-  return list.length ? list : SUPP[i];
+  return list;
 }
 function bandOf(sub){
   const sum=score(sub);
@@ -1112,8 +1112,7 @@ const SUPP=[
     {name:"Омега-3",
      contra:P=>P.meds.has("антикоагулянт")?{level:"warn",text:"в высоких дозах разжижает кровь — согласовать с врачом при приёме антикоагулянтов"}:(cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null)} ],
   [],
-  [ {name:"Мио-инозитол",
-     contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null} ],
+  [],
   [],
   [ {name:"Кальций",
      contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null},
@@ -1129,8 +1128,6 @@ const CLUSTERS={
   28:{
     physical:{supps:[
       {name:"Кальций",
-       contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null},
-      {name:"Сульфорафан (экстракт брокколи)",
        contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null}
     ]},
     mood:{supps:[
@@ -1138,6 +1135,16 @@ const CLUSTERS={
        contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null},
       {name:"Витамин B6",
        contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null}
+    ]}
+  },
+  31:{
+    androgen:{supps:[
+      {name:"Мио-инозитол",
+       contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null},
+      {name:"Хром пиколинат",
+       contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null},
+      {name:"Альфа-липоевая кислота",
+       contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:(P.dx.has("диабет")?{level:"warn",text:"снижает сахар — согласовать дозу с врачом, если уже на сахароснижающих препаратах"}:null)}
     ]}
   }
 };
