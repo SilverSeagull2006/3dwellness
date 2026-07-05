@@ -414,7 +414,7 @@ function renderSupps(){
   const cart=[];
   if(!flagged.length){ host.innerHTML='<div class="card"><div class="bd" style="padding:14px">Нет блоков в фокусе — рекомендаций пока нет.</div></div>'; CART=[]; paintCart(); return; }
   host.innerHTML=flagged.map(x=>{
-    const hue=HUES[x.i], list=SUPP[x.i], dirs=RECS[x.i].dirs;
+    const hue=HUES[x.i], list=suppsFor(x.i, DATA[x.i]), dirs=RECS[x.i].dirs;
     const rows=list.map((s,ii)=>{
       const lib=BADLIB[s.name]||{};
       const c=s.contra(PROFILE);

@@ -143,7 +143,7 @@ function renderSupps(flagged){
   if(!withSupp.length){ section.style.display="none"; return; }
   section.style.display="block";
   host.innerHTML=withSupp.map(x=>{
-    const hue=HUES[x.i], list=SUPP[x.i], dirs=RECS[x.i].dirs;
+    const hue=HUES[x.i], list=suppsFor(x.i, DATA[x.i]), dirs=RECS[x.i].dirs;
     const rows=list.map((s,ii)=>{
       const lib=BADLIB[s.name]||{};
       const c=s.contra(profile);
