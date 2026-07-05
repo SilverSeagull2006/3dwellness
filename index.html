@@ -153,11 +153,15 @@
 </head>
 <body>
 <script>
-try{
-  var pinned = localStorage.getItem("3dw_pin_today")==="1";
-  var mapSeen = localStorage.getItem("3dw_map_seen")==="1";
-  if(!pinned && !mapSeen){ window.location.replace("карта.html"); }
-}catch(e){}
+function goToMapIfFirstVisit(){
+  try{
+    var pinned = localStorage.getItem("3dw_pin_today")==="1";
+    var mapSeen = localStorage.getItem("3dw_map_seen")==="1";
+    if(!pinned && !mapSeen){ window.location.replace("карта.html"); }
+  }catch(e){}
+}
+goToMapIfFirstVisit();
+document.addEventListener("DOMContentLoaded", goToMapIfFirstVisit);
 </script>
 
 <div class="sky">
