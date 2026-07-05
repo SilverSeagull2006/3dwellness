@@ -74,7 +74,8 @@ function render(){
   var plan=loadPlan(), bought=loadBought();
   var host=document.getElementById("host"); host.innerHTML="";
   var any=false;
-  plan.forEach(function(items,si){
+  plan.forEach(function(allItems,si){
+    var items=allItems.filter(function(it){ return !(it.source && it.source.kind==="dir"); });
     if(!items.length) return;
     any=true;
     var card=document.createElement("div"); card.className="card";
