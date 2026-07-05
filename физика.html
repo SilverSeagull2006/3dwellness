@@ -43,6 +43,9 @@
   .supp{margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border)}
   .supp .sn{font-weight:700;color:var(--text)}
   .supp .sdose{display:block;font-size:11.5px;margin-top:1px}
+  .labs{margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border)}
+  .labs .lt{font-weight:700;color:var(--text);display:block;margin-bottom:3px}
+  .labs .ll{font-size:11.5px}
   .whybtn{font-size:11.5px;font-weight:700;color:var(--peach-fg);background:none;border:none;
     padding:0 16px 12px 54px;cursor:pointer;font-family:inherit}
 
@@ -80,16 +83,19 @@
 <script>
 var STAGES=[
   {t:"прогулки и растяжка", d:"10–15 минут ходьбы и лёгкая растяжка — каждый день, без цели «тренировки»",
-   why:"даже без нагрузки движение — это сигнал телу «мы в безопасности»: улучшается кровоток, настроение, сон. это фундамент, с которого стоит начинать всегда."},
+   why:"даже без нагрузки движение — это сигнал телу «мы в безопасности»: улучшается кровоток, настроение, сон. это фундамент, с которого стоит начинать всегда.",
+   labs:["ОАК (общий анализ крови)","Ферритин","Витамин B12","Фолиевая кислота (витамин B9)"]},
   {t:"функциональные движения", d:"присед, наклон (хиндж), выпад — три движения, которые тело и так использует каждый день",
    why:"по данным IFM (Institute for Functional Medicine), именно эти базовые паттерны — основа безопасного движения. отработать их без нагрузки — лучшая защита от травм на следующих этапах."},
   {t:"тай-чи или танцы", d:"мягкая практика на баланс и координацию — можно дома, под музыку, без правил",
    why:"исследования, на которые опирается IFM, показывают: тай-чи улучшает баланс и снижает тревожность и подавленность — не только тело, но и настроение."},
   {t:"силовая нагрузка", d:"постепенно добавляй сопротивление (вес тела, резинки, гантели)",
    why:"это главная защита мышечной массы с возрастом (саркопения). здесь же становится важен белок в питании.",
-   supps:["Протеин (сывороточный)","Креатин моногидрат"]},
+   supps:["Протеин (сывороточный)","Креатин моногидрат"],
+   labs:["Альбумин","Креатинин","Тестостерон общий","ИФР-1 (IGF-1)"]},
   {t:"интервалы", d:"короткие всплески высокой интенсивности — по самочувствию, не по норме",
-   why:"поддерживает сердечно-сосудистую систему. если давно не было нагрузки — в разделе «глубже» есть анализ (КФК), который стоит сдать перед стартом."}
+   why:"поддерживает сердечно-сосудистую систему. если давно не было нагрузки — стоит сдать анализ перед стартом.",
+   labs:["Креатинфосфокиназа (КФК)"]}
 ];
 var host=document.getElementById("stages");
 STAGES.forEach(function(s,i){
@@ -101,11 +107,15 @@ STAGES.forEach(function(s,i){
       return '<div class="supp"><span class="sn">'+name+'</span><span class="sdose">'+b.dose+'</span></div>';
     }).join("");
   }
+  var labsHtml="";
+  if(s.labs){
+    labsHtml = '<div class="labs"><span class="lt">анализы (по желанию, не обязательно)</span><span class="ll">'+s.labs.join(" · ")+'</span></div>';
+  }
   card.innerHTML =
     '<div class="shead"><span class="num">'+(i+1)+'</span>'+
     '<span><span class="st">'+s.t+'</span><span class="sd">'+s.d+'</span></span></div>'+
     '<button class="whybtn">почему? ↓</button>'+
-    '<div class="why">'+s.why+suppHtml+'</div>';
+    '<div class="why">'+s.why+suppHtml+labsHtml+'</div>';
   var btn=card.querySelector(".whybtn");
   var why=card.querySelector(".why");
   btn.addEventListener("click",function(){
