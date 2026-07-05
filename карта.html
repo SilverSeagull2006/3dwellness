@@ -28,26 +28,26 @@
   .title h1{font-size:22px;font-weight:700;margin:0 0 7px}
   .title p{font-size:13px;font-weight:600;margin:0;opacity:.95;line-height:1.5}
 
+  .journalbtn{position:absolute;top:1%;right:6%;background:#fdf6ec;color:#3d3320;text-decoration:none;
+    font-size:12px;font-weight:700;padding:7px 12px;border-radius:999px;box-shadow:0 4px 12px rgba(40,30,20,.2);
+    z-index:2}
+
   .leaf{position:absolute;text-decoration:none;text-align:center;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     color:var(--leaf-fg)}
   .leaf .t{font-size:15px;font-weight:800;line-height:1.15;text-shadow:0 1px 2px rgba(30,45,30,.55)}
   .leaf .d{font-size:10.5px;font-weight:700;opacity:.95;margin-top:2px;line-height:1.25;max-width:120px;text-shadow:0 1px 2px rgba(30,45,30,.5)}
+  .leaf.soon{opacity:.55;filter:grayscale(.4);pointer-events:none}
 
   #leaf1{left:26%;top:71%;width:40%}
   #leaf2{left:44%;top:51%;width:34%}
   #leaf3{left:60.5%;top:35.5%;width:34%}
 
-  .more{position:relative;background:#fdf6ec;margin:100svh 6% 18px;border-radius:20px;padding:14px 16px;box-shadow:0 6px 20px rgba(40,30,20,.18)}
-  .more .mh{font-size:11px;font-weight:700;color:#8a7a5a;text-transform:uppercase;letter-spacing:.04em;margin:0 0 8px}
-  .more a{display:flex;justify-content:space-between;align-items:center;gap:8px;text-decoration:none;color:#3d3320;
-    padding:9px 0;border-top:1px solid rgba(60,45,20,.12)}
-  .more a:first-of-type{border-top:none}
-  .more a .mt{font-size:14px;font-weight:700}
-  .more a .md{font-size:11.5px;color:#7a6a4a;font-weight:600}
-
-  .bottombar{margin-top:auto;position:relative;padding:14px 20px 26px;text-align:center}
-  .bottombar .row{display:flex;align-items:center;gap:8px;justify-content:flex-end;font-size:12.5px;font-weight:600;color:#fff;margin-bottom:8px;padding-right:4%}
+  .bottombar{margin-top:auto;position:relative;padding:14px 20px 22px;text-align:center}
+  .daybtn{display:block;background:#bfe3d3;color:#1f6d54;text-decoration:none;font-weight:800;font-size:15px;
+    padding:13px;border-radius:14px;box-shadow:0 6px 16px rgba(20,40,30,.25);margin-bottom:10px}
+  .daybtn .sub{display:block;font-size:11.5px;font-weight:600;opacity:.85;margin-top:2px}
+  .row{display:flex;align-items:center;gap:8px;justify-content:flex-end;font-size:12.5px;font-weight:600;color:#fff;margin-bottom:8px;padding-right:4%}
   .bottombar button{font-size:12.5px;padding:6px 14px;border-radius:999px;border:0.5px solid rgba(255,255,255,.4);
     background:rgba(255,255,255,.08);color:#fff;cursor:pointer;font-family:inherit;font-weight:600}
   .bottombar button.on{background:rgba(255,255,255,.9);color:#2f5d3f;font-weight:700;border-color:transparent}
@@ -56,34 +56,27 @@
 <body>
 
 <div class="scene">
+  <a class="journalbtn" href="журнал.html">📖 бортовой журнал</a>
   <div class="title">
     <h1>3DWellness</h1>
     <p>никакого давления и перфекционизма. удовольствие от процесса, а не от галочки. вот маршрутная карта. идёшь в своём темпе, отдыхаешь в любом месте столько, сколько нужно. мы не выбираем спокойствие или результат. спокойствие — это и есть наша цель.</p>
   </div>
 
   <a class="leaf" id="leaf1" href="опросник.html">
-    <span class="t">опросник</span>
+    <span class="t">1D · биохимия</span>
     <span class="d">симптомы → анализы → БАД</span>
   </a>
-  <a class="leaf" id="leaf2" href="список_покупок.html">
-    <span class="t">список покупок</span>
-    <span class="d">всё, что в плане — под рукой</span>
+  <a class="leaf" id="leaf2" href="опросник.html">
+    <span class="t">2D · физика</span>
+    <span class="d">тело, движение, энергия</span>
   </a>
-  <a class="leaf" id="leaf3" href="index.html">
-    <span class="t">сегодня</span>
-    <span class="d">твой ежедневный экран</span>
-  </a>
-
-  <div class="more">
-    <div class="mh">ещё разделы — когда будешь готова</div>
-    <a href="результаты.html"><span class="mt">мои результаты</span><span class="md">баллы по опроснику</span></a>
-    <a href="анализы.html"><span class="mt">мои анализы</span><span class="md">что уже сдано</span></a>
-    <a href="назначения.html"><span class="mt">назначения врача</span><span class="md">что уже рекомендовано</span></a>
-    <a href="итог.html"><span class="mt">что делать дальше</span><span class="md">сводка</span></a>
-    <a href="режим.html"><span class="mt">мой режим</span><span class="md">план по системам</span></a>
-  </div>
+  <span class="leaf soon" id="leaf3">
+    <span class="t">3D · психика</span>
+    <span class="d">скоро</span>
+  </span>
 
   <div class="bottombar">
+    <a class="daybtn" href="index.html">Мой день →<span class="sub">твой ежедневный экран — доступен всегда</span></a>
     <div class="row" id="pinLabel">открывать сразу «сегодня» в следующий раз?</div>
     <button id="pinBtn" onclick="togglePin()">включить</button>
   </div>
