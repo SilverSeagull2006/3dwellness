@@ -221,8 +221,10 @@ document.getElementById("toSchedule").addEventListener("click",()=>{
   if(!plan || !plan.length) plan=[[],[],[]];
   const have=new Set(plan[0].map(it=>it.t));
   selected.forEach(c=>{
-    const label=c.kind==="dir"?c.name:(c.name+' · '+c.form+' '+c.dose);
-    if(!have.has(label)){ plan[0].push({t:label, time:c.time||"", beauty:false, anchor:false, source:{block:c.block, kind:c.kind}}); have.add(label); }
+    if(!have.has(c.name)){
+      plan[0].push({t:c.name, form:c.kind==="dir"?"":c.form, dose:c.kind==="dir"?"":c.dose, time:c.time||"", beauty:false, anchor:false, source:{block:c.block, kind:c.kind}});
+      have.add(c.name);
+    }
   });
   try{ localStorage.setItem(KEY, JSON.stringify(plan)); }catch(_){}
   window.location.href="index.html";

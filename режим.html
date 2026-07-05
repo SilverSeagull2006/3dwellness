@@ -33,7 +33,9 @@
   .hd{padding:10px 14px;font-size:14.5px;font-weight:700}
   .bd{padding:2px 14px 10px}
   .kind{font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.03em;margin:8px 0 2px}
-  .row{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13.5px;border-top:1px solid var(--border)}
+  .row{display:flex;align-items:flex-start;gap:8px;padding:6px 0;font-size:13.5px;border-top:1px solid var(--border)}
+  .row .nm{flex:1}
+  .row .meta{display:block;color:var(--sub);font-size:12px;font-weight:400;margin-top:1px}
   .row:first-of-type{border-top:none}
   .tm{color:var(--sub);font-size:12px;margin-left:auto;white-space:nowrap}
   .empty{font-size:14px;color:var(--muted);padding:20px 2px;text-align:center;line-height:1.6}
@@ -88,7 +90,10 @@ function render(){
     const hue=hueEntry>=0?HUES[hueEntry]:{bg:"var(--soft)",fg:"var(--text)"};
     html+='<div class="card"><div class="hd" style="background:'+hue.bg+';color:'+hue.fg+'">'+name+'</div><div class="bd">';
     if(g.supp.length){
-      html+='<div class="kind">БАД</div>'+g.supp.map(it=>'<div class="row"><span>'+it.t+'</span><span class="tm">'+(it.time||"")+'</span></div>').join('');
+      html+='<div class="kind">БАД</div>'+g.supp.map(it=>{
+        const meta=[it.form,it.dose].filter(Boolean).join(' · ');
+        return '<div class="row"><span class="nm">'+it.t+(meta?'<span class="meta">'+meta+'</span>':'')+'</span><span class="tm">'+(it.time||"")+'</span></div>';
+      }).join('');
     }
     if(g.dir.length){
       html+='<div class="kind">привычки</div>'+g.dir.map(it=>'<div class="row"><span>'+it.t+'</span><span class="tm">'+(it.time||"")+'</span></div>').join('');

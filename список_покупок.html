@@ -83,7 +83,10 @@ function render(){
       var key=si+"|"+it.t;
       var isBought=!!bought[key];
       var row=document.createElement("div"); row.className="row"+(isBought?" bought":"");
-      row.innerHTML='<span class="tick">'+CHECK+'</span><span class="lab">'+it.t+(it.time?' <span style="color:var(--sub);font-size:12.5px">— '+it.time+'</span>':'')+'</span>';
+      const meta=[it.form,it.dose].filter(Boolean).join(' · ');
+      row.innerHTML='<span class="tick">'+CHECK+'</span><span class="lab">'+it.t
+        + (meta?'<span style="display:block;color:var(--sub);font-size:12.5px;font-weight:400;margin-top:1px">'+meta+'</span>':'')
+        +'</span>';
       row.addEventListener("click",function(){
         bought[key]=!isBought; saveBought(bought); render();
       });
