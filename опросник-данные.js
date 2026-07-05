@@ -237,22 +237,22 @@ const DATA=[
     {t:"принимаю мочегонные"},
     {t:"редко ем морепродукты, тыквенные семечки, бобовые"}]},
   {name:"системное воспаление", scale:"bin01", items:[
-    {t:"сезонные или экологические аллергии"},
+    {t:"сезонные или экологические аллергии", cluster:"allergic"},
     {t:"пищевая чувствительность, плохое самочувствие после еды"},
     {t:"работа с плохим освещением, химикатами или вентиляцией"},
     {t:"воздействие пестицидов, химикатов, тяжёлых металлов, шума"},
     {t:"часто простужаюсь"},
     {t:"хронические инфекции в анамнезе (герпес, гепатит, стоматит)"},
-    {t:"синусит, ринит"},
+    {t:"синусит, ринит", cluster:"allergic"},
     {t:"бронхит или астма"},
-    {t:"дерматиты"},
-    {t:"артрит"},
-    {t:"аутоиммунное заболевание"},
-    {t:"колит или воспалительные заболевания кишечника"},
-    {t:"синдром раздражённого кишечника"},
-    {t:"невриты, радикулиты"},
-    {t:"сердечно-сосудистые заболевания или инфаркт"},
-    {t:"диабет или избыточный вес"},
+    {t:"дерматиты", cluster:"allergic"},
+    {t:"артрит", cluster:"joint"},
+    {t:"аутоиммунное заболевание", cluster:"joint"},
+    {t:"колит или воспалительные заболевания кишечника", cluster:"joint"},
+    {t:"синдром раздражённого кишечника", cluster:"joint"},
+    {t:"невриты, радикулиты", cluster:"joint"},
+    {t:"сердечно-сосудистые заболевания или инфаркт", cluster:"cardio"},
+    {t:"диабет или избыточный вес", cluster:"cardio"},
     {t:"семейная история болезни Паркинсона или Альцгеймера"},
     {t:"частый стресс"},
     {t:"алкоголь чаще 3 порций в неделю"},
@@ -663,13 +663,18 @@ const LABTESTS=[
 ];
 
 function score(sub){ return sub.items.reduce((a,it)=>a+(it.v>0?it.v:0),0); }
-function clusterScore(sub,name){ return sub.items.filter(it=>it.cluster===name).reduce((a,it)=>a+(it.v>0?it.v:0),0); }
+function clusterCount(sub,name){ return sub.items.filter(it=>it.cluster===name && it.v>0).length; }
+function hasClusterFocus(i,sub){
+  const clusters=CLUSTERS[i];
+  if(!clusters) return false;
+  return Object.keys(clusters).some(name=>clusterCount(sub,name)>=2);
+}
 function suppsFor(i,sub){
   const clusters=CLUSTERS[i];
   if(!clusters) return SUPP[i];
   const seen=new Set(); const list=[];
   Object.keys(clusters).forEach(name=>{
-    if(clusterScore(sub,name)>=16){
+    if(clusterCount(sub,name)>=2){
       clusters[name].supps.forEach(s=>{ if(!seen.has(s.name)){ seen.add(s.name); list.push(s); } });
     }
   });
@@ -691,7 +696,7 @@ function bandOf(sub){
 }
 
 function flaggedAll(){
-  return DATA.map((s,i)=>({i,name:s.name,b:bandOf(s)})).filter(x=>x.b.focus).sort((a,b)=>b.b.sum-a.b.sum);
+  return DATA.map((s,i)=>({i,name:s.name,b:bandOf(s)})).filter(x=>x.b.focus || hasClusterFocus(x.i, DATA[x.i])).sort((a,b)=>b.b.sum-a.b.sum);
 }
 
 /* надбавки к анализам по возрасту/полу — только там, где найден реальный источник (см. опросник-данные.js RECS[i].demoLabs) */
@@ -1025,16 +1030,7 @@ const SUPP=[
      contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null} ],
   [ {name:"Цинк",
      contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null} ],
-  [ {name:"Омега-3",
-     contra:P=>P.meds.has("антикоагулянт")?{level:"warn",text:"в высоких дозах разжижает кровь — согласовать с врачом при приёме антикоагулянтов"}:(cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null)},
-    {name:"Куркумин",
-     contra:P=>P.meds.has("антикоагулянт")?{level:"bad",text:"усиливает действие антикоагулянтов — обсуди с врачом"}:(cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null)},
-    {name:"Кверцетин",
-     contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null},
-    {name:"Босвелия",
-     contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null},
-    {name:"Бромелайн",
-     contra:P=>P.meds.has("антикоагулянт")?{level:"warn",text:"может усиливать действие антикоагулянтов — обсудить с врачом"}:(cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null)} ],
+  [],
   [ {name:"Витамин D3",
      contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null},
     {name:"Магний бисглицинат",
@@ -1125,6 +1121,28 @@ const SUPP=[
 /* по некоторым блокам БАД привязаны не ко всему блоку, а к подгруппе конкретных симптомов внутри него —
    см. clusterScore()/suppsFor() ниже; блоки без записи здесь используют SUPP[i] целиком, как раньше */
 const CLUSTERS={
+  14:{
+    allergic:{supps:[
+      {name:"Кверцетин",
+       contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null}
+    ]},
+    joint:{supps:[
+      {name:"Куркумин",
+       contra:P=>P.meds.has("антикоагулянт")?{level:"bad",text:"усиливает действие антикоагулянтов — обсуди с врачом"}:(cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null)},
+      {name:"Омега-3",
+       contra:P=>P.meds.has("антикоагулянт")?{level:"warn",text:"в высоких дозах разжижает кровь — согласовать с врачом при приёме антикоагулянтов"}:(cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null)},
+      {name:"Босвелия",
+       contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null},
+      {name:"Бромелайн",
+       contra:P=>P.meds.has("антикоагулянт")?{level:"warn",text:"может усиливать действие антикоагулянтов — обсудить с врачом"}:(cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null)}
+    ]},
+    cardio:{supps:[
+      {name:"Омега-3",
+       contra:P=>P.meds.has("антикоагулянт")?{level:"warn",text:"в высоких дозах разжижает кровь — согласовать с врачом при приёме антикоагулянтов"}:(cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null)},
+      {name:"Коэнзим Q10",
+       contra:P=>P.meds.has("антикоагулянт")?{level:"warn",text:"похож по структуре на витамин K — может ослаблять действие варфарина, нужен более частый контроль МНО"}:(cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null)}
+    ]}
+  },
   28:{
     physical:{supps:[
       {name:"Кальций",

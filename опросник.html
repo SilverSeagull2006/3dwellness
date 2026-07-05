@@ -379,7 +379,7 @@ function summary(){
 
 function flaggedBlocks(){
   const allowed=allowedIdx();
-  return DATA.map((s,i)=>({i,name:s.name,b:bandOf(s)})).filter(x=>allowed.has(x.i) && x.b.focus).sort((a,b)=>b.b.sum-a.b.sum);
+  return DATA.map((s,i)=>({i,name:s.name,b:bandOf(s)})).filter(x=>allowed.has(x.i) && (x.b.focus || hasClusterFocus(x.i, DATA[x.i]))).sort((a,b)=>b.b.sum-a.b.sum);
 }
 
 function renderResults(){
