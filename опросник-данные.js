@@ -1118,6 +1118,8 @@ const SUPP=[
   [ {name:"Кальций",
      contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null},
     {name:"Витамин D3",
+     contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null},
+    {name:"Сульфорафан (экстракт брокколи)",
      contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null} ]
 ];
 
@@ -1127,6 +1129,8 @@ const CLUSTERS={
   28:{
     physical:{supps:[
       {name:"Кальций",
+       contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null},
+      {name:"Сульфорафан (экстракт брокколи)",
        contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ — только с врачом"}:null}
     ]},
     mood:{supps:[
