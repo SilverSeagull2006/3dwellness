@@ -33,7 +33,15 @@
   .lead{font-size:13.5px;color:var(--muted);line-height:1.5;margin-bottom:18px}
 
   .stage{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:12px;overflow:hidden}
-  .shead{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer}
+  .shead{display:flex;align-items:center;gap:12px;padding:14px 16px}
+  .addbtn{margin-left:auto;flex-shrink:0;font-size:11.5px;font-weight:700;border-radius:999px;
+    padding:7px 11px;border:1px solid var(--border-strong);background:transparent;color:var(--text);
+    cursor:pointer;font-family:inherit;white-space:nowrap}
+  .addbtn.on{background:var(--peach-bg);color:var(--peach-fg);border-color:transparent}
+  .suppadd{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .miniadd{font-size:11px;font-weight:700;border-radius:999px;padding:5px 9px;flex-shrink:0;
+    border:1px solid var(--border-strong);background:transparent;color:var(--text);cursor:pointer;font-family:inherit}
+  .miniadd.on{background:var(--peach-bg);color:var(--peach-fg);border-color:transparent}
   .num{width:26px;height:26px;border-radius:50%;background:var(--peach-bg);color:var(--peach-fg);
     font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
   .st{display:block;font-size:15px;font-weight:700}
@@ -81,6 +89,26 @@
 </div>
 
 <script>
+var PLANKEY="3dw_plan_v1";
+var DIMBLOCK="2D · физика";
+function loadPlanArr(){
+  try{ var raw=localStorage.getItem(PLANKEY); var p = raw ? JSON.parse(raw) : [[],[],[]]; if(!p[1]) p[1]=[]; return p; }
+  catch(_){ return [[],[],[]]; }
+}
+function isInPlan(name){
+  var p=loadPlanArr();
+  return p[1].some(function(it){ return it.t===name; });
+}
+function togglePlan(name,kind,lib){
+  var p=loadPlanArr();
+  var idx=p[1].findIndex(function(it){ return it.t===name; });
+  if(idx>=0){ p[1].splice(idx,1); localStorage.setItem(PLANKEY,JSON.stringify(p)); return false; }
+  lib=lib||{};
+  p[1].push({t:name, form:kind==="dir"?"":lib.form, dose:kind==="dir"?"":lib.dose, time:"", beauty:false, anchor:false,
+    source:{block:DIMBLOCK, kind:kind}});
+  localStorage.setItem(PLANKEY,JSON.stringify(p));
+  return true;
+}
 var STAGES=[
   {t:"прогулки и растяжка", d:"10–15 минут ходьбы и лёгкая растяжка — каждый день, без цели «тренировки»",
    why:"даже без нагрузки движение — это сигнал телу «мы в безопасности»: улучшается кровоток, настроение, сон. это фундамент, с которого стоит начинать всегда.",
@@ -104,16 +132,20 @@ STAGES.forEach(function(s,i){
   if(s.supps && typeof BADLIB!=="undefined"){
     suppHtml = s.supps.map(function(name){
       var b=BADLIB[name]; if(!b) return "";
-      return '<div class="supp"><span class="sn">'+name+'</span><span class="sdose">'+b.dose+'</span></div>';
+      var on=isInPlan(name);
+      return '<div class="supp"><div class="suppadd"><span><span class="sn">'+name+'</span><span class="sdose">'+b.dose+'</span></span>'+
+        '<button class="miniadd'+(on?' on':'')+'" data-supp="'+name+'">'+(on?"✓ добавлено":"+ добавить")+'</button></div></div>';
     }).join("");
   }
   var labsHtml="";
   if(s.labs){
     labsHtml = '<div class="labs"><span class="lt">анализы (по желанию, не обязательно)</span><span class="ll">'+s.labs.join(" · ")+'</span></div>';
   }
+  var stageOn=isInPlan(s.t);
   card.innerHTML =
     '<div class="shead"><span class="num">'+(i+1)+'</span>'+
-    '<span><span class="st">'+s.t+'</span><span class="sd">'+s.d+'</span></span></div>'+
+    '<span><span class="st">'+s.t+'</span><span class="sd">'+s.d+'</span></span>'+
+    '<button class="addbtn'+(stageOn?' on':'')+'" data-stage="'+s.t+'">'+(stageOn?"✓ в моём дне":"+ мой день")+'</button></div>'+
     '<button class="whybtn">почему? ↓</button>'+
     '<div class="why">'+s.why+suppHtml+labsHtml+'</div>';
   var btn=card.querySelector(".whybtn");
@@ -121,6 +153,21 @@ STAGES.forEach(function(s,i){
   btn.addEventListener("click",function(){
     var open=why.classList.toggle("open");
     btn.textContent = open ? "почему? ↑" : "почему? ↓";
+  });
+  card.querySelector(".addbtn").addEventListener("click",function(e){
+    e.stopPropagation();
+    var on=togglePlan(s.t,"dir");
+    e.target.classList.toggle("on",on);
+    e.target.textContent = on ? "✓ в моём дне" : "+ мой день";
+  });
+  card.querySelectorAll(".miniadd").forEach(function(mb){
+    mb.addEventListener("click",function(e){
+      e.stopPropagation();
+      var name=mb.dataset.supp, b=BADLIB[name];
+      var on=togglePlan(name,"supp",b);
+      mb.classList.toggle("on",on);
+      mb.textContent = on ? "✓ добавлено" : "+ добавить";
+    });
   });
   host.appendChild(card);
 });
