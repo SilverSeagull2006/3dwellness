@@ -73,8 +73,9 @@ function render(){
       any=true;
       if(it.source && it.source.block){
         const key=it.source.block;
-        if(!groups[key]) groups[key]={supp:[],dir:[]};
-        (it.source.kind==="dir"?groups[key].dir:groups[key].supp).push(it);
+        if(!groups[key]) groups[key]={supp:[],gear:[],dir:[]};
+        const bucket = it.source.kind==="dir" ? "dir" : (it.source.kind==="gear" ? "gear" : "supp");
+        groups[key][bucket].push(it);
       } else {
         loose.push({...it, dim:DIMS[si]});
       }
@@ -92,6 +93,12 @@ function render(){
     html+='<div class="card"><div class="hd" style="background:'+hue.bg+';color:'+hue.fg+'">'+name+'</div><div class="bd">';
     if(g.supp.length){
       html+='<div class="kind">БАД</div>'+g.supp.map(it=>{
+        const meta=[it.form,it.dose].filter(Boolean).join(' · ');
+        return '<div class="row"><span class="nm">'+it.t+(meta?'<span class="meta">'+meta+'</span>':'')+'</span><span class="tm">'+(it.time||"")+'</span></div>';
+      }).join('');
+    }
+    if(g.gear.length){
+      html+='<div class="kind">снаряжение</div>'+g.gear.map(it=>{
         const meta=[it.form,it.dose].filter(Boolean).join(' · ');
         return '<div class="row"><span class="nm">'+it.t+(meta?'<span class="meta">'+meta+'</span>':'')+'</span><span class="tm">'+(it.time||"")+'</span></div>';
       }).join('');

@@ -109,9 +109,16 @@ function togglePlan(name,kind,lib){
   localStorage.setItem(PLANKEY,JSON.stringify(p));
   return true;
 }
+var GEAR={
+  "Коврик для растяжки":{note:"базовый инвентарь для растяжки и функциональных движений"},
+  "Массажный ролл (МФР)":{note:"самостоятельный миофасциальный релиз — мягко снимает мышечное напряжение после нагрузки"},
+  "Резинки-эспандеры":{note:"дешёвый и безопасный способ добавить сопротивление дома, до перехода на гантели"},
+  "Гантели разборные":{note:"для силовой нагрузки, когда веса тела уже недостаточно"}
+};
 var STAGES=[
   {t:"прогулки и растяжка", d:"10–15 минут ходьбы и лёгкая растяжка — каждый день, без цели «тренировки»",
    why:"даже без нагрузки движение — это сигнал телу «мы в безопасности»: улучшается кровоток, настроение, сон. это фундамент, с которого стоит начинать всегда.",
+   gear:["Коврик для растяжки","Массажный ролл (МФР)"],
    labs:["ОАК (общий анализ крови)","Ферритин","Витамин B12","Фолиевая кислота (витамин B9)"]},
   {t:"функциональные движения", d:"присед, наклон (хиндж), выпад — три движения, которые тело и так использует каждый день",
    why:"по данным IFM (Institute for Functional Medicine), именно эти базовые паттерны — основа безопасного движения. отработать их без нагрузки — лучшая защита от травм на следующих этапах."},
@@ -120,6 +127,7 @@ var STAGES=[
   {t:"силовая нагрузка", d:"постепенно добавляй сопротивление (вес тела, резинки, гантели)",
    why:"это главная защита мышечной массы с возрастом (саркопения). здесь же становится важен белок в питании.",
    supps:["Протеин (сывороточный)","Креатин моногидрат"],
+   gear:["Резинки-эспандеры","Гантели разборные"],
    labs:["Альбумин","Креатинин","Тестостерон общий","ИФР-1 (IGF-1)"]},
   {t:"интервалы", d:"короткие всплески высокой интенсивности — по самочувствию, не по норме",
    why:"поддерживает сердечно-сосудистую систему. если давно не было нагрузки — стоит сдать анализ перед стартом.",
@@ -137,6 +145,15 @@ STAGES.forEach(function(s,i){
         '<button class="miniadd'+(on?' on':'')+'" data-supp="'+name+'">'+(on?"✓ добавлено":"+ добавить")+'</button></div></div>';
     }).join("");
   }
+  var gearHtml="";
+  if(s.gear){
+    gearHtml = s.gear.map(function(name){
+      var g=GEAR[name]; if(!g) return "";
+      var on=isInPlan(name);
+      return '<div class="supp"><div class="suppadd"><span><span class="sn">'+name+'</span><span class="sdose">'+g.note+'</span></span>'+
+        '<button class="miniadd'+(on?' on':'')+'" data-gear="'+name+'">'+(on?"✓ добавлено":"+ добавить")+'</button></div></div>';
+    }).join("");
+  }
   var labsHtml="";
   if(s.labs){
     labsHtml = '<div class="labs"><span class="lt">анализы (по желанию, не обязательно)</span><span class="ll">'+s.labs.join(" · ")+'</span></div>';
@@ -147,7 +164,7 @@ STAGES.forEach(function(s,i){
     '<span><span class="st">'+s.t+'</span><span class="sd">'+s.d+'</span></span>'+
     '<button class="addbtn'+(stageOn?' on':'')+'" data-stage="'+s.t+'">'+(stageOn?"✓ в моём дне":"+ мой день")+'</button></div>'+
     '<button class="whybtn">почему? ↓</button>'+
-    '<div class="why">'+s.why+suppHtml+labsHtml+'</div>';
+    '<div class="why">'+s.why+suppHtml+gearHtml+labsHtml+'</div>';
   var btn=card.querySelector(".whybtn");
   var why=card.querySelector(".why");
   btn.addEventListener("click",function(){
@@ -163,8 +180,10 @@ STAGES.forEach(function(s,i){
   card.querySelectorAll(".miniadd").forEach(function(mb){
     mb.addEventListener("click",function(e){
       e.stopPropagation();
-      var name=mb.dataset.supp, b=BADLIB[name];
-      var on=togglePlan(name,"supp",b);
+      var name=mb.dataset.supp||mb.dataset.gear;
+      var kind=mb.dataset.supp?"supp":"gear";
+      var lib=kind==="supp"?BADLIB[name]:{form:"", dose:GEAR[name]?GEAR[name].note:""};
+      var on=togglePlan(name,kind,lib);
       mb.classList.toggle("on",on);
       mb.textContent = on ? "✓ добавлено" : "+ добавить";
     });
