@@ -265,7 +265,8 @@ function allowedIdx(){
 loadTopics();
 
 /* ---------- профиль ---------- */
-const DX=["гипертония","диабет","щитовидка","камни в желчном","гастрит / язва","тревожно-депрессивное","аутоиммунное"];
+const DX_F=["повышенное давление","диабет","щитовидка","тревога / депрессия","хрупкие кости (остеопороз)","боль в суставах (артрит)","мигрень","СПКЯ (поликистоз яичников)","эндометриоз","камни в желчном","гастрит / язва","аутоиммунное заболевание","нехватка железа (анемия)","раздражённый кишечник","высокий холестерин"];
+const DX_M=["повышенное давление","диабет","подагра","проблемы с простатой","камни в почках","храп с остановками дыхания (апноэ)","высокий холестерин","проблемы с сердцем","гастрит / язва","тревога / депрессия","щитовидка","аутоиммунное заболевание","камни в желчном"];
 const MEDS=["антикоагулянт","антидепрессант (СИОЗС)","ИПП (омепразол и т.п.)","гормоны щитовидки","контрацептивы"];
 const PROFILE={preg:"none", dx:new Set(), meds:new Set(), sex:"f", age:"", height:"", weight:""};
 const PROFKEY="3dw_profile";
@@ -294,7 +295,11 @@ function buildChips(hostId,list,set){
   });
 }
 loadProfile();
-buildChips("dxChips",DX,PROFILE.dx);
+function buildDxChips(){
+  document.getElementById("dxChips").innerHTML="";
+  buildChips("dxChips", PROFILE.sex==="m"?DX_M:DX_F, PROFILE.dx);
+}
+buildDxChips();
 buildChips("medChips",MEDS,PROFILE.meds);
 document.querySelectorAll("#pregSeg button").forEach(b=>{
   if(b.dataset.v===PROFILE.preg){ document.querySelectorAll("#pregSeg button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); }
@@ -515,7 +520,7 @@ function paintPregCard(){
 }
 document.querySelectorAll("#sexSeg0 button").forEach(b=>{
   if(b.dataset.v===PROFILE.sex){ document.querySelectorAll("#sexSeg0 button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); }
-  b.onclick=()=>{ document.querySelectorAll("#sexSeg0 button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); PROFILE.sex=b.dataset.v; saveProfile(); paintPregCard(); buildTopicChips(); };
+  b.onclick=()=>{ document.querySelectorAll("#sexSeg0 button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); PROFILE.sex=b.dataset.v; saveProfile(); paintPregCard(); buildTopicChips(); buildDxChips(); };
 });
 paintPregCard();
 document.getElementById("toProfile").onclick=()=>show("screen-profile");
