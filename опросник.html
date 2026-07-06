@@ -85,8 +85,21 @@
   </div>
 </div>
 
+<!-- ЭКРАН: ПОЛ -->
+<div class="wrap" id="screen-sex">
+  <h1>для начала</h1>
+  <div class="lead">это поможет сразу показать только то, что тебя касается.</div>
+  <div class="card"><div class="bd" style="padding:12px 14px">
+    <div class="seghue" id="sexSeg0" style="height:52px">
+      <button data-v="f" class="on" style="font-size:15px">женский</button>
+      <button data-v="m" style="font-size:15px">мужской</button>
+    </div>
+  </div></div>
+  <button class="btn" id="toTriage">далее →</button>
+</div>
+
 <!-- ЭКРАН: ТРИАЖ -->
-<div class="wrap" id="screen-triage">
+<div class="wrap hidden" id="screen-triage">
   <div style="display:flex;align-items:center;gap:8px;background:var(--info-bg);color:var(--info-fg);border-radius:12px;padding:9px 12px;margin-bottom:12px;font-size:12.5px;font-weight:700;line-height:1.35">
     <span style="font-size:16px">🎓</span>
     <span>структура опросника — по методике Institute for Functional Medicine (IFM), ведущего мирового института функциональной медицины</span>
@@ -107,10 +120,6 @@
 
   <div class="card"><div class="bd" style="padding:12px 14px">
     <div class="glabel">о тебе — для точных анализов и норм</div>
-    <div class="seghue" id="sexSeg" style="margin-bottom:10px">
-      <button data-v="f" class="on">женский</button>
-      <button data-v="m">мужской</button>
-    </div>
     <div style="display:flex;gap:8px">
       <label style="flex:1;font-size:12px;color:var(--muted)">возраст
         <input type="number" id="ageInput" min="0" max="120" placeholder="лет" style="display:block;width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--border-strong);border-radius:10px;font-size:14px;font-family:inherit;background:var(--card);color:var(--text)">
@@ -124,7 +133,7 @@
     </div>
   </div></div>
 
-  <div class="card"><div class="bd" style="padding:12px 14px">
+  <div class="card" id="pregCard"><div class="bd" style="padding:12px 14px">
     <div class="glabel">беременность / ГВ</div>
     <div class="seghue" id="pregSeg">
       <button data-v="none" class="on">нет</button>
@@ -238,6 +247,8 @@ function loadAnswers(){
 function buildTopicChips(){
   const host=document.getElementById("topicChips"); host.innerHTML="";
   TOPICS.forEach(t=>{
+    if(t.label==="простата (для мужчин)" && PROFILE.sex==="f") return;
+    if(t.label==="женская репродуктивная система" && PROFILE.sex==="m") return;
     const built=t.dataIdx.length>0;
     const c=document.createElement("div"); c.className="chip"+(TOPIC_SEL.has(t.label)?" on":"");
     c.textContent=t.label+(built?"":" · скоро");
@@ -488,10 +499,19 @@ function paintCart(){
 
 /* ---------- навигация ---------- */
 function show(id){
-  ["screen-triage","screen-profile","screen-q","screen-r","screen-s"].forEach(s=>document.getElementById(s).classList.add("hidden"));
+  ["screen-sex","screen-triage","screen-profile","screen-q","screen-r","screen-s"].forEach(s=>document.getElementById(s).classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
   window.scrollTo(0,0);
 }
+function paintPregCard(){
+  document.getElementById("pregCard").style.display = PROFILE.sex==="m" ? "none" : "";
+}
+document.querySelectorAll("#sexSeg0 button").forEach(b=>{
+  if(b.dataset.v===PROFILE.sex){ document.querySelectorAll("#sexSeg0 button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); }
+  b.onclick=()=>{ document.querySelectorAll("#sexSeg0 button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); PROFILE.sex=b.dataset.v; saveProfile(); paintPregCard(); };
+});
+paintPregCard();
+document.getElementById("toTriage").onclick=()=>{ buildTopicChips(); show("screen-triage"); };
 document.getElementById("toProfile").onclick=()=>show("screen-profile");
 document.getElementById("toQ").onclick=()=>{ renderBody(); show("screen-q"); };
 document.getElementById("backP").onclick=()=>show("screen-profile");
