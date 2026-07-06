@@ -123,6 +123,7 @@
         <input type="number" id="weightInput" min="0" max="300" placeholder="кг" style="display:block;width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--border-strong);border-radius:10px;font-size:14px;font-family:inherit;background:var(--card);color:var(--text)">
       </label>
     </div>
+    <div id="bmiBox" style="display:none;margin-top:10px;padding:8px 12px;border-radius:10px;font-size:13px;font-weight:700"></div>
   </div></div>
 
   <div class="card" id="pregCard"><div class="bd" style="padding:12px 14px">
@@ -296,15 +297,26 @@ document.querySelectorAll("#pregSeg button").forEach(b=>{
   if(b.dataset.v===PROFILE.preg){ document.querySelectorAll("#pregSeg button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); }
   b.onclick=()=>{ document.querySelectorAll("#pregSeg button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); PROFILE.preg=b.dataset.v; saveProfile(); };
 });
-document.querySelectorAll("#sexSeg button").forEach(b=>{
-  if(b.dataset.v===PROFILE.sex){ document.querySelectorAll("#sexSeg button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); }
-  b.onclick=()=>{ document.querySelectorAll("#sexSeg button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); PROFILE.sex=b.dataset.v; saveProfile(); };
-});
 const ageInput=document.getElementById("ageInput"), heightInput=document.getElementById("heightInput"), weightInput=document.getElementById("weightInput");
 ageInput.value=PROFILE.age; heightInput.value=PROFILE.height; weightInput.value=PROFILE.weight;
+function paintBMI(){
+  const h=parseFloat(heightInput.value), w=parseFloat(weightInput.value);
+  const box=document.getElementById("bmiBox");
+  if(!h || !w){ box.style.display="none"; return; }
+  const bmi = w/((h/100)*(h/100));
+  let label,bg,fg;
+  if(bmi<18.5){label="ниже нормы";bg="var(--warn-bg)";fg="var(--warn-fg)";}
+  else if(bmi<25){label="норма";bg="var(--ok-bg)";fg="var(--ok-fg)";}
+  else if(bmi<30){label="выше нормы";bg="var(--warn-bg)";fg="var(--warn-fg)";}
+  else {label="значительно выше нормы";bg="var(--bad-bg)";fg="var(--bad-fg)";}
+  box.style.display="block";
+  box.style.background=bg; box.style.color=fg;
+  box.textContent="ИМТ "+bmi.toFixed(1)+" · "+label;
+}
 ageInput.oninput=()=>{ PROFILE.age=ageInput.value; saveProfile(); };
-heightInput.oninput=()=>{ PROFILE.height=heightInput.value; saveProfile(); };
-weightInput.oninput=()=>{ PROFILE.weight=weightInput.value; saveProfile(); };
+heightInput.oninput=()=>{ PROFILE.height=heightInput.value; saveProfile(); paintBMI(); };
+weightInput.oninput=()=>{ PROFILE.weight=weightInput.value; saveProfile(); paintBMI(); };
+paintBMI();
 
 /* HUES, DATA, RECS — теперь в общем файле опросник-данные.js (используется и результаты.html) */
 
