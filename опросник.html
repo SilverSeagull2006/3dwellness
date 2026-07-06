@@ -85,24 +85,15 @@
   </div>
 </div>
 
-<!-- ЭКРАН: ПОЛ -->
-<div class="wrap" id="screen-sex">
-  <h1>для начала</h1>
-  <div class="lead">это поможет сразу показать только то, что тебя касается.</div>
-  <div class="card"><div class="bd" style="padding:12px 14px">
-    <div class="seghue" id="sexSeg0" style="height:52px">
-      <button data-v="f" class="on" style="font-size:15px">женский</button>
-      <button data-v="m" style="font-size:15px">мужской</button>
-    </div>
-  </div></div>
-  <button class="btn" id="toTriage">далее →</button>
-</div>
-
 <!-- ЭКРАН: ТРИАЖ -->
-<div class="wrap hidden" id="screen-triage">
+<div class="wrap" id="screen-triage">
   <div style="display:flex;align-items:center;gap:8px;background:var(--info-bg);color:var(--info-fg);border-radius:12px;padding:9px 12px;margin-bottom:12px;font-size:12.5px;font-weight:700;line-height:1.35">
     <span style="font-size:16px">🎓</span>
     <span>структура опросника — по методике Institute for Functional Medicine (IFM), ведущего мирового института функциональной медицины</span>
+  </div>
+  <div class="seghue" id="sexSeg0" style="height:44px;margin-bottom:12px">
+    <button data-v="f" class="on">женский</button>
+    <button data-v="m">мужской</button>
   </div>
   <h1>что тебя беспокоит?</h1>
   <div class="lead">22 системы организма — это много. Отметь то, что откликается прямо сейчас, остальное подождёт своей очереди без спешки. Можно вернуться и добавить ещё в любой момент.</div>
@@ -499,7 +490,7 @@ function paintCart(){
 
 /* ---------- навигация ---------- */
 function show(id){
-  ["screen-sex","screen-triage","screen-profile","screen-q","screen-r","screen-s"].forEach(s=>document.getElementById(s).classList.add("hidden"));
+  ["screen-triage","screen-profile","screen-q","screen-r","screen-s"].forEach(s=>document.getElementById(s).classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
   window.scrollTo(0,0);
 }
@@ -508,10 +499,9 @@ function paintPregCard(){
 }
 document.querySelectorAll("#sexSeg0 button").forEach(b=>{
   if(b.dataset.v===PROFILE.sex){ document.querySelectorAll("#sexSeg0 button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); }
-  b.onclick=()=>{ document.querySelectorAll("#sexSeg0 button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); PROFILE.sex=b.dataset.v; saveProfile(); paintPregCard(); };
+  b.onclick=()=>{ document.querySelectorAll("#sexSeg0 button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); PROFILE.sex=b.dataset.v; saveProfile(); paintPregCard(); buildTopicChips(); };
 });
 paintPregCard();
-document.getElementById("toTriage").onclick=()=>{ buildTopicChips(); show("screen-triage"); };
 document.getElementById("toProfile").onclick=()=>show("screen-profile");
 document.getElementById("toQ").onclick=()=>{ renderBody(); show("screen-q"); };
 document.getElementById("backP").onclick=()=>show("screen-profile");
