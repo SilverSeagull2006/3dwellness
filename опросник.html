@@ -146,6 +146,7 @@
   <div class="card"><div class="bd" style="padding:12px 14px">
     <div class="glabel">что принимаешь</div>
     <div class="chips" id="medChips"></div>
+    <div id="medWarnBox" class="warnbox" style="display:none;margin-top:10px;margin-bottom:0"></div>
   </div></div>
 
   <button class="btn" id="toQ">далее → опросник</button>
@@ -267,7 +268,7 @@ loadTopics();
 /* ---------- профиль ---------- */
 const DX_F=["повышенное давление","диабет","щитовидка","тревога / депрессия","хрупкие кости (остеопороз)","боль в суставах (артрит)","мигрень","СПКЯ (поликистоз яичников)","эндометриоз","камни в желчном","гастрит / язва","аутоиммунное заболевание","нехватка железа (анемия)","раздражённый кишечник","высокий холестерин"];
 const DX_M=["повышенное давление","диабет","подагра","проблемы с простатой","камни в почках","храп с остановками дыхания (апноэ)","высокий холестерин","проблемы с сердцем","гастрит / язва","тревога / депрессия","щитовидка","аутоиммунное заболевание","камни в желчном"];
-const MEDS=["антикоагулянт","антидепрессант (СИОЗС)","ИПП (омепразол и т.п.)","гормоны щитовидки","контрацептивы"];
+const MEDS=["антикоагулянт","гормоны щитовидки","ИПП (омепразол и т.п.)","метформин","статины","диуретики","кортикостероиды","антидепрессант (СИОЗС)","гормональные контрацептивы","агонисты GLP-1 (Оземпик/Мунджаро и т.п.)"];
 const PROFILE={preg:"none", dx:new Set(), meds:new Set(), sex:"f", age:"", height:"", weight:""};
 const PROFKEY="3dw_profile";
 function saveProfile(){
@@ -285,12 +286,12 @@ function loadProfile(){
   }catch(_){}
 }
 
-function buildChips(hostId,list,set){
+function buildChips(hostId,list,set,onChange){
   const host=document.getElementById(hostId);
   list.forEach(name=>{
     const c=document.createElement("div"); c.className="chip"; c.textContent=name;
     if(set.has(name)) c.classList.add("on");
-    c.onclick=()=>{ if(set.has(name)){set.delete(name);c.classList.remove("on");} else {set.add(name);c.classList.add("on");} saveProfile(); };
+    c.onclick=()=>{ if(set.has(name)){set.delete(name);c.classList.remove("on");} else {set.add(name);c.classList.add("on");} saveProfile(); if(onChange) onChange(); };
     host.appendChild(c);
   });
 }
@@ -300,7 +301,16 @@ function buildDxChips(){
   buildChips("dxChips", PROFILE.sex==="m"?DX_M:DX_F, PROFILE.dx);
 }
 buildDxChips();
-buildChips("medChips",MEDS,PROFILE.meds);
+function paintMedWarn(){
+  const box=document.getElementById("medWarnBox");
+  const both = PROFILE.meds.has("агонисты GLP-1 (Оземпик/Мунджаро и т.п.)") && PROFILE.meds.has("гормональные контрацептивы");
+  if(both){
+    box.style.display="block";
+    box.textContent="⚠ Тирзепатид (Мунджаро) снижает всасывание оральных контрацептивов примерно на 60% (данные FDA) — обсуди с врачом дополнительную контрацепцию хотя бы первый месяц.";
+  } else box.style.display="none";
+}
+buildChips("medChips",MEDS,PROFILE.meds,paintMedWarn);
+paintMedWarn();
 document.querySelectorAll("#pregSeg button").forEach(b=>{
   if(b.dataset.v===PROFILE.preg){ document.querySelectorAll("#pregSeg button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); }
   b.onclick=()=>{ document.querySelectorAll("#pregSeg button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); PROFILE.preg=b.dataset.v; saveProfile(); };
