@@ -209,7 +209,7 @@ const TOPICS=[
   {label:"морщины, тусклая кожа", dataIdx:[18]},
   {label:"хроническая усталость", dataIdx:[19]},
   {label:"в семье были инсульты/тромбы", dataIdx:[20]},
-  {label:"простата (для мужчин)", dataIdx:[22]},
+  {label:"простата и мужские гормоны", dataIdx:[22]},
   {label:"женская репродуктивная система", dataIdx:[23,24,25,26,27,28]},
   {label:"сухая кожа, ломкие ногти, боль в суставах", dataIdx:[21]},
   {label:"упадок настроения, слабость мышц, боль в костях", dataIdx:[10]},
@@ -241,7 +241,7 @@ function loadAnswers(){
 function buildTopicChips(){
   const host=document.getElementById("topicChips"); host.innerHTML="";
   TOPICS.forEach(t=>{
-    if(t.label==="простата (для мужчин)" && PROFILE.sex==="f") return;
+    if(t.label==="простата и мужские гормоны" && PROFILE.sex==="f") return;
     if(t.label==="женская репродуктивная система" && PROFILE.sex==="m") return;
     const built=t.dataIdx.length>0;
     const c=document.createElement("div"); c.className="chip"+(TOPIC_SEL.has(t.label)?" on":"");
