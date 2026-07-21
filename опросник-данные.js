@@ -493,7 +493,7 @@ const LABTESTS=[
   "ОАК (общий анализ крови)","Ферритин","Витамин B12","Гастроскопия (ЭГДС)","Гастропанель",
   "Копрограмма","Панкреатическая эластаза-1 (кал)","Водородный тест (СИБР)","Кальпротектин фекальный",
   "АЛТ","АСТ","ГГТ","Щелочная фосфатаза","Билирубин","УЗИ печени и желчного пузыря",
-  "Липидограмма (холестерин, ЛПНП, ЛПВП, триглицериды)",
+  "Липидограмма (холестерин, ЛПНП, ЛПВП, триглицериды)","Холестерин общий","ЛПНП","ЛПВП","Триглицериды",
   "ТТГ","Свободный Т4","Свободный Т3","Обратный Т3 (rT3)","Антитела АТ-ТПО","Антитела АТ-ТГ","УЗИ щитовидной железы","tTG-IgA (целиакия)",
   "Эстрадиол","Прогестерон","ДГЭА-с (DHEA-S)","Кортизол утро","Кортизол вечер","Электролиты (натрий, калий)",
   "Глюкоза натощак","Инсулин натощак","HOMA-IR (индекс инсулинорезистентности)","Гликированный гемоглобин (HbA1c)",
@@ -606,6 +606,113 @@ function labStatus(labLine, savedLabs, savedRecs){
   const rec=savedRecs.find(r=>fuzzyIncludes(labLine, r.text));
   if(rec) return {status: rec.done?"done":"planned", doctor:rec.doctor, date:rec.date};
   return {status:"needed"};
+}
+
+/* ---------- интерпретация значений анализов: референс vs функциональный оптимум ----------
+   red = вне лабораторного референса (реально ненормально)
+   yellow = внутри референса, но вне оптимума (норма, но есть куда расти)
+   green = в оптимуме
+   Источники — наш список (Linus Pauling Institute, NCCIH, Cleveland Clinic, Examine.com), не общие wellness-блоги. */
+const LABRANGES={
+  "ТТГ":{unit:"мЕд/л",
+    ref:{low:0.4, high:4.0}, opt:{low:0.5, high:2.0},
+    source:"Cleveland Clinic Journal of Medicine + консенсус эндокринологов (Wartofsky) — референс расширяется с возрастом (после 50-60 лет верхняя граница выше, ~6.0 у пожилых — это тоже реально, не ошибка)",sourceUrl:"https://www.ccjm.org/content/71/9/729"},
+  "Свободный Т4":{unit:"нг/дл",
+    ref:{low:0.8, high:1.8}, opt:{low:1.1, high:1.8},
+    source:"функциональная эндокринология (Kresser Institute) — верхняя половина референса считается оптимальной",sourceUrl:""},
+  "Свободный Т3":{unit:"пг/мл",
+    ref:{low:2.3, high:4.2}, opt:{low:3.2, high:4.2},
+    source:"функциональная эндокринология (Kresser Institute) — низкий Т3 при нормальном Т4 указывает на проблему конверсии",sourceUrl:""},
+  "Обратный Т3 (rT3)":{unit:"нг/дл",
+    ref:{low:9.2, high:24.1}, opt:{low:9.2, high:14.0},
+    source:"функциональная эндокринология — высокий rT3 при нормальном ТТГ может объяснять симптомы гипотиреоза при формально нормальных анализах",sourceUrl:""},
+  "Витамин D3":{unit:"нг/мл",
+    ref:{low:20, high:100}, opt:{low:40, high:60},
+    source:"Linus Pauling Institute (минимум 30, оптимум 30-60) + Endocrine Society (предпочтительный диапазон 40-60)",sourceUrl:"https://lpi.oregonstate.edu/mic/vitamins/vitamin-D"},
+  "Ферритин":{unit:"нг/мл",
+    sexSpecific:true,
+    ref:{f:{low:10, high:307}, m:{low:20, high:336}},
+    opt:{f:{low:45, high:80}, m:{low:60, high:120}},
+    source:"American Society of Hematology (ASH) education program + Metallomics — у женщин ниже из-за менструальной кровопотери, это реальная физиологическая разница, не условность",sourceUrl:"https://ashpublications.org/hematology/article/2023/1/617/506479/Sex-lies-and-iron-deficiency-a-call-to-change"},
+  "СРБ высокочувствительный (hs-CRP)":{unit:"мг/л",
+    ref:{low:0, high:10}, opt:{low:0, high:1.0},
+    source:"AHA/CDC — стандартные категории сердечно-сосудистого риска: <1 низкий, 1-3 средний, >3 высокий",sourceUrl:"https://ods.od.nih.gov/"},
+  "Глюкоза натощак":{unit:"ммоль/л", altUnits:{"мг/дл":18.0182},
+    ref:{low:3.9, high:5.5}, opt:{low:3.9, high:4.7},
+    source:"ВОЗ/ADA (норма <5.5-6.1 ммоль/л, преддиабет выше) — более узкий оптимум ~4.7 часто используется в функциональной практике для ранней метаболической профилактики, доказательства мягче, чем для диагностических порогов ADA",sourceUrl:""},
+  "Гликированный гемоглобин (HbA1c)":{unit:"%",
+    ref:{low:4.0, high:5.6}, opt:{low:4.0, high:5.3},
+    source:"ADA (норма <5.7%, преддиабет 5.7-6.4%)",sourceUrl:""},
+  "Витамин B12":{unit:"пг/мл",
+    ref:{low:200, high:900}, opt:{low:500, high:900},
+    source:"неврологические симптомы дефицита документированы вплоть до 350-400 пг/мл — стандартный нижний порог 200 слишком низкий; оптимум 500-900",sourceUrl:""},
+  "Гомоцистеин":{unit:"мкмоль/л",
+    ref:{low:0, high:15}, opt:{low:0, high:7},
+    source:"Linus Pauling Institute — риск сердечно-сосудистых событий растёт уже выше 6-7 мкмоль/л, задолго до условного порога 15",sourceUrl:"https://lpi.oregonstate.edu/mic/health-disease/high-homocysteine"},
+  "Магний в эритроцитах":{unit:"мг/дл",
+    ref:{low:4.2, high:6.8}, opt:{low:6.0, high:6.8},
+    source:"AACE 2022 position statement — стандартный референс включает много людей с субоптимальным магнием",sourceUrl:""},
+  "ЛПНП":{unit:"ммоль/л", altUnits:{"мг/дл":38.67},
+    ref:{low:0, high:4.9}, opt:{low:0, high:2.6},
+    source:"ATP III (Национальная образовательная программа по холестерину, США) — оптимум <2.6 ммоль/л (100 мг/дл)",sourceUrl:""},
+  "ЛПВП":{unit:"ммоль/л", altUnits:{"мг/дл":38.67}, sexSpecific:true,
+    ref:{f:{low:1.3, high:9}, m:{low:1.0, high:9}},
+    opt:{low:1.55, high:9},
+    source:"ATP III — у женщин порог низкого ЛПВП реально выше (1.3 ммоль/л), чем у мужчин (1.0 ммоль/л)",sourceUrl:""},
+  "Триглицериды":{unit:"ммоль/л", altUnits:{"мг/дл":88.57},
+    ref:{low:0, high:1.7}, opt:{low:0, high:1.1},
+    source:"ATP III — норма <1.7 ммоль/л (150 мг/дл), функциональный оптимум <1.1 ммоль/л (100 мг/дл)",sourceUrl:""},
+  "АЛТ":{unit:"Ед/л", sexSpecific:true,
+    ref:{f:{low:7,high:56},m:{low:7,high:56}},
+    opt:{f:{low:0, high:25}, m:{low:0, high:33}},
+    source:"ACG Clinical Guideline (Evaluation of Abnormal Liver Chemistries) — 'истинная норма' значительно ниже общепринятого лабораторного диапазона, реально различается по полу",sourceUrl:"https://pubmed.ncbi.nlm.nih.gov/27995906/"},
+  "АСТ":{unit:"Ед/л",
+    ref:{low:10, high:40}, opt:{low:0, high:25},
+    source:"та же логика ACG, что и для АЛТ — общепринятый диапазон шире, чем реально здоровые значения",sourceUrl:"https://pubmed.ncbi.nlm.nih.gov/27995906/"},
+  "ГГТ":{unit:"Ед/л",
+    ref:{low:0, high:30}, opt:{low:0, high:20},
+    source:"NCBI Clinical Methods (Alkaline Phosphatase and GGT) — ГГТ не стоит использовать как самостоятельный скрининг без других отклонений печёночных проб",sourceUrl:"https://www.ncbi.nlm.nih.gov/books/NBK203/"},
+  "Щелочная фосфатаза":{unit:"Ед/л",
+    ref:{low:30, high:120}, opt:{low:30, high:80},
+    source:"функциональная гепатология — оптимум ниже общепринятого верхнего порога",sourceUrl:""},
+  "Билирубин":{unit:"мкмоль/л",
+    ref:{low:3.4, high:20.5}, opt:{low:8.6, high:17.1},
+    source:"функциональная гепатология — оптимум 0.5-1.0 мг/дл (8.6-17.1 мкмоль/л) отражает адекватную антиоксидантную активность билирубина",sourceUrl:""},
+  "Кортизол утро":{unit:"мкг/дл",
+    ref:{low:6.2, high:19.4}, opt:{low:10, high:18},
+    source:"стандартный забор 7-9 утра — референс и оптимум по сводным клиническим данным (Cleveland Clinic + обзоры)",sourceUrl:"https://my.clevelandclinic.org/health/diagnostics/22417-cortisol-test"},
+  "ДГЭА-с (DHEA-S)":{unit:"мкг/дл", sexSpecific:true,
+    ref:{f:{low:35, high:430}, m:{low:80, high:560}},
+    opt:{f:{low:150, high:300}, m:{low:300, high:450}},
+    source:"эпидемиологические данные связывают более высокий (для возраста) ДГЭА-с с лучшей когнитивной функцией и ниже общей смертностью — но это наблюдательные данные, не РКИ-порог, доказательная база мягче, чем для витамина D/ферритина",sourceUrl:""},
+  "Тестостерон общий":{unit:"нг/дл",
+    ref:{low:300, high:1000}, opt:{low:300, high:1000},
+    source:"Cleveland Clinic Journal of Medicine — честно: доказательного 'оптимума' уже, чем референс, не существует; диагностика дефицита должна быть по симптомам+анализу вместе, не по произвольному более узкому порогу (AUA использует <300 нг/дл как порог дефицита)",sourceUrl:"https://www.ccjm.org/content/91/2/93"},
+  "Тестостерон свободный":{unit:"пг/мл",
+    ref:{low:35, high:155}, opt:{low:35, high:155},
+    source:"то же самое честное ограничение, что и для общего тестостерона — нет доказательного более узкого оптимума",sourceUrl:"https://www.ccjm.org/content/91/2/93"}
+};
+function normalizeUnit(u){ return (u||"").toLowerCase().replace(/\s+/g,"").replace("µ","мк"); }
+function interpretLabValue(labLine, value, unit, sex){
+  let num=parseFloat(String(value).replace(",","."));
+  if(isNaN(num)) return null;
+  const key=Object.keys(LABRANGES).find(k=>fuzzyIncludes(labLine,k));
+  if(!key) return null;
+  const r=LABRANGES[key];
+  const uIn=normalizeUnit(unit), uExp=normalizeUnit(r.unit);
+  if(uIn && uExp && uIn!==uExp){
+    // попробовать распознать альтернативную единицу и сконвертировать
+    const altKey = r.altUnits && Object.keys(r.altUnits).find(a=>normalizeUnit(a)===uIn);
+    if(altKey){ num = num / r.altUnits[altKey]; }
+    else return null; // единица не распознана — не гадаем
+  }
+  const ref = r.sexSpecific ? (r.ref[sex==="m"?"m":"f"]) : r.ref;
+  const opt = r.sexSpecific && r.opt.f ? (r.opt[sex==="m"?"m":"f"]) : r.opt;
+  let level, label;
+  if(num<ref.low || num>ref.high){ level="red"; label="вне референса"; }
+  else if(num<opt.low || num>opt.high){ level="yellow"; label="в норме, не в оптимуме"; }
+  else { level="green"; label="в оптимуме"; }
+  return {level, label, ref, opt, unit:r.unit, source:r.source, sourceUrl:r.sourceUrl};
 }
 
 /* ---------- общая библиотека БАД (единая база; разделы опросника только ссылаются на неё по имени) ---------- */
