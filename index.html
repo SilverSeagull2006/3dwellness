@@ -210,6 +210,7 @@ document.addEventListener("DOMContentLoaded", goToMapIfFirstVisit);
   <div class="daytrack" id="daytrackCard">
     <a href="трекер.html" id="dtLink">📝 отметить день</a>
     <div class="dtins" id="dtInsight"></div>
+    <a href="психика.html" id="dtTestNudge" style="display:none;margin-top:6px"></a>
   </div>
 
   <div class="now">
@@ -722,6 +723,15 @@ function paintDaytrack(){
   var cycleLog=loadCycleLog();
   var insights=correlationInsights(log, cycleLog, profile);
   document.getElementById("dtInsight").textContent = insights.length ? "💡 "+insights[0] : "";
+
+  var testResults=(function(){ try{ var r=localStorage.getItem("3dw_psyche_tests"); return r?JSON.parse(r):{}; }catch(_){ return {}; } })();
+  var nudge=document.getElementById("dtTestNudge");
+  if(!testResults.general && suggestGeneralTest(log)){
+    nudge.style.display="block";
+    nudge.textContent="в 3D есть короткий общий тест — может, стоит заглянуть? →";
+  } else {
+    nudge.style.display="none";
+  }
 }
 paintDaytrack();
 
