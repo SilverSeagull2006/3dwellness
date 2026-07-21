@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="desktop.css">
 <script src="опросник-данные.js"></script>
 <style>
   :root{
@@ -62,6 +63,16 @@
 </style>
 </head>
 <body>
+<nav class="dsidebar">
+  <div class="dbrand">3dWellness</div>
+  <a href="index.html">✦ мой день</a>
+  <a href="карта.html">карта маршрута</a>
+  <a href="журнал.html">📖 журнал</a>
+  <div class="dgap"></div>
+  <a href="опросник.html" class="on">1D · биохимия</a>
+  <a href="физика.html">2D · физика</a>
+  <a href="психика.html">3D · психика</a>
+</nav>
 
 <div class="wrap">
   <div class="top">
@@ -70,7 +81,7 @@
   </div>
   <h1>мои результаты</h1>
   <div class="lead">итог по всем пройденным темам опросника — без повторного прохождения. балл считается по последним сохранённым ответам.</div>
-  <div id="host"></div>
+  <div class="grid-2" id="host"></div>
 
   <div id="suppSection" style="display:none">
     <div class="glabel" style="margin:14px 0 2px 2px">БАД, которые могут помочь</div>

@@ -1,0 +1,47 @@
+/* общий desktop-слой: только layout, не трогает мобильную вёрстку и не меняет цветовые переменные страниц */
+
+.dsidebar{display:none}
+
+@media (min-width:900px){
+  .dsidebar{
+    display:flex; flex-direction:column; gap:2px;
+    position:fixed; left:0; top:0; bottom:0; width:220px;
+    padding:22px 14px; box-sizing:border-box;
+    background:var(--card); border-right:1px solid var(--border);
+    overflow-y:auto;
+  }
+  .dsidebar .dbrand{font-size:15px;font-weight:700;margin:4px 8px 18px;color:var(--text)}
+  .dsidebar a{
+    display:block; padding:10px 12px; border-radius:10px;
+    font-size:13.5px; font-weight:700; text-decoration:none; color:var(--muted);
+  }
+  .dsidebar a:hover{background:var(--soft);color:var(--text)}
+  .dsidebar a.on{background:var(--soft);color:var(--text)}
+  .dsidebar .dgap{height:14px}
+
+  /* мобильная верхняя навигация дублирует сайдбар — прячем (!important нужен из-за инлайновых style на некоторых страницах) */
+  .top{display:none !important}
+  .dnavlinks{display:none !important}
+
+  .wrap{
+    margin-left:220px !important;
+    max-width:760px !important;
+    padding-left:32px !important;
+    padding-right:32px !important;
+  }
+  /* карта.html — иллюстрация с процентным позиционированием, не растягиваем, только сдвигаем от сайдбара */
+  .scene{
+    margin-left:220px !important;
+  }
+  /* хиро-иллюстрации (небо в "мой день", ночное море в психике, морская кромка внизу) — тоже сдвигаем и ограничиваем ширину, чтобы не превращались в растянутый баннер */
+  .sky, .hero, .seafoot{
+    margin-left:220px !important;
+    max-width:760px !important;
+  }
+
+  .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+  .grid-2 > *{margin-bottom:0 !important}
+
+  /* трекер.html — календарь и карточка дня рядом, как в обычном календарном приложении */
+  .trkgrid{display:grid;grid-template-columns:340px 1fr;gap:24px;align-items:start}
+}

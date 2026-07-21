@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="desktop.css">
 <script src="опросник-данные.js"></script>
 <style>
   :root{
@@ -55,6 +56,16 @@
 </style>
 </head>
 <body>
+<nav class="dsidebar">
+  <div class="dbrand">3dWellness</div>
+  <a href="index.html">✦ мой день</a>
+  <a href="карта.html">карта маршрута</a>
+  <a href="журнал.html">📖 журнал</a>
+  <div class="dgap"></div>
+  <a href="опросник.html" class="on">1D · биохимия</a>
+  <a href="физика.html">2D · физика</a>
+  <a href="психика.html">3D · психика</a>
+</nav>
 
 <div class="wrap">
   <div class="top">
@@ -64,7 +75,7 @@
   <h1>что делать дальше</h1>
   <div class="lead">сводка по всему: что в фокусе по опроснику, что уже сдано/назначено, а что реально ещё стоит сделать. сверка приблизительная — если что-то распозналось неверно, проверь глазами.</div>
   <div id="docHost"></div>
-  <div id="host"></div>
+  <div class="grid-2" id="host"></div>
   <div class="foot">это не диагноз и не назначение — повод обсудить с врачом, что из списка действительно нужно именно тебе</div>
 </div>
 

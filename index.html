@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="desktop.css">
 <style>
   :root{
     --bg:#f7f5f0; --card:#ffffff; --soft:#efece5;
@@ -158,6 +159,16 @@
 </style>
 </head>
 <body>
+<nav class="dsidebar">
+  <div class="dbrand">3dWellness</div>
+  <a href="index.html" class="on">✦ мой день</a>
+  <a href="карта.html">карта маршрута</a>
+  <a href="журнал.html">📖 журнал</a>
+  <div class="dgap"></div>
+  <a href="опросник.html">1D · биохимия</a>
+  <a href="физика.html">2D · физика</a>
+  <a href="психика.html">3D · психика</a>
+</nav>
 <script>
 function goToMapIfFirstVisit(){
   try{
@@ -220,7 +231,7 @@ document.addEventListener("DOMContentLoaded", goToMapIfFirstVisit);
   </div>
 
   <div class="editbar" style="flex-wrap:wrap">
-    <span style="display:flex;gap:8px;flex-wrap:wrap">
+    <span class="dnavlinks" style="display:flex;gap:8px;flex-wrap:wrap">
       <a href="карта.html" class="editbtn" style="text-decoration:none;display:inline-block">карта</a>
       <a href="журнал.html" class="editbtn" style="text-decoration:none;display:inline-block">📖 журнал</a>
       <a href="опросник.html" class="editbtn" style="text-decoration:none;display:inline-block">опросник</a>
