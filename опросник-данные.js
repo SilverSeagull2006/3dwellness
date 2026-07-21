@@ -1428,3 +1428,145 @@ function loadFullProfile(){
     return {preg:p.preg||"none", dx:new Set(p.dx||[]), meds:new Set(p.meds||[]), sex:p.sex||"f", age:p.age||""};
   }catch(_){ return {preg:"none", dx:new Set(), meds:new Set(), sex:"f", age:""}; }
 }
+
+/* ---------- трекер дня: настроение/сон/крейвинги/симптомы/кожа/стресс/головная боль/либидо/цикл ----------
+   один общий лог по датам — единый источник для движка корреляции и календаря, не россыпь отдельных ключей */
+const TRACKER_CATEGORIES=[
+  {id:"mood", label:"настроение", def:true},
+  {id:"sleep", label:"сон", def:true},
+  {id:"cravings", label:"крейвинги", def:true},
+  {id:"symptoms", label:"симптомы", def:true},
+  {id:"skin", label:"кожа", def:false},
+  {id:"stress", label:"стресс", def:true},
+  {id:"headache", label:"головная боль", def:true},
+  {id:"libido", label:"либидо и секс", def:false},
+  {id:"note", label:"заметка", def:false},
+  {id:"cycle", label:"цикл", def:true, sexOnly:"f"}
+];
+const CHIP_OPTIONS={
+  cravings:["сладкое","солёное","шоколад","жирное / фастфуд","мучное","ничего особо"],
+  symptoms:["аппетит ↑","аппетит ↓","вздутие","озноб","жар / приливы","тошнота","боль в груди","судороги","бессонница","холодные руки/ноги","спутанность мыслей"],
+  skin:["высыпания","жирность","сухость","зуд","покраснение"]
+};
+
+function loadTrackerConfig(){
+  const cfg={};
+  try{
+    const raw=localStorage.getItem("3dw_tracker_config");
+    const saved=raw?JSON.parse(raw):{};
+    TRACKER_CATEGORIES.forEach(c=>{ cfg[c.id]= saved[c.id]!==undefined ? saved[c.id] : c.def; });
+  }catch(_){ TRACKER_CATEGORIES.forEach(c=>{ cfg[c.id]=c.def; }); }
+  return cfg;
+}
+function saveTrackerConfig(cfg){
+  try{ localStorage.setItem("3dw_tracker_config", JSON.stringify(cfg)); }catch(_){}
+}
+function enabledCategories(profile){
+  const cfg=loadTrackerConfig();
+  return TRACKER_CATEGORIES.filter(c=>{
+    if(c.sexOnly && profile && profile.sex!==c.sexOnly) return false;
+    return !!cfg[c.id];
+  });
+}
+
+function emptyDayEntry(){
+  return {mood:{morning:null,evening:null}, sleep:{quality:null,hours:null},
+    cravings:[], symptoms:[], skin:[], stress:null,
+    headache:{had:false,type:""}, libido:{level:null,sex:null,type:""}, note:""};
+}
+function loadDayTrackLog(){
+  try{ const raw=localStorage.getItem("3dw_daytrack_log"); return raw?JSON.parse(raw):{}; }catch(_){ return {}; }
+}
+function saveDayTrackLog(log){
+  try{ localStorage.setItem("3dw_daytrack_log", JSON.stringify(log)); }catch(_){}
+}
+function getDayEntry(log, dateStr){
+  return log[dateStr] || emptyDayEntry();
+}
+function setDayEntry(log, dateStr, entry){
+  log[dateStr]=entry; saveDayTrackLog(log); return log;
+}
+
+function loadCycleLog(){
+  try{ const raw=localStorage.getItem("3dw_cycle_log"); return raw?JSON.parse(raw):[]; }catch(_){ return []; }
+}
+function markCycleStart(dateStr){
+  const log=loadCycleLog();
+  if(log.indexOf(dateStr)<0){ log.push(dateStr); log.sort(); try{ localStorage.setItem("3dw_cycle_log", JSON.stringify(log)); }catch(_){} }
+  return log;
+}
+function computeAvgCycleLength(sortedStarts){
+  if(sortedStarts.length<2) return 28;
+  let diffs=[];
+  for(let i=1;i<sortedStarts.length;i++){
+    diffs.push((new Date(sortedStarts[i]+"T00:00:00")-new Date(sortedStarts[i-1]+"T00:00:00"))/86400000);
+  }
+  const avg=diffs.reduce((a,b)=>a+b,0)/diffs.length;
+  return Math.round(avg)||28;
+}
+function cyclePhaseFor(cycleLog, dateStr){
+  if(!cycleLog || !cycleLog.length) return null;
+  const sorted=[...cycleLog].sort();
+  const target=new Date(dateStr+"T00:00:00");
+  let lastStart=null;
+  for(const s of sorted){ if(new Date(s+"T00:00:00")<=target) lastStart=s; }
+  if(!lastStart) return null;
+  const avgLen=computeAvgCycleLength(sorted);
+  const day=Math.round((target-new Date(lastStart+"T00:00:00"))/86400000)+1;
+  const ovDay=Math.max(avgLen-14, 10);
+  let phase;
+  if(day<=5) phase="менструальная фаза";
+  else if(day<ovDay-1) phase="фолликулярная фаза";
+  else if(day<=ovDay+1) phase="овуляция";
+  else if(day<=avgLen+3) phase = (day>=avgLen-4) ? "поздняя лютеиновая фаза" : "лютеиновая фаза";
+  else phase="цикл затянулся — возможна задержка";
+  return {day, phase, avgLen};
+}
+
+function loadTrackerFreq(){
+  try{ const raw=localStorage.getItem("3dw_tracker_freq"); return raw?JSON.parse(raw):{}; }catch(_){ return {}; }
+}
+function bumpTrackerFreq(category, option){
+  const freq=loadTrackerFreq();
+  if(!freq[category]) freq[category]={};
+  freq[category][option]=(freq[category][option]||0)+1;
+  try{ localStorage.setItem("3dw_tracker_freq", JSON.stringify(freq)); }catch(_){}
+  return freq;
+}
+function topFrequent(category, n){
+  const freq=loadTrackerFreq();
+  const cat=freq[category]||{};
+  return Object.keys(cat).sort((a,b)=>cat[b]-cat[a]).slice(0, n||2);
+}
+
+/* движок корреляции — простые правила по последним дням, не статистика/ML;
+   честно: только явные, объяснимые совпадения (фаза цикла, короткий сон), не выдумываем причинность */
+function correlationInsights(log, cycleLog, profile){
+  const insights=[];
+  const dates=Object.keys(log).sort();
+  if(dates.length<3) return insights;
+  const recent=dates.slice(-7);
+  function moodVal(e){
+    const vals=[e.mood && e.mood.morning, e.mood && e.mood.evening].filter(v=>v!=null);
+    return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
+  }
+  const recentMoods=recent.map(d=>({date:d, m:moodVal(log[d])})).filter(x=>x.m!=null);
+  if(recentMoods.length>=3){
+    const avgAll=recentMoods.reduce((a,x)=>a+x.m,0)/recentMoods.length;
+    const last=recentMoods.slice(-3);
+    const avgLast=last.reduce((a,x)=>a+x.m,0)/last.length;
+    if(avgLast<=avgAll-0.7 && avgLast<=3){
+      if(profile && profile.sex==="f" && cycleLog && cycleLog.length){
+        const ph=cyclePhaseFor(cycleLog, dates[dates.length-1]);
+        if(ph && (ph.phase==="лютеиновая фаза" || ph.phase==="поздняя лютеиновая фаза")){
+          insights.push("последние дни настроение ниже обычного — совпадает с лютеиновой фазой цикла, частый ПМС-паттерн");
+        }
+      }
+      const shortSleepDays=last.filter(x=>{ const e=log[x.date]; return e.sleep && e.sleep.hours!=null && e.sleep.hours<6; });
+      if(shortSleepDays.length>=2){
+        insights.push("похоже, настроение проседает вслед за короткими ночами (меньше 6 часов сна)");
+      }
+    }
+  }
+  return insights;
+}

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>3dWellness — трекер дня</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="опросник-данные.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#faf8f4; --card:#fff; --soft:#f0eee7;
+    --text:#1a1a18; --muted:#75746e; --sub:#93928b;
+    --border:rgba(0,0,0,.09); --border-strong:rgba(0,0,0,.18);
+    --peach-bg:#f7e8dc; --peach-fg:#7c4b2b; --peach-strong:#d88870;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#1a1a18;--card:#262523;--soft:#302f2c;
+      --text:#f4f3ee;--muted:#a8a69f;--sub:#8d8b84;
+      --border:rgba(255,255,255,.11);--border-strong:rgba(255,255,255,.22);}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:'Nunito',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:460px;margin:0 auto;padding:16px 18px 30px}
+  .top{display:flex;gap:8px;margin-bottom:14px}
+  .navbtn{flex:1;text-align:center;padding:9px 10px;border-radius:12px;font-size:13px;font-weight:700;
+    text-decoration:none;border:1px solid var(--border-strong);color:var(--text)}
+  h1{font-size:20px;font-weight:700;margin:6px 0 4px}
+  .lead{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px}
+
+  .calhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .calhead .mid{font-size:15px;font-weight:700}
+  .calhead button{border:none;background:none;font-size:14px;color:var(--sub);padding:4px 8px;cursor:pointer;font-family:inherit}
+  .calhead .gear{font-size:17px;background:none;border:none;cursor:pointer;color:var(--text)}
+  .weekrow{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-size:10.5px;color:var(--sub);text-align:center;margin-bottom:4px}
+  .calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px}
+  .daycell{position:relative;aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-size:11.5px;color:var(--text);cursor:pointer;background:transparent}
+  .daycell.period{background:#f0c7b8;color:#7c4b2b}
+  .daycell.sel{box-shadow:inset 0 0 0 2px var(--peach-strong)}
+  .daycell .dot{position:absolute;bottom:2px;width:4px;height:4px;border-radius:50%}
+  .daycell .nt{position:absolute;top:2px;right:3px;font-size:7px}
+  .yearlink{font-size:12px;color:var(--sub);text-align:center;margin:-8px 0 16px;text-decoration:underline;cursor:pointer}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:12px}
+  .card .dtitle{font-size:14px;font-weight:700;margin-bottom:8px}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-top:0.5px solid var(--border)}
+  .row:first-of-type{border-top:none}
+  .row .lb{font-size:12px;color:var(--muted);flex-shrink:0}
+  .rowhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .rowhead .lb{font-size:12px;color:var(--muted)}
+  .facegrid,.stresswrap{display:flex;gap:6px}
+  .facebtn{flex:1;border:none;border-radius:10px;padding:7px 0;font-size:17px;background:var(--soft);cursor:pointer}
+  .facebtn.on{background:var(--peach-bg);box-shadow:inset 0 0 0 2px var(--peach-strong)}
+  .miniopt{flex:1;border:none;border-radius:10px;padding:7px 0;font-size:11.5px;font-weight:700;background:var(--soft);color:var(--muted);cursor:pointer;font-family:inherit}
+  .miniopt.on{background:var(--peach-bg);color:var(--peach-fg);box-shadow:inset 0 0 0 2px var(--peach-strong)}
+  .hourinp{width:48px;border:1px solid var(--border-strong);border-radius:8px;padding:6px 4px;font-size:12px;text-align:center;background:transparent;color:var(--text);font-family:inherit}
+  .stressbar{flex:1;height:6px;border-radius:3px;background:var(--soft);cursor:pointer}
+  .stressbar.on{background:var(--peach-strong)}
+  .chipwrap{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .chip{font-size:11.5px;font-weight:700;padding:7px 12px;border-radius:999px;background:var(--soft);color:var(--muted);cursor:pointer;border:none;font-family:inherit}
+  .chip.on{background:var(--peach-bg);color:var(--peach-fg);box-shadow:inset 0 0 0 2px var(--peach-strong)}
+  .chevbtn{margin-left:auto;font-size:14px;color:var(--muted);background:none;border:none;cursor:pointer;transition:transform .15s}
+  .chevbtn.open{transform:rotate(180deg)}
+  .chipfull{display:none;flex-wrap:wrap;gap:6px;border-top:0.5px solid var(--border);padding-top:10px;margin-top:10px;width:100%}
+  .chipfull.open{display:flex}
+  .togglepair{display:flex;gap:6px}
+  .badge{font-size:11px;font-weight:700;background:var(--peach-bg);color:var(--peach-fg);padding:3px 9px;border-radius:999px}
+  .noteta{width:100%;border:1px solid var(--border-strong);border-radius:10px;padding:8px 10px;font-size:12.5px;background:transparent;color:var(--text);font-family:inherit;resize:vertical;min-height:50px}
+
+  .insight{background:var(--peach-bg);color:var(--peach-fg);border-radius:16px;padding:12px 14px;font-size:12.5px;line-height:1.45;margin-top:4px}
+
+  .ovbg{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:flex-end;justify-content:center;z-index:20}
+  .ovbg.open{display:flex}
+  .ovcard{background:var(--card);border-radius:20px 20px 0 0;padding:18px 18px 24px;width:100%;max-width:460px;max-height:80vh;overflow:auto}
+  .ovcard h2{font-size:16px;margin:0 0 10px}
+  .cfgrow{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:0.5px solid var(--border)}
+  .cfgrow:first-of-type{border-top:none}
+  .cfgrow .lb{font-size:13.5px}
+  .swtch{width:40px;height:24px;border-radius:999px;background:var(--soft);border:none;position:relative;cursor:pointer;flex-shrink:0}
+  .swtch.on{background:var(--peach-strong)}
+  .swtch .kn{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .15s}
+  .swtch.on .kn{left:18px}
+  .ovclose{width:100%;margin-top:14px;border:1px solid var(--border-strong);border-radius:12px;padding:10px;font-size:13px;font-weight:700;background:transparent;color:var(--text);font-family:inherit}
+  .foot{text-align:center;font-size:12px;color:var(--sub);padding-top:10px;line-height:1.5}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top">
+    <a class="navbtn" href="карта.html">← карта</a>
+    <a class="navbtn" href="журнал.html">📖 журнал</a>
+  </div>
+  <h1>трекер дня</h1>
+  <div class="lead">настроение, сон и всё остальное — по чуть-чуть каждый день, чтобы видеть связи, а не гадать.</div>
+
+  <div class="calhead">
+    <button id="prevM">◁</button>
+    <span class="mid" id="calTitle"></span>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button id="nextM">▷</button>
+      <button class="gear" id="gearBtn">⚙</button>
+    </div>
+  </div>
+  <div class="weekrow"><span>пн</span><span>вт</span><span>ср</span><span>чт</span><span>пт</span><span>сб</span><span>вс</span></div>
+  <div class="calgrid" id="calGrid"></div>
+
+  <div id="dayHost"></div>
+  <div id="insightHost"></div>
+
+  <div class="foot">это дневник для тебя самой, не диагностика — если паттерн повторяется и мешает, обсуди с врачом</div>
+</div>
+
+<div class="ovbg" id="cfgOv">
+  <div class="ovcard">
+    <h2>какие категории трекать</h2>
+    <div id="cfgList"></div>
+    <button class="ovclose" id="cfgClose">готово</button>
+  </div>
+</div>
+
+<script>
+var profile = loadDemoProfile();
+var today = new Date();
+var todayStr = today.toISOString().slice(0,10);
+var viewYear = today.getFullYear(), viewMonth = today.getMonth();
+var selectedDate = todayStr;
+var dayLog = loadDayTrackLog();
+var cycleLog = loadCycleLog();
+
+var MONTHS=["январь","февраль","март","апрель","май","июнь","июль","август","сентябрь","октябрь","ноябрь","декабрь"];
+
+function moodAvg(e){
+  var vals=[e.mood && e.mood.morning, e.mood && e.mood.evening].filter(function(v){return v!=null;});
+  return vals.length ? vals.reduce(function(a,b){return a+b;},0)/vals.length : null;
+}
+var MOOD_COLORS={1:"#E24B4A",2:"#EF9F27",3:"#93928b",4:"#639922",5:"#0F6E56"};
+
+function renderCalendar(){
+  document.getElementById("calTitle").textContent = MONTHS[viewMonth]+" "+viewYear;
+  var grid=document.getElementById("calGrid");
+  grid.innerHTML="";
+  var first=new Date(viewYear, viewMonth, 1);
+  var startCol=(first.getDay()+6)%7;
+  var daysInMonth=new Date(viewYear, viewMonth+1, 0).getDate();
+  for(var i=0;i<startCol;i++){ grid.appendChild(document.createElement("div")); }
+  for(var d=1; d<=daysInMonth; d++){
+    var dateStr = viewYear+"-"+String(viewMonth+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+    var cell=document.createElement("div");
+    cell.className="daycell"+(cycleLog.indexOf(dateStr)>=0?" period":"")+(dateStr===selectedDate?" sel":"");
+    cell.textContent=d;
+    var entry=dayLog[dateStr];
+    if(entry){
+      var mv=moodAvg(entry);
+      if(mv!=null){
+        var dot=document.createElement("span");
+        dot.className="dot";
+        dot.style.background=MOOD_COLORS[Math.round(mv)]||"#93928b";
+        cell.appendChild(dot);
+      }
+      if(entry.note){
+        var nt=document.createElement("span"); nt.className="nt"; nt.textContent="•";
+        cell.appendChild(nt);
+      }
+    }
+    cell.addEventListener("click", function(ds){ return function(){ selectedDate=ds; renderCalendar(); renderDay(); }; }(dateStr));
+    grid.appendChild(cell);
+  }
+}
+
+function fmtDateHead(dateStr){
+  var d=new Date(dateStr+"T00:00:00");
+  return d.getDate()+" "+MONTHS[d.getMonth()];
+}
+
+function ensureEntry(){
+  if(!dayLog[selectedDate]) dayLog[selectedDate]=emptyDayEntry();
+  return dayLog[selectedDate];
+}
+function persist(){ saveDayTrackLog(dayLog); renderCalendar(); renderInsight(); }
+
+function renderDay(){
+  var host=document.getElementById("dayHost");
+  var cats=enabledCategories(profile);
+  var e=dayLog[selectedDate]||emptyDayEntry();
+  var html='<div class="card"><div class="dtitle">'+fmtDateHead(selectedDate)+'</div>';
+
+  cats.forEach(function(c){
+    if(c.id==="mood") html+=moodBlock(e);
+    else if(c.id==="sleep") html+=sleepBlock(e);
+    else if(c.id==="cravings") html+=chipBlock("cravings","крейвинги",e.cravings);
+    else if(c.id==="symptoms") html+=chipBlock("symptoms","симптомы",e.symptoms);
+    else if(c.id==="skin") html+=chipBlock("skin","кожа",e.skin);
+    else if(c.id==="stress") html+=stressBlock(e);
+    else if(c.id==="headache") html+=headacheBlock(e);
+    else if(c.id==="libido") html+=libidoBlock(e);
+    else if(c.id==="cycle") html+=cycleBlock();
+    else if(c.id==="note") html+=noteBlock(e);
+  });
+  html+='</div>';
+  host.innerHTML=html;
+  wireDay();
+}
+
+function moodBlock(e){
+  function faces(period){
+    var vals=[1,2,3,4,5], emojis=["😞","🙁","😐","🙂","😄"];
+    return vals.map(function(v,i){
+      return '<button class="facebtn'+(e.mood[period]===v?' on':'')+'" data-mood="'+period+'" data-val="'+v+'">'+emojis[i]+'</button>';
+    }).join('');
+  }
+  return '<div class="rowhead"><span class="lb">настроение · утро</span></div><div class="facegrid" style="margin-bottom:10px">'+faces("morning")+'</div>'
+    +'<div class="rowhead"><span class="lb">настроение · вечер</span></div><div class="facegrid">'+faces("evening")+'</div>';
+}
+function sleepBlock(e){
+  var opts=[["bad","плохо"],["mid","средне"],["good","хорошо"]];
+  return '<div class="row"><span class="lb">сон</span>'
+    +'<div style="display:flex;gap:8px;align-items:center;flex:1;justify-content:flex-end">'
+    +'<div style="display:flex;gap:6px">'+opts.map(function(o){
+      return '<button class="miniopt'+(e.sleep.quality===o[0]?' on':'')+'" data-sleepq="'+o[0]+'">'+o[1]+'</button>';
+    }).join('')+'</div>'
+    +'<input class="hourinp" type="number" step="0.5" min="0" max="14" placeholder="ч" id="sleepHours" value="'+(e.sleep.hours!=null?e.sleep.hours:'')+'">'
+    +'</div></div>';
+}
+function chipBlock(cat, label, selected){
+  var all=CHIP_OPTIONS[cat]||[];
+  var top=topFrequent(cat,2).filter(function(o){return all.indexOf(o)>=0;});
+  if(!top.length) top=all.slice(0,2);
+  var rest=all.filter(function(o){return top.indexOf(o)<0;});
+  function chip(o){ return '<button class="chip'+(selected.indexOf(o)>=0?' on':'')+'" data-cat="'+cat+'" data-opt="'+o+'">'+o+'</button>'; }
+  return '<div class="row" style="flex-direction:column;align-items:stretch">'
+    +'<div class="rowhead"><span class="lb">'+label+'</span></div>'
+    +'<div class="chipwrap">'+top.map(chip).join('')+'<button class="chevbtn" data-chev="'+cat+'">⌄</button></div>'
+    +'<div class="chipfull" data-chipfull="'+cat+'">'+rest.map(chip).join('')+'</div>'
+    +'</div>';
+}
+function stressBlock(e){
+  var bars="";
+  for(var i=1;i<=5;i++){ bars+='<div class="stressbar'+(e.stress!=null && i<=e.stress?' on':'')+'" data-stress="'+i+'"></div>'; }
+  return '<div class="row"><span class="lb">стресс</span><div class="stresswrap" style="flex:1;margin-left:12px">'+bars+'</div></div>';
+}
+function headacheBlock(e){
+  return '<div class="row"><span class="lb">головная боль</span>'
+    +'<div class="togglepair"><button class="miniopt'+(!e.headache.had?' on':'')+'" data-hadache="no">нет</button><button class="miniopt'+(e.headache.had?' on':'')+'" data-hadache="yes">была</button></div></div>';
+}
+function libidoBlock(e){
+  var lv=e.libido.level;
+  return '<div class="row" style="flex-direction:column;align-items:stretch">'
+    +'<div class="rowhead"><span class="lb">секс сегодня</span><div class="togglepair"><button class="miniopt'+(e.libido.sex===false?' on':'')+'" data-sex="no">нет</button><button class="miniopt'+(e.libido.sex===true?' on':'')+'" data-sex="yes">да</button></div></div>'
+    +'<div class="rowhead"><span class="lb">либидо</span></div><div class="stresswrap">'
+    +[1,2,3,4,5].map(function(i){return '<div class="stressbar'+(lv!=null && i<=lv?' on':'')+'" data-libido="'+i+'"></div>';}).join('')
+    +'</div></div>';
+}
+function cycleBlock(){
+  var ph=cyclePhaseFor(cycleLog, selectedDate);
+  return '<div class="row"><span class="lb">цикл</span>'
+    +(ph ? '<span class="badge">день '+ph.day+' · '+ph.phase+'</span>' : '<span class="lb" style="color:var(--sub)">пока нет данных</span>')
+    +'</div><div class="row"><button class="miniopt" id="markCycle" style="flex:none;padding:8px 14px">отметить начало месячных ('+fmtDateHead(selectedDate)+')</button></div>';
+}
+function noteBlock(e){
+  return '<div class="row" style="flex-direction:column;align-items:stretch"><span class="lb" style="margin-bottom:6px">заметка</span><textarea class="noteta" id="noteTa" placeholder="что было важного сегодня">'+(e.note||'')+'</textarea></div>';
+}
+
+function wireDay(){
+  document.querySelectorAll('[data-mood]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var e=ensureEntry();
+      e.mood[b.dataset.mood]=parseInt(b.dataset.val,10);
+      persist(); renderDay();
+    });
+  });
+  document.querySelectorAll('[data-sleepq]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var e=ensureEntry();
+      e.sleep.quality = e.sleep.quality===b.dataset.sleepq ? null : b.dataset.sleepq;
+      persist(); renderDay();
+    });
+  });
+  var hi=document.getElementById('sleepHours');
+  if(hi) hi.addEventListener('change', function(){
+    var e=ensureEntry();
+    e.sleep.hours = hi.value!=="" ? parseFloat(hi.value) : null;
+    persist();
+  });
+  document.querySelectorAll('[data-cat]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var e=ensureEntry(); var cat=b.dataset.cat, opt=b.dataset.opt;
+      var idx=e[cat].indexOf(opt);
+      if(idx>=0){ e[cat].splice(idx,1); } else { e[cat].push(opt); bumpTrackerFreq(cat,opt); }
+      persist(); renderDay();
+    });
+  });
+  document.querySelectorAll('[data-chev]').forEach(function(b){
+    b.addEventListener('click', function(){
+      b.classList.toggle('open');
+      var full=document.querySelector('[data-chipfull="'+b.dataset.chev+'"]');
+      if(full) full.classList.toggle('open');
+    });
+  });
+  document.querySelectorAll('[data-stress]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var e=ensureEntry();
+      e.stress = e.stress===parseInt(b.dataset.stress,10) ? null : parseInt(b.dataset.stress,10);
+      persist(); renderDay();
+    });
+  });
+  document.querySelectorAll('[data-hadache]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var e=ensureEntry();
+      e.headache.had = b.dataset.hadache==="yes";
+      persist(); renderDay();
+    });
+  });
+  document.querySelectorAll('[data-sex]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var e=ensureEntry();
+      e.libido.sex = b.dataset.sex==="yes";
+      persist(); renderDay();
+    });
+  });
+  document.querySelectorAll('[data-libido]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var e=ensureEntry();
+      e.libido.level = e.libido.level===parseInt(b.dataset.libido,10) ? null : parseInt(b.dataset.libido,10);
+      persist(); renderDay();
+    });
+  });
+  var mc=document.getElementById('markCycle');
+  if(mc) mc.addEventListener('click', function(){
+    cycleLog=markCycleStart(selectedDate);
+    persist(); renderDay();
+  });
+  var nt=document.getElementById('noteTa');
+  if(nt) nt.addEventListener('change', function(){
+    var e=ensureEntry();
+    e.note=nt.value;
+    persist();
+  });
+}
+
+function renderInsight(){
+  var insights=correlationInsights(dayLog, cycleLog, profile);
+  var host=document.getElementById('insightHost');
+  host.innerHTML = insights.length ? insights.map(function(t){ return '<div class="insight">💡 заметил: '+t+'</div>'; }).join('') : '';
+}
+
+function renderConfigPanel(){
+  var cfg=loadTrackerConfig();
+  var list=document.getElementById('cfgList');
+  list.innerHTML = TRACKER_CATEGORIES.filter(function(c){
+    return !(c.sexOnly && profile.sex!==c.sexOnly);
+  }).map(function(c){
+    return '<div class="cfgrow"><span class="lb">'+c.label+'</span><button class="swtch'+(cfg[c.id]?' on':'')+'" data-cfg="'+c.id+'"><span class="kn"></span></button></div>';
+  }).join('');
+  list.querySelectorAll('[data-cfg]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var cfg=loadTrackerConfig();
+      cfg[b.dataset.cfg]=!cfg[b.dataset.cfg];
+      saveTrackerConfig(cfg);
+      b.classList.toggle('on');
+    });
+  });
+}
+
+document.getElementById('prevM').addEventListener('click', function(){
+  viewMonth--; if(viewMonth<0){viewMonth=11; viewYear--;}
+  renderCalendar();
+});
+document.getElementById('nextM').addEventListener('click', function(){
+  viewMonth++; if(viewMonth>11){viewMonth=0; viewYear++;}
+  renderCalendar();
+});
+document.getElementById('gearBtn').addEventListener('click', function(){
+  renderConfigPanel();
+  document.getElementById('cfgOv').classList.add('open');
+});
+document.getElementById('cfgClose').addEventListener('click', function(){
+  document.getElementById('cfgOv').classList.remove('open');
+  renderDay();
+});
+
+renderCalendar();
+renderDay();
+renderInsight();
+try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
+</script>
+</body>
+</html>

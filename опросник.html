@@ -149,6 +149,12 @@
     <div id="medWarnBox" class="warnbox" style="display:none;margin-top:10px;margin-bottom:0"></div>
   </div></div>
 
+  <div class="card"><div class="bd" style="padding:12px 14px">
+    <div class="glabel">что трекать в дневнике дня</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px">не всё нужно всем — выключи то, что не хочешь отмечать (можно поменять позже в настройках трекера)</div>
+    <div class="chips" id="trackerChips"></div>
+  </div></div>
+
   <button class="btn" id="toQ">далее → опросник</button>
   <div class="foot">данные остаются на устройстве · это не медкарта</div>
 </div>
@@ -308,6 +314,24 @@ function paintMedWarn(){
 }
 buildChips("medChips",MEDS,PROFILE.meds,paintMedWarn);
 paintMedWarn();
+
+function buildTrackerChips(){
+  const host=document.getElementById("trackerChips"); host.innerHTML="";
+  const cfg=loadTrackerConfig();
+  const enabledSet=new Set(TRACKER_CATEGORIES.filter(c=>cfg[c.id]).map(c=>c.id));
+  TRACKER_CATEGORIES.filter(c=>!(c.sexOnly && PROFILE.sex!==c.sexOnly)).forEach(c=>{
+    const el=document.createElement("div"); el.className="chip"; el.textContent=c.label;
+    if(enabledSet.has(c.id)) el.classList.add("on");
+    el.onclick=()=>{
+      const cfg2=loadTrackerConfig();
+      cfg2[c.id]=!cfg2[c.id];
+      saveTrackerConfig(cfg2);
+      el.classList.toggle("on");
+    };
+    host.appendChild(el);
+  });
+}
+buildTrackerChips();
 document.querySelectorAll("#pregSeg button").forEach(b=>{
   if(b.dataset.v===PROFILE.preg){ document.querySelectorAll("#pregSeg button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); }
   b.onclick=()=>{ document.querySelectorAll("#pregSeg button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); PROFILE.preg=b.dataset.v; saveProfile(); };
@@ -528,7 +552,7 @@ function paintPregCard(){
 }
 document.querySelectorAll("#sexSeg0 button").forEach(b=>{
   if(b.dataset.v===PROFILE.sex){ document.querySelectorAll("#sexSeg0 button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); }
-  b.onclick=()=>{ document.querySelectorAll("#sexSeg0 button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); PROFILE.sex=b.dataset.v; saveProfile(); paintPregCard(); buildTopicChips(); buildDxChips(); };
+  b.onclick=()=>{ document.querySelectorAll("#sexSeg0 button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); PROFILE.sex=b.dataset.v; saveProfile(); paintPregCard(); buildTopicChips(); buildDxChips(); buildTrackerChips(); };
 });
 paintPregCard();
 document.getElementById("toProfile").onclick=()=>show("screen-profile");
