@@ -120,10 +120,18 @@ function render(){
       let valLine='';
       if(st.status==="done"){
         tag='<span class="tag done">✓ сдано'+(st.date?' '+new Date(st.date).toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit",year:"numeric"}):'')+'</span>';
-        const interp = st.value!=null ? interpretLabValue(statusKey, st.value, st.unit, profile.sex) : null;
+        const interp = st.value!=null ? interpretLabValue(statusKey, st.value, st.unit, profile.sex, profile.age) : null;
+        const cycleKey = cycleReferenceFor(statusKey);
         if(interp){
-          tag='<span class="tag '+interp.level+'">'+st.value+(st.unit?' '+st.unit:'')+' — '+interp.label+'</span>';
+          tag='<span class="tag '+interp.level+'">'+st.value+(st.unit?' '+st.unit:'')+' — '+interp.label+(interp.ageNote||'')+'</span>';
           valLine='<div class="valrow">оптимум '+interp.opt.low+'–'+interp.opt.high+' '+interp.unit+' (референс '+interp.ref.low+'–'+interp.ref.high+') · '+interp.source+'</div>';
+        } else if(cycleKey){
+          // зависит от дня цикла/фазы менопаузы — не наш вердикт, справочная таблица для самостоятельной сверки
+          const cr=CYCLE_REFERENCE[cycleKey];
+          tag='<span class="tag needed">'+st.value+(st.unit?' '+st.unit:'')+'</span>';
+          valLine='<div class="valrow">зависит от дня цикла — сверь сама: '
+            +cr.rows.map(r=>r.phase+' '+r.low+'–'+r.high+' '+cr.unit).join(' · ')
+            +' · '+cr.source+'</div>';
         } else if(st.value!=null && String(st.value).trim()!==""){
           // нет числового диапазона (УЗИ/описание/качественный результат) — показать как памятку
           valLine='<div class="valrow">заметка: '+st.value+(st.unit?' '+st.unit:'')+'</div>';

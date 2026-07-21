@@ -362,6 +362,7 @@ function renderBody(){
     card.appendChild(hd);
     const bd=document.createElement("div"); bd.className="bd";
     sub.items.forEach((it,ii)=>{
+      if(it.minAge && Number(PROFILE.age) && Number(PROFILE.age)<it.minAge) return;
       const row=document.createElement("div"); row.className="row";
       const lab=document.createElement("div"); lab.className="lab"; lab.textContent=it.t; row.appendChild(lab);
       const seg=document.createElement("div"); seg.className="seg";
@@ -398,7 +399,7 @@ function recalc(si){
 function summary(){
   const allowed=allowedIdx();
   let answered=0,total=0;
-  DATA.forEach((s,i)=>{ if(!allowed.has(i)) return; s.items.forEach(it=>{total++; if(it.v>=0)answered++;}); });
+  DATA.forEach((s,i)=>{ if(!allowed.has(i)) return; s.items.forEach(it=>{ if(it.minAge && Number(PROFILE.age) && Number(PROFILE.age)<it.minAge) return; total++; if(it.v>=0)answered++;}); });
   document.getElementById("count").textContent="отвечено: "+answered+" / "+total;
   const flagged=flaggedBlocks();
   const host=document.getElementById("summary");
