@@ -767,9 +767,15 @@ function keyMatchesLine(line, key){
   return false;
 }
 /* найти все реальные атомарные анализы (ключи LABRANGES), которые есть в строке рекомендации —
-   строка может объединять несколько анализов ("АЛТ, АСТ, ГГТ, ..."), это не один анализ */
+   строка может объединять несколько анализов ("АЛТ, АСТ, ГГТ, ..."), это не один анализ.
+   ключи со скобками ("ДГЭА-с (DHEA-S)") проверяем ещё и по короткой части до скобки —
+   в тексте рекомендаций иногда встречается только короткое название без английской расшифровки */
 function findLabMatches(labLine){
-  return Object.keys(LABRANGES).filter(k=>keyMatchesLine(labLine, k));
+  return Object.keys(LABRANGES).filter(k=>{
+    if(keyMatchesLine(labLine, k)) return true;
+    const short=k.split("(")[0].trim();
+    return short && short!==k && keyMatchesLine(labLine, short);
+  });
 }
 function interpretLabValue(key, value, unit, sex){
   let num=parseFloat(String(value).replace(",","."));
