@@ -136,7 +136,7 @@ var cycleLog = loadCycleLog();
 var MONTHS=["январь","февраль","март","апрель","май","июнь","июль","август","сентябрь","октябрь","ноябрь","декабрь"];
 
 function moodAvg(e){
-  var vals=[e.mood && e.mood.morning, e.mood && e.mood.evening].filter(function(v){return v!=null;});
+  var vals=[moodSlotValence(e.mood && e.mood.morning), moodSlotValence(e.mood && e.mood.evening)].filter(function(v){return v!=null;});
   return vals.length ? vals.reduce(function(a,b){return a+b;},0)/vals.length : null;
 }
 var MOOD_COLORS={1:"#E24B4A",2:"#EF9F27",3:"#93928b",4:"#639922",5:"#0F6E56"};
@@ -207,15 +207,24 @@ function renderDay(){
   wireDay();
 }
 
-function moodBlock(e){
-  function faces(period){
-    var vals=[1,2,3,4,5], emojis=["😞","🙁","😐","🙂","😄"];
-    return vals.map(function(v,i){
-      return '<button class="facebtn'+(e.mood[period]===v?' on':'')+'" data-mood="'+period+'" data-val="'+v+'">'+emojis[i]+'</button>';
-    }).join('');
+function emotionPicker(period, slot){
+  var cats='<div class="facegrid">'+EMOTION_WHEEL.map(function(em){
+    var on=slot && slot.cat===em.label;
+    return '<button class="facebtn'+(on?' on':'')+'" data-emocat="'+period+'" data-cat="'+em.label+'" title="'+em.label+'">'+em.emoji+'</button>';
+  }).join('')+'</div>';
+  var nuanceHtml='';
+  if(slot && slot.cat){
+    var em=EMOTION_WHEEL.find(function(x){return x.label===slot.cat;});
+    if(em) nuanceHtml='<div class="chipwrap" style="margin-top:6px" data-emonuance="'+period+'">'+em.nuances.map(function(n){
+      var on=slot.nuance===n;
+      return '<button class="chip'+(on?' on':'')+'" data-nuance="'+n+'">'+n+'</button>';
+    }).join('')+'</div>';
   }
-  return '<div class="rowhead"><span class="lb">настроение · утро</span></div><div class="facegrid" style="margin-bottom:10px">'+faces("morning")+'</div>'
-    +'<div class="rowhead"><span class="lb">настроение · вечер</span></div><div class="facegrid">'+faces("evening")+'</div>';
+  return cats+nuanceHtml;
+}
+function moodBlock(e){
+  return '<div class="rowhead"><span class="lb">настроение · утро</span></div><div style="margin-bottom:10px">'+emotionPicker("morning", e.mood.morning)+'</div>'
+    +'<div class="rowhead"><span class="lb">настроение · вечер</span></div><div>'+emotionPicker("evening", e.mood.evening)+'</div>';
 }
 function sleepBlock(e){
   var opts=[["bad","плохо"],["mid","средне"],["good","хорошо"]];
@@ -267,11 +276,23 @@ function noteBlock(e){
 }
 
 function wireDay(){
-  document.querySelectorAll('[data-mood]').forEach(function(b){
+  document.querySelectorAll('[data-emocat]').forEach(function(b){
     b.addEventListener('click', function(){
-      var e=ensureEntry();
-      e.mood[b.dataset.mood]=parseInt(b.dataset.val,10);
+      var e=ensureEntry(); var period=b.dataset.emocat, cat=b.dataset.cat;
+      var cur=e.mood[period];
+      e.mood[period] = (cur && cur.cat===cat) ? null : {cat:cat, nuance:null};
       persist(); renderDay();
+    });
+  });
+  document.querySelectorAll('[data-emonuance]').forEach(function(box){
+    var period=box.dataset.emonuance;
+    box.querySelectorAll('[data-nuance]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var e=ensureEntry(); var n=b.dataset.nuance;
+        if(!e.mood[period]) return;
+        e.mood[period].nuance = e.mood[period].nuance===n ? null : n;
+        persist(); renderDay();
+      });
     });
   });
   document.querySelectorAll('[data-sleepq]').forEach(function(b){

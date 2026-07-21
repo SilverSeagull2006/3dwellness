@@ -1539,6 +1539,17 @@ function topFrequent(category, n){
   return Object.keys(cat).sort((a,b)=>cat[b]-cat[a]).slice(0, n||2);
 }
 
+/* значение слота настроения → число 1-5 (для порогов/усреднения), понимает и старый формат (число), и колесо эмоций ({cat,nuance}) */
+function moodSlotValence(slot){
+  if(slot==null) return null;
+  if(typeof slot==="number") return slot;
+  if(typeof slot==="object" && slot.cat){
+    const e=EMOTION_WHEEL.find(x=>x.label===slot.cat);
+    return e ? e.valence : null;
+  }
+  return null;
+}
+
 /* движок корреляции — простые правила по последним дням, не статистика/ML;
    честно: только явные, объяснимые совпадения (фаза цикла, короткий сон), не выдумываем причинность */
 function correlationInsights(log, cycleLog, profile){
@@ -1547,7 +1558,7 @@ function correlationInsights(log, cycleLog, profile){
   if(dates.length<3) return insights;
   const recent=dates.slice(-7);
   function moodVal(e){
-    const vals=[e.mood && e.mood.morning, e.mood && e.mood.evening].filter(v=>v!=null);
+    const vals=[moodSlotValence(e.mood && e.mood.morning), moodSlotValence(e.mood && e.mood.evening)].filter(v=>v!=null);
     return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
   }
   const recentMoods=recent.map(d=>({date:d, m:moodVal(log[d])})).filter(x=>x.m!=null);
@@ -1576,7 +1587,7 @@ function suggestGeneralTest(log){
   if(dates.length<5) return false;
   const recent=dates.slice(-7);
   function moodVal(e){
-    const vals=[e.mood && e.mood.morning, e.mood && e.mood.evening].filter(v=>v!=null);
+    const vals=[moodSlotValence(e.mood && e.mood.morning), moodSlotValence(e.mood && e.mood.evening)].filter(v=>v!=null);
     return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
   }
   const moods=recent.map(d=>moodVal(log[d])).filter(v=>v!=null);
@@ -1589,12 +1600,12 @@ function suggestGeneralTest(log){
 
 /* колесо эмоций: 2 шага — широкая категория (обязательно), уточнение (опционально) */
 const EMOTION_WHEEL=[
-  {emoji:"😠", label:"злость", nuances:["раздражение","возмущение","ярость"]},
-  {emoji:"😢", label:"грусть", nuances:["уныние","разочарование","тоска"]},
-  {emoji:"😨", label:"страх", nuances:["тревога","беспокойство","паника"]},
-  {emoji:"😊", label:"радость", nuances:["спокойствие","благодарность","воодушевление"]},
-  {emoji:"😳", label:"стыд/вина", nuances:["неловкость","вина","стыд"]},
-  {emoji:"😐", label:"пусто/никак", nuances:["онемение","усталость","отстранённость"]}
+  {emoji:"😠", label:"злость", valence:2, nuances:["раздражение","возмущение","ярость"]},
+  {emoji:"😢", label:"грусть", valence:1, nuances:["уныние","разочарование","тоска"]},
+  {emoji:"😨", label:"страх", valence:2, nuances:["тревога","беспокойство","паника"]},
+  {emoji:"😊", label:"радость", valence:5, nuances:["спокойствие","благодарность","воодушевление"]},
+  {emoji:"😳", label:"стыд/вина", valence:1, nuances:["неловкость","вина","стыд"]},
+  {emoji:"😐", label:"пусто/никак", valence:2, nuances:["онемение","усталость","отстранённость"]}
 ];
 
 /* инструменты регуляции — по нарастанию: заземление (секунды) → дыхание (уже есть кнопкой) → сканирование тела (подольше) */
