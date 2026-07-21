@@ -600,10 +600,17 @@ function fuzzyIncludes(a,b){
   if(!a || !b) return false;
   return a.includes(b) || b.includes(a);
 }
+function labNameMatches(labLine, otherName){
+  if(fuzzyIncludes(labLine, otherName)) return true;
+  // если labLine — известный ключ LABRANGES, проверить и его алиасы (напр. "25-OH витамин D" = "Витамин D3")
+  const r=(typeof LABRANGES!=="undefined") && LABRANGES[labLine];
+  if(r && r.aliases) return r.aliases.some(a=>fuzzyIncludes(a, otherName));
+  return false;
+}
 function labStatus(labLine, savedLabs, savedRecs){
-  const done=savedLabs.find(l=>fuzzyIncludes(labLine, l.name));
+  const done=savedLabs.find(l=>labNameMatches(labLine, l.name));
   if(done) return {status:"done", date:done.date, value:done.value, unit:done.unit};
-  const rec=savedRecs.find(r=>fuzzyIncludes(labLine, r.text));
+  const rec=savedRecs.find(r=>labNameMatches(labLine, r.text));
   if(rec) return {status: rec.done?"done":"planned", doctor:rec.doctor, date:rec.date};
   return {status:"needed"};
 }
@@ -626,7 +633,7 @@ const LABRANGES={
   "Обратный Т3 (rT3)":{unit:"нг/дл",
     ref:{low:9.2, high:24.1}, opt:{low:9.2, high:14.0},
     source:"функциональная эндокринология — высокий rT3 при нормальном ТТГ может объяснять симптомы гипотиреоза при формально нормальных анализах",sourceUrl:""},
-  "Витамин D3":{unit:"нг/мл",
+  "Витамин D3":{unit:"нг/мл", aliases:["25-OH витамин D","25(OH)D"],
     ref:{low:20, high:100}, opt:{low:40, high:60},
     source:"Linus Pauling Institute (минимум 30, оптимум 30-60) + Endocrine Society (предпочтительный диапазон 40-60)",sourceUrl:"https://lpi.oregonstate.edu/mic/vitamins/vitamin-D"},
   "Ферритин":{unit:"нг/мл",
@@ -748,7 +755,19 @@ const LABRANGES={
     source:"более высокий кальций даже в пределах нормы связан с повышенным сердечно-сосудистым риском (кальцификация сосудов) — поэтому оптимум это нижняя-средняя часть референса, а не верхняя",sourceUrl:""},
   "Кальций ионизированный":{unit:"ммоль/л",
     ref:{low:1.10, high:1.35}, opt:{low:1.18, high:1.27},
-    source:"ионизированный кальций — физиологически активная фракция; узкий оптимум описан в клинической литературе",sourceUrl:""}
+    source:"ионизированный кальций — физиологически активная фракция; узкий оптимум описан в клинической литературе",sourceUrl:""},
+  "Холестерин общий":{unit:"ммоль/л",
+    ref:{low:0, high:6.2}, opt:{low:0, high:5.0},
+    source:"ATP III — желательный уровень <5.2 ммоль/л, погранично высокий 5.2-6.2, высокий >6.2",sourceUrl:""},
+  "СРБ (С-реактивный белок)":{unit:"мг/л",
+    ref:{low:0, high:10}, opt:{low:0, high:10},
+    source:"обычный (не высокочувствительный) СРБ — маркер острого воспаления/инфекции, не для сердечно-сосудистой стратификации риска (для этого — hs-CRP отдельно); честно не выделяю отдельный 'оптимум' у же порога",sourceUrl:""},
+  "Кортизол вечер":{unit:"мкг/дл",
+    ref:{low:2, high:14}, opt:{low:2, high:8},
+    source:"вечерний кортизол должен быть заметно ниже утреннего (нормальный суточный ритм) — если вечером всё ещё высокий, это признак нарушения циркадного ритма",sourceUrl:""},
+  "Ртуть в моче":{unit:"мкг/л",
+    ref:{low:0, high:200}, opt:{low:0, high:200},
+    source:"CDC — значимая экспозиция неорганической ртутью выше 200 мкг/л",sourceUrl:""}
 };
 function normalizeUnit(u){ return (u||"").toLowerCase().replace(/\s+/g,"").replace("µ","мк"); }
 /* сопоставление по границам "слова" (кириллица не покрывается \b в JS regex) —
@@ -774,7 +793,9 @@ function findLabMatches(labLine){
   return Object.keys(LABRANGES).filter(k=>{
     if(keyMatchesLine(labLine, k)) return true;
     const short=k.split("(")[0].trim();
-    return short && short!==k && keyMatchesLine(labLine, short);
+    if(short && short!==k && keyMatchesLine(labLine, short)) return true;
+    const aliases=LABRANGES[k].aliases||[];
+    return aliases.some(a=>keyMatchesLine(labLine, a));
   });
 }
 function interpretLabValue(key, value, unit, sex){
