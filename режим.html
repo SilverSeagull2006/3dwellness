@@ -61,6 +61,7 @@ function loadPlan(){
   try{ const raw=localStorage.getItem("3dw_plan_v1"); return raw?JSON.parse(raw):[[],[],[]]; }catch(_){ return [[],[],[]]; }
 }
 const DIMS=["1D · биохимия","2D · физика","3D · психика"];
+const DIM_HUES={"2D · физика":{bg:"#f7e8dc",fg:"#7c4b2b"},"3D · психика":{bg:"#eeedfe",fg:"#3c3489"}};
 function render(){
   const plan=loadPlan();
   const host=document.getElementById("host");
@@ -89,7 +90,7 @@ function render(){
   blockNames.forEach(name=>{
     const g=groups[name];
     const hueEntry=DATA.findIndex(d=>d.name===name);
-    const hue=hueEntry>=0?HUES[hueEntry]:{bg:"var(--soft)",fg:"var(--text)"};
+    const hue=hueEntry>=0?HUES[hueEntry]:(DIM_HUES[name]||{bg:"var(--soft)",fg:"var(--text)"});
     html+='<div class="card"><div class="hd" style="background:'+hue.bg+';color:'+hue.fg+'">'+name+'</div><div class="bd">';
     if(g.supp.length){
       html+='<div class="kind">БАД</div>'+g.supp.map(it=>{
