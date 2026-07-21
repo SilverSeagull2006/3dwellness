@@ -43,6 +43,10 @@
   .tag.done{background:var(--ok-bg);color:var(--ok-fg)}
   .tag.planned{background:var(--warn-bg);color:var(--warn-fg)}
   .tag.needed{background:var(--soft);color:var(--sub)}
+  .tag.green{background:var(--ok-bg);color:var(--ok-fg)}
+  .tag.yellow{background:var(--warn-bg);color:var(--warn-fg)}
+  .tag.red{background:var(--bad-bg);color:var(--bad-fg)}
+  .valrow{font-size:12px;color:var(--sub);margin-top:2px;line-height:1.4}
   .doclist{display:flex;flex-wrap:wrap;gap:8px;padding:2px 2px 4px}
   .docchip{font-size:13px;font-weight:700;padding:6px 12px;border-radius:999px;background:var(--soft);color:var(--text)}
   .empty{font-size:14px;color:var(--muted);padding:20px 2px;text-align:center;line-height:1.6}
@@ -110,12 +114,32 @@ function render(){
     const hue=HUES[x.i], r=RECS[x.i];
     const extra=demoLabsFor(x.i, profile);
     const allLabs=[...r.labs, ...extra.map(d=>d.text)];
-    const rows=allLabs.map(l=>{
-      const st=labStatus(l, savedLabs, savedRecs);
+    function statusRow(labelText, statusKey, dotColor, indent){
+      const st=labStatus(statusKey, savedLabs, savedRecs);
       let tag='<span class="tag needed">сдать</span>';
-      if(st.status==="done") tag='<span class="tag done">✓ сдано'+(st.date?' '+new Date(st.date).toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit",year:"numeric"}):'')+'</span>';
+      let valLine='';
+      if(st.status==="done"){
+        tag='<span class="tag done">✓ сдано'+(st.date?' '+new Date(st.date).toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit",year:"numeric"}):'')+'</span>';
+        const interp = st.value!=null ? interpretLabValue(statusKey, st.value, st.unit, profile.sex) : null;
+        if(interp){
+          tag='<span class="tag '+interp.level+'">'+st.value+(st.unit?' '+st.unit:'')+' — '+interp.label+'</span>';
+          valLine='<div class="valrow">оптимум '+interp.opt.low+'–'+interp.opt.high+' '+interp.unit+' (референс '+interp.ref.low+'–'+interp.ref.high+') · '+interp.source+'</div>';
+        }
+      }
       else if(st.status==="planned") tag='<span class="tag planned">назначено, ждём</span>';
-      return '<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span style="flex:1">'+l+'</span>'+tag+'</div>';
+      return '<div class="li" style="'+(indent?'padding-left:16px':'')+'"><span class="dot" style="color:'+dotColor+'">•</span><span style="flex:1">'+labelText+valLine+'</span>'+tag+'</div>';
+    }
+    const rows=allLabs.map(l=>{
+      const matches=findLabMatches(l);
+      if(matches.length<=1){
+        // одиночный анализ (или ни один атомарный ключ не распознан) — интерпретируем саму строку целиком
+        return statusRow(l, matches[0]||l, hue.fg, false);
+      }
+      // составная строка объединяет несколько разных анализов — у каждого свой статус/значение,
+      // не показываем один вердикт на всех
+      const header='<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span style="flex:1;font-weight:700">'+l+'</span></div>';
+      const subRows=matches.map(k=>statusRow(k, k, hue.fg, true)).join('');
+      return header+subRows;
     }).join('');
     return '<div class="card">'
       +'<div class="hd" style="background:'+hue.bg+'"><span class="nm" style="color:'+hue.fg+'">'+x.name+'</span>'

@@ -751,11 +751,30 @@ const LABRANGES={
     source:"ионизированный кальций — физиологически активная фракция; узкий оптимум описан в клинической литературе",sourceUrl:""}
 };
 function normalizeUnit(u){ return (u||"").toLowerCase().replace(/\s+/g,"").replace("µ","мк"); }
-function interpretLabValue(labLine, value, unit, sex){
+/* сопоставление по границам "слова" (кириллица не покрывается \b в JS regex) —
+   чтобы короткие ключи типа "АСТ" не совпадали внутри "гастропанель" или "по возрасту" */
+function keyMatchesLine(line, key){
+  const l=(line||"").toLowerCase(), k=(key||"").toLowerCase();
+  if(!l || !k) return false;
+  const isLetter=ch=>/[а-яёa-z0-9]/i.test(ch);
+  let idx=l.indexOf(k);
+  while(idx!==-1){
+    const before=idx>0?l[idx-1]:"";
+    const after=idx+k.length<l.length?l[idx+k.length]:"";
+    if(!isLetter(before) && !isLetter(after)) return true;
+    idx=l.indexOf(k, idx+1);
+  }
+  return false;
+}
+/* найти все реальные атомарные анализы (ключи LABRANGES), которые есть в строке рекомендации —
+   строка может объединять несколько анализов ("АЛТ, АСТ, ГГТ, ..."), это не один анализ */
+function findLabMatches(labLine){
+  return Object.keys(LABRANGES).filter(k=>keyMatchesLine(labLine, k));
+}
+function interpretLabValue(key, value, unit, sex){
   let num=parseFloat(String(value).replace(",","."));
   if(isNaN(num)) return null;
-  const key=Object.keys(LABRANGES).find(k=>fuzzyIncludes(labLine,k));
-  if(!key) return null;
+  if(!LABRANGES[key]) return null;
   const r=LABRANGES[key];
   const uIn=normalizeUnit(unit), uExp=normalizeUnit(r.unit);
   if(uIn && uExp && uIn!==uExp){
@@ -767,8 +786,10 @@ function interpretLabValue(labLine, value, unit, sex){
   const ref = r.sexSpecific ? (r.ref[sex==="m"?"m":"f"]) : r.ref;
   const opt = r.sexSpecific && r.opt.f ? (r.opt[sex==="m"?"m":"f"]) : r.opt;
   let level, label;
-  if(num<ref.low || num>ref.high){ level="red"; label="вне референса"; }
-  else if(num<opt.low || num>opt.high){ level="yellow"; label="в норме, не в оптимуме"; }
+  if(num<ref.low){ level="red"; label="понижено"; }
+  else if(num>ref.high){ level="red"; label="повышено"; }
+  else if(num<opt.low){ level="yellow"; label="ниже оптимума"; }
+  else if(num>opt.high){ level="yellow"; label="выше оптимума"; }
   else { level="green"; label="в оптимуме"; }
   return {level, label, ref, opt, unit:r.unit, source:r.source, sourceUrl:r.sourceUrl};
 }
