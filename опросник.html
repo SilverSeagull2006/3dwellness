@@ -40,6 +40,7 @@
   .hd .nm{font-size:14px;font-weight:600}
   .bd{padding:2px 14px 8px}
   .band{font-size:12px;font-weight:600;padding:2px 10px;border-radius:999px;background:var(--soft);color:var(--muted);white-space:nowrap}
+  .bandfoot{display:flex;justify-content:flex-end;padding:10px 0 2px;margin-top:4px;border-top:0.5px solid var(--border)}
   .row{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-top:1px solid var(--border)}
   .row:first-child{border-top:none}
   .lab{flex:1;font-size:14px;line-height:1.35}
@@ -393,7 +394,7 @@ function renderBody(){
     const card=document.createElement("div"); card.className="card";
     const hd=document.createElement("div"); hd.className="hd";
     hd.style.background=hue.bg;
-    hd.innerHTML='<span class="nm" style="color:'+hue.fg+'">'+sub.name+'</span><span class="band" id="band-'+si+'">—</span>';
+    hd.innerHTML='<span class="nm" style="color:'+hue.fg+'">'+sub.name+'</span>';
     card.appendChild(hd);
     const bd=document.createElement("div"); bd.className="bd";
     sub.items.forEach((it,ii)=>{
@@ -419,6 +420,9 @@ function renderBody(){
       });
       row.appendChild(seg); bd.appendChild(row);
     });
+    const foot=document.createElement("div"); foot.className="bandfoot";
+    foot.innerHTML='<span class="band" id="band-'+si+'">—</span>';
+    bd.appendChild(foot);
     card.appendChild(bd);
     body.appendChild(card);
     recalc(si);
