@@ -206,6 +206,8 @@ document.addEventListener("DOMContentLoaded", goToMapIfFirstVisit);
 </div>
 
 <div class="wrap">
+ <div class="daylayout">
+  <div class="daysidecol">
   <div class="energy" id="energyCard">
     <div class="modebanner" id="modeBanner"></div>
     <div class="eq">как ты сегодня — сколько сил?</div>
@@ -238,8 +240,13 @@ document.addEventListener("DOMContentLoaded", goToMapIfFirstVisit);
     </span>
     <div style="display:flex;gap:8px"><button class="editbtn" onclick="openAnchorIntro(false)">об опорах</button><button id="editBtn" class="editbtn" onclick="toggleEdit()">✏️ изменить</button></div>
   </div>
+  </div>
+
+  <div class="daymaincol">
   <div id="sections"></div>
   <div class="loadhint" id="loadHint"></div>
+  </div>
+ </div>
 
   <div class="foot" id="footPhrase"></div>
 </div>

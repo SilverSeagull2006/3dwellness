@@ -10,13 +10,19 @@
     background:var(--card); border-right:1px solid var(--border);
     overflow-y:auto;
   }
-  .dsidebar .dbrand{font-size:15px;font-weight:700;margin:4px 8px 18px;color:var(--text)}
+  .dsidebar .dbrand{font-size:15px;font-weight:700;margin:2px 8px 20px;color:var(--text);
+    display:flex;flex-direction:column;gap:7px;align-items:flex-start;line-height:1}
+  .dsidebar .dbrand::before{
+    content:""; width:30px; height:13px; display:block;
+    background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='13' viewBox='0 0 30 13'%3E%3Cpath d='M2 9 Q8 3 13 9 Q13.8 9.9 14.6 9 Q19.6 3 26 9' fill='none' stroke='%237c8a9e' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
   .dsidebar a{
     display:block; padding:10px 12px; border-radius:10px;
     font-size:13.5px; font-weight:700; text-decoration:none; color:var(--muted);
+    transition:background .12s ease,color .12s ease;
   }
   .dsidebar a:hover{background:var(--soft);color:var(--text)}
-  .dsidebar a.on{background:var(--soft);color:var(--text)}
+  .dsidebar a.on{background:var(--soft);color:var(--text);box-shadow:inset 3px 0 0 #7c8a9e}
   .dsidebar .dgap{height:14px}
 
   /* мобильная верхняя навигация дублирует сайдбар — прячем (!important нужен из-за инлайновых style на некоторых страницах) */
@@ -33,10 +39,15 @@
   .scene{
     margin-left:220px !important;
   }
-  /* хиро-иллюстрации (небо в "мой день", ночное море в психике, морская кромка внизу) — тоже сдвигаем и ограничиваем ширину, чтобы не превращались в растянутый баннер */
-  .sky, .hero, .seafoot{
+  /* хиро-иллюстрации — сдвигаем от сайдбара и выравниваем по ширине контента под ними */
+  .hero{
     margin-left:220px !important;
     max-width:760px !important;
+  }
+  /* небо и морская кромка в "мой день" — контент там шире (2 колонки), тянем во всю ширину */
+  .sky, .seafoot{
+    margin-left:220px !important;
+    max-width:1040px !important;
   }
 
   .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
@@ -44,4 +55,10 @@
 
   /* трекер.html — календарь и карточка дня рядом, как в обычном календарном приложении */
   .trkgrid{display:grid;grid-template-columns:340px 1fr;gap:24px;align-items:start}
+
+  /* index.html «мой день» — слева состояние (залипает), справа план дня */
+  .wrap:has(.daylayout){max-width:1040px !important}
+  .daylayout{display:grid;grid-template-columns:320px 1fr;gap:28px;align-items:start}
+  .daysidecol{position:sticky;top:22px}
+  .daysidecol > *{margin-bottom:14px !important}
 }
