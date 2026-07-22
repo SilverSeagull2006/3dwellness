@@ -103,7 +103,7 @@
     @keyframes tickring{0%{box-shadow:0 0 0 0 rgba(31,109,84,.35)}100%{box-shadow:0 0 0 12px rgba(31,109,84,0)}}
     .tick.justdone{animation:tickpop .34s ease, tickring .5s ease}
   }
-  .lab{flex:1;font-size:15px;color:var(--text)}
+  .lab{flex:1;min-width:0;font-size:15px;color:var(--text)}
   .item.done .lab{color:var(--sub);text-decoration:line-through}
   .time{font-size:13px;color:var(--sub)}
   .tag{font-size:11px;padding:1px 8px;border-radius:999px;margin-left:6px;white-space:nowrap;
@@ -129,7 +129,7 @@
   .catbody{max-height:320px;overflow-y:auto;text-align:left}
   .catrow{display:flex;align-items:center;gap:10px;padding:10px 4px;border-top:0.5px solid var(--border)}
   .catrow:first-child{border-top:none}
-  .catrow .lab{flex:1;font-size:14.5px}
+  .catrow .lab{flex:1;min-width:0;font-size:14.5px}
   .catrow .add{width:28px;height:28px;border:none;border-radius:50%;background:var(--soft);color:var(--muted);
     font-size:16px;line-height:1;cursor:pointer;flex-shrink:0}
   .catempty{font-size:13.5px;color:var(--muted);line-height:1.6;padding:10px 4px}
