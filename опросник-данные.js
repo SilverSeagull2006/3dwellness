@@ -1434,7 +1434,7 @@ function loadFullProfile(){
 const TRACKER_CATEGORIES=[
   {id:"mood", label:"настроение", def:true},
   {id:"sleep", label:"сон", def:true},
-  {id:"cravings", label:"тянет на", def:true},
+  {id:"cravings", label:"тяга к определённой пище", def:true},
   {id:"symptoms", label:"симптомы", def:true},
   {id:"skin", label:"кожа", def:false},
   {id:"stress", label:"стресс", def:true},
