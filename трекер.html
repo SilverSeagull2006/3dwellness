@@ -39,12 +39,13 @@
   .calhead .gear{font-size:17px;background:none;border:none;cursor:pointer;color:var(--text)}
   .weekrow{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-size:10.5px;color:var(--sub);text-align:center;margin-bottom:4px}
   .calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px}
-  .daycell{position:relative;aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;
-    font-size:11.5px;color:var(--text);cursor:pointer;background:transparent}
-  .daycell.period{background:#f0c7b8;color:#7c4b2b}
+  .daycell{position:relative;aspect-ratio:1;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    font-size:11.5px;font-weight:600;color:var(--text);cursor:pointer;background:transparent;transition:transform .12s ease}
+  .daycell:hover{transform:scale(1.06)}
+  .daycell.period::after{content:"";position:absolute;left:50%;bottom:3px;transform:translateX(-50%);
+    width:12px;height:2.5px;border-radius:2px;background:#d88870}
   .daycell.sel{box-shadow:inset 0 0 0 2px var(--peach-strong)}
-  .daycell .dot{position:absolute;bottom:2px;width:4px;height:4px;border-radius:50%}
-  .daycell .nt{position:absolute;top:2px;right:3px;font-size:7px}
+  .daycell .nt{position:absolute;top:3px;right:4px;width:4px;height:4px;border-radius:50%;background:var(--sub)}
   .yearlink{font-size:12px;color:var(--sub);text-align:center;margin:-8px 0 16px;text-decoration:underline;cursor:pointer}
 
   .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:12px}
@@ -73,7 +74,14 @@
   .badge{font-size:11px;font-weight:700;background:var(--peach-bg);color:var(--peach-fg);padding:3px 9px;border-radius:999px}
   .noteta{width:100%;border:1px solid var(--border-strong);border-radius:10px;padding:8px 10px;font-size:12.5px;background:transparent;color:var(--text);font-family:inherit;resize:vertical;min-height:50px}
 
-  .insight{background:var(--peach-bg);color:var(--peach-fg);border-radius:16px;padding:12px 14px;font-size:12.5px;line-height:1.45;margin-top:4px}
+  .insight{background:var(--peach-bg);color:var(--peach-fg);border-radius:16px;padding:14px;margin-top:4px}
+  .insight .ihd{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;margin-bottom:6px;opacity:.85}
+  .insight .itext{font-size:13px;line-height:1.5}
+  .insight .istrip{display:flex;gap:5px;margin-top:12px}
+  .insight .istrip .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+  .insight .istrip .bar{width:100%;height:32px;border-radius:6px;background:var(--soft);position:relative;overflow:hidden}
+  .insight .istrip .barfill{position:absolute;left:0;right:0;bottom:0;border-radius:6px}
+  .insight .istrip .lb{font-size:9px;opacity:.7}
 
   .ovbg{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:flex-end;justify-content:center;z-index:20}
   .ovbg.open{display:flex}
@@ -157,6 +165,12 @@ function moodAvg(e){
   return vals.length ? vals.reduce(function(a,b){return a+b;},0)/vals.length : null;
 }
 var MOOD_COLORS={1:"#E24B4A",2:"#EF9F27",3:"#93928b",4:"#639922",5:"#0F6E56"};
+var MOOD_RGB={1:"226,75,74",2:"239,159,39",3:"147,146,139",4:"99,153,34",5:"15,110,86"};
+function moodFill(mv){
+  var rgb=MOOD_RGB[Math.round(mv)]||MOOD_RGB[3];
+  // мягкая акварельная заливка: чуть плотнее снизу, прозрачнее сверху
+  return "linear-gradient(180deg, rgba("+rgb+",.14) 0%, rgba("+rgb+",.38) 100%)";
+}
 
 function renderCalendar(){
   document.getElementById("calTitle").textContent = MONTHS[viewMonth]+" "+viewYear;
@@ -175,13 +189,10 @@ function renderCalendar(){
     if(entry){
       var mv=moodAvg(entry);
       if(mv!=null){
-        var dot=document.createElement("span");
-        dot.className="dot";
-        dot.style.background=MOOD_COLORS[Math.round(mv)]||"#93928b";
-        cell.appendChild(dot);
+        cell.style.background=moodFill(mv);
       }
       if(entry.note){
-        var nt=document.createElement("span"); nt.className="nt"; nt.textContent="•";
+        var nt=document.createElement("span"); nt.className="nt";
         cell.appendChild(nt);
       }
     }
@@ -381,10 +392,33 @@ function wireDay(){
   });
 }
 
+function moodStripHtml(){
+  // последние 7 дней, заканчивая сегодня — колонки-столбики цвета настроения
+  var out='<div class="istrip">';
+  var wd=['пн','вт','ср','чт','пт','сб','вс'];
+  var base=new Date();
+  for(var i=6;i>=0;i--){
+    var dt=new Date(base.getFullYear(),base.getMonth(),base.getDate()-i);
+    var ds=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+    var e=dayLog[ds];
+    var mv=e?moodAvg(e):null;
+    var fill='';
+    if(mv!=null){
+      var h=20+Math.round((mv-1)/4*80); // 20%..100% высоты по настроению
+      fill='<span class="barfill" style="height:'+h+'%;background:'+moodFill(mv)+'"></span>';
+    }
+    out+='<div class="col"><div class="bar">'+fill+'</div><span class="lb">'+wd[(dt.getDay()+6)%7]+'</span></div>';
+  }
+  return out+'</div>';
+}
 function renderInsight(){
   var insights=correlationInsights(dayLog, cycleLog, profile);
   var host=document.getElementById('insightHost');
-  host.innerHTML = insights.length ? insights.map(function(t){ return '<div class="insight">💡 заметил: '+t+'</div>'; }).join('') : '';
+  if(!insights.length){ host.innerHTML=''; return; }
+  host.innerHTML = '<div class="insight"><div class="ihd">💡 вот что заметно</div>'
+    + insights.map(function(t){ return '<div class="itext">'+t+'</div>'; }).join('')
+    + moodStripHtml()
+    + '</div>';
 }
 
 function renderConfigPanel(){

@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="desktop.css">
+<script src="опросник-данные.js"></script>
 <style>
   :root{
     --bg:#faf8f4; --card:#fff; --soft:#f0eee7;
@@ -32,11 +33,13 @@
   .navbtn.active{background:var(--accent-bg);color:var(--accent-fg);border-color:transparent}
   h1{font-size:20px;font-weight:700;margin:6px 0 4px}
   .lead{font-size:13.5px;color:var(--muted);line-height:1.5;margin-bottom:18px}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:12px;overflow:hidden}
-  .card a{display:flex;justify-content:space-between;align-items:center;gap:8px;text-decoration:none;color:var(--text);
-    padding:15px 16px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:12px;overflow:hidden;transition:transform .12s ease,box-shadow .12s ease}
+  .card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.06)}
+  .card a{display:flex;align-items:center;gap:13px;text-decoration:none;color:var(--text);padding:15px 16px}
+  .ico{width:42px;height:42px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px}
   .card .t{font-size:15px;font-weight:700}
   .card .d{display:block;font-size:12px;color:var(--sub);font-weight:600;margin-top:2px}
+  .card .chev{margin-left:auto;color:var(--sub);font-size:15px;flex-shrink:0}
   .foot{text-align:center;font-size:12.5px;color:var(--sub);padding-top:14px;line-height:1.5}
 </style>
 </head>
@@ -61,41 +64,56 @@
   <h1>мой бортовой журнал</h1>
   <div class="lead">здесь лежит всё, что путь уже дал узнать о тебе — по каждому пройденному измерению.</div>
 
-  <div class="card">
-    <a href="трекер.html">
-      <span><span class="t">трекер дня</span><span class="d">настроение, сон, цикл и календарь</span></span>
-    </a>
-  </div>
-  <div class="card">
-    <a href="результаты.html">
-      <span><span class="t">мои результаты</span><span class="d">баллы по опроснику</span></span>
-    </a>
-  </div>
-  <div class="card">
-    <a href="анализы.html">
-      <span><span class="t">мои анализы</span><span class="d">что уже сдано</span></span>
-    </a>
-  </div>
-  <div class="card">
-    <a href="назначения.html">
-      <span><span class="t">назначения врача</span><span class="d">что уже рекомендовано</span></span>
-    </a>
-  </div>
-  <div class="card">
-    <a href="итог.html">
-      <span><span class="t">что делать дальше</span><span class="d">сводка</span></span>
-    </a>
-  </div>
-  <div class="card">
-    <a href="режим.html">
-      <span><span class="t">мой режим</span><span class="d">план по системам</span></span>
-    </a>
-  </div>
+  <div class="grid-2" id="cards"></div>
 
   <div class="foot">по мере прохождения 2D и 3D записи здесь тоже появятся</div>
 </div>
 
 <script>
+function jget(key){ try{ var r=localStorage.getItem(key); return r?JSON.parse(r):null; }catch(_){ return null; } }
+
+function focusCount(){
+  try{
+    var saved=jget("3dw_quiz_answers"); if(!saved) return null;
+    DATA.forEach(function(s,si){ if(!saved[si]) return; s.items.forEach(function(it,ii){ if(saved[si][ii]!=null) it.v=saved[si][ii]; }); });
+    return flaggedAll().length;
+  }catch(_){ return null; }
+}
+function todayMoodEmoji(){
+  var log=jget("3dw_daytrack_log"); if(!log) return null;
+  var t=new Date().toISOString().slice(0,10);
+  var e=log[t]; if(!e||!e.mood) return null;
+  var slot=e.mood.morning||e.mood.evening; if(!slot||!slot.cat) return null;
+  var em=EMOTION_WHEEL.find(function(x){return x.label===slot.cat;});
+  return em?em.emoji+' '+em.label:null;
+}
+function labsCount(){ var l=jget("3dw_labs"); return l?l.length:0; }
+function recsCount(){ var r=jget("3dw_doctor_recs"); return r?r.length:0; }
+function planCount(){ var p=jget("3dw_plan_v1"); if(!p) return 0; return p.reduce(function(a,arr){return a+(arr?arr.length:0);},0); }
+
+var CARDS=[
+  {href:"трекер.html", icon:"🗓", bg:"#eeedfe", fg:"#3c3489", title:"трекер дня", base:"настроение, сон, цикл и календарь",
+   preview:function(){ var m=todayMoodEmoji(); return m?"сегодня: "+m:"сегодня ещё не отмечено"; }},
+  {href:"результаты.html", icon:"📋", bg:"#e1f5ee", fg:"#0f6e56", title:"мои результаты", base:"баллы по опроснику",
+   preview:function(){ var f=focusCount(); return f==null?"опросник ещё не пройден":(f>0?f+" блок(ов) в фокусе":"всё спокойно"); }},
+  {href:"анализы.html", icon:"🧪", bg:"#e6f1fb", fg:"#185fa5", title:"мои анализы", base:"что уже сдано",
+   preview:function(){ var n=labsCount(); return n>0?n+" внесено":"пока ничего не внесено"; }},
+  {href:"назначения.html", icon:"🩺", bg:"#faece7", fg:"#993c1d", title:"назначения врача", base:"что уже рекомендовано",
+   preview:function(){ var n=recsCount(); return n>0?n+" запис(ей)":"пока пусто"; }},
+  {href:"итог.html", icon:"🧭", bg:"#f7e8dc", fg:"#7c4b2b", title:"что делать дальше", base:"сводка по всему",
+   preview:function(){ var f=focusCount(); return f==null?"появится после опросника":"сводка готова"; }},
+  {href:"режим.html", icon:"☀️", bg:"#faeeda", fg:"#854f0b", title:"мой режим", base:"план по системам",
+   preview:function(){ var n=planCount(); return n>0?n+" в плане":"план пока пуст"; }}
+];
+
+document.getElementById("cards").innerHTML = CARDS.map(function(c){
+  var prev=""; try{ prev=c.preview(); }catch(_){ prev=c.base; }
+  return '<div class="card"><a href="'+c.href+'">'
+    +'<span class="ico" style="background:'+c.bg+';color:'+c.fg+'">'+c.icon+'</span>'
+    +'<span><span class="t">'+c.title+'</span><span class="d">'+prev+'</span></span>'
+    +'<span class="chev">›</span></a></div>';
+}).join('');
+
 try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
 </script>
 </body>
