@@ -91,7 +91,6 @@
       <div class="glabel">перенести в мой день</div>
       <div id="cart"></div>
       <div class="hint" id="cartHint"></div>
-      <button class="cta" id="toSchedule" style="width:100%;border:none;cursor:pointer;font-family:inherit">перенести выбранное в мой день →</button>
     </div>
   </div>
 
@@ -157,7 +156,7 @@ function renderSupps(flagged){
   const srcHost=document.getElementById("srcBannerHost");
   if(srcHost && !srcHost.dataset.done){ srcHost.innerHTML=sourceBannerHTML("supps"); wireSourceBanners(); srcHost.dataset.done="1"; }
   host.innerHTML=withSupp.map(x=>{
-    const hue=HUES[x.i], list=suppsFor(x.i, DATA[x.i]), dirs=RECS[x.i].dirs;
+    const hue=HUES[x.i], list=suppsFor(x.i, DATA[x.i]);
     const rows=list.map((s,ii)=>{
       const lib=BADLIB[s.name]||{};
       const c=s.contra(profile);
@@ -177,7 +176,6 @@ function renderSupps(flagged){
         +'</div>'
         +'</div>';
     }).join('');
-    dirs.forEach(d=>cart.push({name:d, form:"", dose:"", source:"", sourceUrl:"", kind:"dir", block:x.name}));
     return '<div class="card"><div class="hd" style="background:'+hue.bg+'"><span class="nm" style="color:'+hue.fg+'">'+x.name+'</span></div><div class="bd" style="padding:2px 14px 8px">'+rows+'</div></div>';
   }).join("");
   host.querySelectorAll(".detoggle").forEach(b=>{
@@ -190,20 +188,45 @@ function renderSupps(flagged){
   });
   const seen={}; const uniq=[];
   cart.forEach(c=>{ if(!seen[c.name]){ seen[c.name]=true; uniq.push(c); } });
-  CART = uniq.map((c,i)=>({name:c.name, form:c.form, dose:c.dose, source:c.source, sourceUrl:c.sourceUrl, kind:c.kind, block:c.block, checked:i<3, time:"08:00"}));
+  CART = uniq.map(c=>({name:c.name, form:c.form, dose:c.dose, source:c.source, sourceUrl:c.sourceUrl, block:c.block}));
   paintCart();
+}
+function rPlanHasName(name){
+  try{ const raw=localStorage.getItem("3dw_plan_v1"); const plan=raw?JSON.parse(raw):null;
+    return !!(plan && plan[0] && plan[0].some(it=>it.t===name)); }catch(_){ return false; }
+}
+function rAddToPlanNow(c, time){
+  const KEY="3dw_plan_v1";
+  let plan=null;
+  try{ const raw=localStorage.getItem(KEY); plan = raw ? JSON.parse(raw) : null; }catch(_){ plan=null; }
+  if(!plan || !plan.length) plan=[[],[],[]];
+  if(!plan[0].some(it=>it.t===c.name)){
+    plan[0].push({t:c.name, form:c.form, dose:c.dose, time:time||"", beauty:false, anchor:false, source:{block:c.block, kind:"supp"}});
+  }
+  try{ localStorage.setItem(KEY, JSON.stringify(plan)); }catch(_){}
+}
+function rRemoveFromPlan(name){
+  const KEY="3dw_plan_v1";
+  let plan=null;
+  try{ const raw=localStorage.getItem(KEY); plan = raw ? JSON.parse(raw) : null; }catch(_){ plan=null; }
+  if(!plan || !plan[0]) return;
+  plan[0]=plan[0].filter(it=>it.t!==name);
+  try{ localStorage.setItem(KEY, JSON.stringify(plan)); }catch(_){}
 }
 function paintCart(){
   const host=document.getElementById("cart");
   document.getElementById("cartHint").textContent="";
-  if(!CART.length){ host.innerHTML='<div style="font-size:14px;color:var(--muted)">всё рекомендованное отфильтровано профилем — обсуди с врачом</div>'; return; }
+  if(!CART.length){ host.innerHTML='<div style="font-size:14px;color:var(--muted)">всё рекомендованное отфильтровано профилем, обсуди с врачом</div>'; return; }
   host.innerHTML = CART.map((c,i)=>{
-    const kindTag='<span style="font-size:10.5px;font-weight:700;color:var(--sub);border:1px solid var(--border-strong);border-radius:6px;padding:1px 5px;margin-left:6px;vertical-align:middle">'+(c.kind==="dir"?"привычка":"БАД")+'</span>';
-    return '<div>'
-    +'<div class="srow" style="align-items:center"><label style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer;min-width:0"><input type="checkbox" data-i="'+i+'"'+(c.checked?' checked':'')+'><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+c.name+(c.form?' <span style="color:var(--sub);font-size:12px">— '+c.form+'</span>':'')+kindTag+'</span></label>'
-    +(c.kind==="dir"?'':'<button class="cinfo" data-ti="'+i+'" style="background:none;border:none;color:var(--sub);font-size:15px;cursor:pointer;padding:0 4px" aria-label="подробнее">ⓘ</button>')
-    +'<input type="time" data-tm="'+i+'" value="'+c.time+'" style="border:1px solid var(--border-strong);border-radius:8px;padding:3px 6px;font-size:13px;font-family:inherit;background:var(--card);color:var(--text);flex-shrink:0"></div>'
-    +(c.kind==="dir"?'':'<div class="cdet" id="rcdet-'+i+'" style="display:none;font-size:12.5px;color:var(--muted);padding:0 0 8px 32px;line-height:1.5">доза: '+(c.dose||'—')+(c.source?'<br>источник: '+(c.sourceUrl?'<a href="'+c.sourceUrl+'" target="_blank" rel="noopener" style="color:var(--muted)">'+c.source+'</a>':c.source):'')+'</div>')
+    const added=rPlanHasName(c.name);
+    return '<div class="crow">'
+    +'<div style="display:flex;align-items:flex-start;gap:8px;padding:9px 0;'+(i===0?'':'border-top:0.5px solid var(--border)')+'">'
+    +'<span style="flex:1;font-size:14px;line-height:1.4">'+c.name+(c.form?' <span style="color:var(--sub);font-size:12.5px">— '+c.form+'</span>':'')+'</span>'
+    +'<button class="cinfo" data-ti="'+i+'" style="background:none;border:none;color:var(--sub);font-size:15px;cursor:pointer;padding:0 2px;flex-shrink:0" aria-label="подробнее">ⓘ</button>'
+    +'<button class="caddbtn'+(added?' on':'')+'" data-i="'+i+'" style="flex-shrink:0;font-size:11.5px;font-weight:700;border-radius:999px;padding:7px 12px;border:1px solid var(--border-strong);background:'+(added?'var(--soft)':'transparent')+';color:var(--text);cursor:pointer;font-family:inherit;white-space:nowrap">'+(added?'✓ в моём дне':'+ мой день')+'</button>'
+    +'</div>'
+    +'<div class="ctimebox" id="rctime-'+i+'" style="display:none;padding:0 0 10px 2px;gap:8px;align-items:center"><span style="font-size:12.5px;color:var(--muted)">во сколько?</span><input type="time" id="rctimeinp-'+i+'" value="08:00" style="border:1px solid var(--border-strong);border-radius:8px;padding:4px 8px;font-size:13px;font-family:inherit;background:var(--card);color:var(--text)"><button class="cconfirm" data-i="'+i+'" style="border:none;background:var(--ok-fg);color:#fff;font-weight:700;font-size:12.5px;padding:6px 12px;border-radius:8px;cursor:pointer;font-family:inherit">добавить</button></div>'
+    +'<div class="cdet" id="rcdet-'+i+'" style="display:none;font-size:12.5px;color:var(--muted);padding:0 0 8px 2px;line-height:1.5">доза: '+(c.dose||'—')+(c.source?'<br>источник: '+(c.sourceUrl?'<a href="'+c.sourceUrl+'" target="_blank" rel="noopener" style="color:var(--muted)">'+c.source+'</a>':c.source):'')+'</div>'
     +'</div>';
   }).join('');
   host.querySelectorAll('.cinfo').forEach(b=>{
@@ -212,39 +235,33 @@ function paintCart(){
       d.style.display=d.style.display==='none'?'block':'none';
     });
   });
-  host.querySelectorAll('input[data-tm]').forEach(ti=>{
-    ti.addEventListener('change',()=>{ CART[+ti.dataset.tm].time = ti.value || "08:00"; });
-  });
-  host.querySelectorAll('input[type=checkbox]').forEach(cb=>{
-    cb.addEventListener('change',()=>{
-      const i=+cb.dataset.i;
-      if(cb.checked){
-        const others=CART.filter((c,j)=>j!==i && c.checked).length;
-        if(others>=3){ cb.checked=false; document.getElementById("cartHint").textContent="начнём с 2–3, самого важного на сегодня. вернёшься ещё раз и добавишь остальное, это не потолок навсегда."; return; }
+  host.querySelectorAll('.caddbtn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const i=+btn.dataset.i, c=CART[i];
+      if(rPlanHasName(c.name)){
+        rRemoveFromPlan(c.name);
+        btn.classList.remove('on'); btn.textContent='+ мой день'; btn.style.background='transparent';
+        document.getElementById('rctime-'+i).style.display='none';
+        return;
       }
-      CART[i].checked=cb.checked;
+      const addedCount=CART.filter(x=>rPlanHasName(x.name)).length;
+      if(addedCount>=3){ document.getElementById("cartHint").textContent="начнём с 2–3, самого важного на сегодня. вернёшься ещё раз и добавишь остальное, это не потолок навсегда."; return; }
+      const box=document.getElementById('rctime-'+i);
+      box.style.display = box.style.display==='none' ? 'flex' : 'none';
+    });
+  });
+  host.querySelectorAll('.cconfirm').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const i=+btn.dataset.i, c=CART[i];
+      const time=document.getElementById('rctimeinp-'+i).value||"08:00";
+      rAddToPlanNow(c, time);
+      document.getElementById('rctime-'+i).style.display='none';
+      const addbtn=host.querySelector('.caddbtn[data-i="'+i+'"]');
+      addbtn.classList.add('on'); addbtn.textContent='✓ в моём дне'; addbtn.style.background='var(--soft)';
       document.getElementById("cartHint").textContent="";
     });
   });
 }
-document.getElementById("toSchedule").addEventListener("click",()=>{
-  const selected=CART.filter(c=>c.checked);
-  if(!selected.length){ alert("выбери хотя бы одно, или пропусти этот шаг и вернись позже."); return; }
-  const KEY="3dw_plan_v1";
-  let plan=null;
-  try{ const raw=localStorage.getItem(KEY); plan = raw ? JSON.parse(raw) : null; }catch(_){ plan=null; }
-  if(!plan || !plan.length) plan=[[],[],[]];
-  const have=new Set(plan[0].map(it=>it.t));
-  selected.forEach(c=>{
-    if(!have.has(c.name)){
-      plan[0].push({t:c.name, form:c.kind==="dir"?"":c.form, dose:c.kind==="dir"?"":c.dose, time:c.time||"", beauty:false, anchor:false, source:{block:c.block, kind:c.kind}});
-      have.add(c.name);
-    }
-  });
-  try{ localStorage.setItem(KEY, JSON.stringify(plan)); }catch(_){}
-  window.location.href="index.html";
-});
-
 try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
 render();
 </script>
