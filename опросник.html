@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>3dWellness — 1D биохимия: опросник → БАД</title>
+<title>3dWellness, 1D биохимия: опросник → БАД</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -115,36 +115,36 @@
 <div class="wrap" id="screen-triage">
   <div class="srcbanner">
     <div class="srchd"><span style="font-size:19px">🎓</span><span>на чём это основано</span></div>
-    <div class="srcsub">это не «угадайка» из интернета. каждый вопрос, анализ и рекомендация опираются на конкретные источники — вот они, чтобы ты видела: проходишь не фигню.</div>
+    <div class="srcsub">это не «угадайка» из интернета. каждый вопрос, анализ и рекомендация опираются на конкретные источники, вот они, чтобы ты видела: проходишь не фигню.</div>
     <button class="srctoggle" id="srcToggle">показать все источники ▾</button>
     <div class="srclist" id="srcList" style="display:none">
       <div class="srcgrp"><div class="srcgt">клинические руководства и госорганы</div><div class="srctags"><span>NIH / ODS</span><span>USPSTF</span><span>CDC</span><span>AHA</span><span>ACOG</span><span>Endocrine Society</span><span>Cleveland Clinic</span><span>KDIGO · NKF</span><span>ACG · ASH</span></div></div>
       <div class="srcgrp"><div class="srcgt">функциональная и интегративная медицина</div><div class="srctags"><span>Institute for Functional Medicine</span><span>Linus Pauling Institute</span><span>NCCIH</span><span>Examine.com</span><span>Joseph Pizzorno</span></div></div>
-      <div class="srcgrp"><div class="srcgt">психика (3D) — доказательные шкалы и авторы</div><div class="srctags"><span>ISTSS</span><span>NICE</span><span>PHQ-8 · GAD-7</span><span>Copenhagen Burnout Inventory</span><span>PSM-25</span><span>Sapolsky · Neff · Siegel</span></div></div>
-      <div class="srcnote">баланс между «отмахнуться» и «маркетинг БАДов»: где доказательная база слабее — прямо об этом пишем. Дозы БАД — по NIH/NCCIH, а не из общих слов.</div>
+      <div class="srcgrp"><div class="srcgt">психика (3D), доказательные шкалы и авторы</div><div class="srctags"><span>ISTSS</span><span>NICE</span><span>PHQ-8 · GAD-7</span><span>Copenhagen Burnout Inventory</span><span>PSM-25</span><span>Sapolsky · Neff · Siegel</span></div></div>
+      <div class="srcnote">баланс между «отмахнуться» и «маркетинг БАДов»: где доказательная база слабее, прямо об этом пишем. Дозы БАД, по NIH/NCCIH, а не из общих слов.</div>
     </div>
   </div>
-  <div style="font-size:13px;color:var(--text);font-weight:800;margin-bottom:4px">Ты —</div>
+  <div style="font-size:13px;color:var(--text);font-weight:800;margin-bottom:4px">Ты ,</div>
   <div class="seghue" id="sexSeg0" style="height:44px;margin-bottom:12px">
     <button data-v="f" class="on">Женщина</button>
     <button data-v="m">Мужчина</button>
   </div>
   <h1>что тебя беспокоит?</h1>
-  <div class="lead">22 системы организма — это много. Отметь то, что откликается прямо сейчас, остальное подождёт своей очереди без спешки. Можно вернуться и добавить ещё в любой момент.</div>
+  <div class="lead">22 системы организма, это много. Отметь то, что откликается прямо сейчас, остальное подождёт своей очереди без спешки. Можно вернуться и добавить ещё в любой момент.</div>
   <div class="card"><div class="bd" style="padding:12px 14px">
     <div class="chips" id="topicChips"></div>
   </div></div>
   <button class="btn" id="toProfile">далее →</button>
-  <div class="foot">ничего страшного, если пока сложно выбрать — можно пропустить весь опросник</div>
+  <div class="foot">ничего страшного, если пока сложно выбрать, можно пропустить весь опросник</div>
 </div>
 
 <!-- ЭКРАН: ПРОФИЛЬ -->
 <div class="wrap hidden" id="screen-profile">
-  <h1>для начала — всё о тебе</h1>
+  <h1>для начала, всё о тебе</h1>
   <div class="lead">это «предохранитель»: по диагнозам и лекарствам мы проверяем БАД на противопоказания. Можно пропустить, но с ним рекомендации безопаснее.</div>
 
   <div class="card"><div class="bd" style="padding:12px 14px">
-    <div class="glabel">о тебе — для точных анализов и норм</div>
+    <div class="glabel">о тебе, для точных анализов и норм</div>
     <div style="display:flex;gap:8px">
       <label style="flex:1;font-size:12px;color:var(--muted)">возраст
         <input type="number" id="ageInput" min="0" max="120" placeholder="лет" style="display:block;width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--border-strong);border-radius:10px;font-size:14px;font-family:inherit;background:var(--card);color:var(--text)">
@@ -181,7 +181,7 @@
 
   <div class="card"><div class="bd" style="padding:12px 14px">
     <div class="glabel">что трекать в дневнике дня</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:8px">не всё нужно всем — выключи то, что не хочешь отмечать (можно поменять позже в настройках трекера)</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px">не всё нужно всем, выключи то, что не хочешь отмечать (можно поменять позже в настройках трекера)</div>
     <div class="chips" id="trackerChips"></div>
   </div></div>
 
@@ -192,7 +192,7 @@
 <!-- ЭКРАН: ОПРОСНИК -->
 <div class="wrap hidden" id="screen-q">
   <h1>1D · биохимия</h1>
-  <div class="lead">частота симптома: нет · иногда · часто · оч.часто (0 / 1 / 4 / 8). пороги «в фокусе» черновые — откалибруем по методике PLS.</div>
+  <div class="lead">частота симптома: нет · иногда · часто · оч.часто (0 / 1 / 4 / 8). пороги «в фокусе» черновые, откалибруем по методике PLS.</div>
   <div class="count" id="count">отвечено: 0 / 0</div>
   <div id="body"></div>
   <div class="summary">
@@ -219,17 +219,17 @@
 <div class="wrap hidden" id="screen-s">
   <h1>БАД и список покупок</h1>
   <div class="lead">подобрано по блокам в фокусе и сверено с твоим профилем.</div>
-  <div class="disc">Ориентир для разговора с врачом, <b>не назначение</b>. Формы и дозы — стартовые диапазоны; финальное решение и учёт всех лекарств — за специалистом.</div>
+  <div class="disc">Ориентир для разговора с врачом, <b>не назначение</b>. Формы и дозы, стартовые диапазоны. финальное решение и учёт всех лекарств, за специалистом.</div>
   <div id="supps"></div>
   <div class="summary">
     <h2>список покупок</h2>
-    <div style="font-size:12.5px;color:var(--muted);margin-bottom:6px">выбери 2–3 самых важных на сегодня — это не предел навсегда, просто темп: вернёшься сюда ещё раз и добавишь остальное, когда будет привычно</div>
+    <div style="font-size:12.5px;color:var(--muted);margin-bottom:6px">выбери 2–3 самых важных на сегодня, это не предел навсегда, просто темп: вернёшься сюда ещё раз и добавишь остальное, когда будет привычно</div>
     <div id="cart"></div>
     <div id="cartHint" style="font-size:12.5px;color:var(--warn-fg);min-height:16px;margin-top:4px"></div>
   </div>
   <button class="btn" id="toSchedule">перенести выбранное в мой день →</button>
   <button class="btn ghost" id="backR">← анализы</button>
-  <div class="foot">выбранное появится в 3dWellness «сегодня» — можно сразу отмечать. схема с точным временем приёма — следующий этап</div>
+  <div class="foot">выбранное появится в 3dWellness «сегодня», можно сразу отмечать. схема с точным временем приёма, следующий этап</div>
 </div>
 
 <script>
@@ -339,7 +339,7 @@ function paintMedWarn(){
   const both = PROFILE.meds.has("агонисты GLP-1 (семаглутид, тирзепатид)") && PROFILE.meds.has("гормональные контрацептивы");
   if(both){
     box.style.display="block";
-    box.textContent="⚠ Тирзепатид (Мунджаро) снижает всасывание оральных контрацептивов примерно на 60% (данные FDA) — обсуди с врачом дополнительную контрацепцию хотя бы первый месяц.";
+    box.textContent="⚠ Тирзепатид (Мунджаро) снижает всасывание оральных контрацептивов примерно на 60% (данные FDA), обсуди с врачом дополнительную контрацепцию хотя бы первый месяц.";
   } else box.style.display="none";
 }
 buildChips("medChips",MEDS,PROFILE.meds,paintMedWarn);
@@ -566,7 +566,7 @@ function paintCart(){
       const i=+cb.dataset.i;
       if(cb.checked){
         const others=CART.filter((c,j)=>j!==i && c.checked).length;
-        if(others>=3){ cb.checked=false; document.getElementById("cartHint").textContent="начнём с 2–3 — самого важного на сегодня. вернёшься ещё раз и добавишь остальное, это не потолок навсегда."; return; }
+        if(others>=3){ cb.checked=false; document.getElementById("cartHint").textContent="начнём с 2–3, самого важного на сегодня. вернёшься ещё раз и добавишь остальное, это не потолок навсегда."; return; }
       }
       CART[i].checked=cb.checked;
       document.getElementById("cartHint").textContent="";
@@ -602,7 +602,7 @@ document.getElementById("toS").onclick=()=>{ renderSupps(); show("screen-s"); };
 document.getElementById("backR").onclick=()=>show("screen-r");
 document.getElementById("toSchedule").onclick=()=>{
   const selected=CART.filter(c=>c.checked);
-  if(!selected.length){ alert("выбери хотя бы одно — или пропусти этот шаг и вернись позже."); return; }
+  if(!selected.length){ alert("выбери хотя бы одно, или пропусти этот шаг и вернись позже."); return; }
   const KEY="3dw_plan_v1";
   let plan=null;
   try{ const raw=localStorage.getItem(KEY); plan = raw ? JSON.parse(raw) : null; }catch(_){ plan=null; }

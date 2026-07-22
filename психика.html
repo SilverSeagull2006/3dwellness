@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>3dWellness — 3D · психика</title>
+<title>3dWellness, 3D · психика</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="опросник-данные.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -129,7 +129,7 @@
 
 <div class="wrap">
   <h1>3D · психика</h1>
-  <div class="lead">тихая вода или шторм — начни с того, что нужно сейчас.</div>
+  <div class="lead">тихая вода или шторм, начни с того, что нужно сейчас.</div>
 
   <div id="introHost"></div>
 
@@ -138,18 +138,18 @@
 
   <div class="sechead">практики</div>
   <div class="card">
-    <div style="font-size:13px;color:var(--muted);margin-bottom:10px">короткое задание для бумаги — ничего не сохраняем здесь, просто подсказка</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:10px">короткое задание для бумаги, ничего не сохраняем здесь, просто подсказка</div>
     <button class="btn ghost" id="drawPractice">вытянуть задание</button>
     <div id="practiceHost"></div>
   </div>
 
-  <div class="sechead">тесты — необязательно</div>
+  <div class="sechead">тесты, необязательно</div>
   <div class="card">
     <div style="font-size:12.5px;color:var(--muted);margin-bottom:10px">это не диагноз, а ориентир, куда смотреть. можно пропустить и вернуться позже.</div>
     <div id="testsHost"></div>
   </div>
 
-  <div class="foot">3dWellness · не заменяет психолога/психиатра — там, где нужно, приложение прямо об этом скажет</div>
+  <div class="foot">3dWellness · не заменяет психолога/психиатра, там, где нужно, приложение прямо об этом скажет</div>
 </div>
 
 <script>
@@ -359,7 +359,7 @@ function renderGeneralTestForm(host){
     renderTestsMenu();
     var names=route.map(function(id){ return TEST_META[id].name; }).join(", ");
     host.innerHTML = '<div class="resultbox">'
-      + (route.length ? 'По ответам похоже, что стоит подробнее посмотреть: <b>'+names+'</b> — они отмечены ниже как рекомендованные.' : 'По ответам сейчас в целом спокойно — глубокие шкалы не обязательны, но всегда доступны ниже.')
+      + (route.length ? 'По ответам похоже, что стоит подробнее посмотреть: <b>'+names+'</b> — они отмечены ниже как рекомендованные.' : 'По ответам сейчас в целом спокойно, глубокие шкалы не обязательны, но всегда доступны ниже.')
       + '</div>';
   });
 }
