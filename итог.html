@@ -74,6 +74,7 @@
   </div>
   <h1>что делать дальше</h1>
   <div class="lead">сводка по всему: что в фокусе по опроснику, что уже сдано/назначено, а что реально ещё стоит сделать. сверка приблизительная, если что-то распозналось неверно, проверь глазами.</div>
+  <div id="srcBannerHost"></div>
   <div id="docHost"></div>
   <div class="grid-2" id="host"></div>
   <div class="foot">это не диагноз и не назначение, повод обсудить с врачом, что из списка действительно нужно именно тебе</div>
@@ -170,6 +171,8 @@ function render(){
   }).join('');
 }
 try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
+document.getElementById("srcBannerHost").innerHTML=sourceBannerHTML("labs");
+wireSourceBanners();
 render();
 </script>
 </body>

@@ -1596,6 +1596,56 @@ function suggestGeneralTest(log){
   return lowMoodDays>=5 || highStressDays>=5;
 }
 
+/* ---------- баннеры источников (переиспользуемые, по контексту) ---------- */
+const SOURCE_BANNERS={
+  quiz:{title:"на чём построен опросник",
+    sub:"структура и вопросы, по методикам функциональной медицины и авторитетным клиническим руководствам. Это не «угадайка» из интернета.",
+    note:"баланс между «отмахнуться» и «маркетингом»: где доказательная база слабее, прямо об этом пишем.",
+    sources:[
+      {n:"Institute for Functional Medicine", d:"ведущий мировой институт, обучающий врачей функциональной медицине, на его подходе построена сама структура опросника"},
+      {n:"USPSTF", d:"независимая экспертная группа при правительстве США, определяет, какие обследования реально нужны, а какие лишние"},
+      {n:"Endocrine Society", d:"крупнейшее международное объединение врачей-эндокринологов"}
+    ]},
+  labs:{title:"на чём основаны трактовки анализов",
+    sub:"референсы и «функциональные оптимумы», из клинических источников. Где оптимум спорный или его нет, честно об этом говорим.",
+    note:"«оптимум» отличается от лабораторного референса: это ориентир для работы, а не диагноз.",
+    sources:[
+      {n:"Cleveland Clinic", d:"одна из ведущих многопрофильных клиник США с собственным исследовательским центром"},
+      {n:"NIH · Office of Dietary Supplements", d:"государственное управление США при Национальных институтах здоровья, изучает витамины и микроэлементы"},
+      {n:"Linus Pauling Institute", d:"научный институт при университете в США, специализируется на витаминах и антиоксидантах"}
+    ]},
+  supps:{title:"на чём основаны рекомендации по БАД",
+    sub:"выбор и дозы, по государственным и независимым научным источникам, а не по маркетингу.",
+    note:"это не назначение. Финальное решение и учёт всех лекарств, за врачом. Где база слабее, говорим прямо.",
+    sources:[
+      {n:"NIH · NCCIH", d:"Национальный центр интегративного здоровья при Национальных институтах здоровья США (государственный)"},
+      {n:"Examine.com", d:"независимый некоммерческий проект, обобщающий научные исследования по добавкам без рекламы"},
+      {n:"Joseph Pizzorno, ND", d:"врач, один из основателей доказательной натуропатической медицины в США"}
+    ]}
+};
+function sourceBannerHTML(kind, collapsed){
+  const b=SOURCE_BANNERS[kind]; if(!b) return "";
+  const listId="srcList_"+kind, btnId="srcToggle_"+kind;
+  const listHtml='<div class="srcgrp">'+b.sources.map(s=>'<div class="srcitem"><div class="srcn">'+s.n+'</div><div class="srcd">'+s.d+'</div></div>').join('')+'</div>'
+    + (b.note?'<div class="srcnote">'+b.note+'</div>':'');
+  return '<div class="srcbanner">'
+    +'<div class="srchd"><span style="font-size:19px">🎓</span><span>'+b.title+'</span></div>'
+    +'<div class="srcsub">'+b.sub+'</div>'
+    +'<button class="srctoggle" id="'+btnId+'" data-srctoggle="'+listId+'">показать источники ▾</button>'
+    +'<div class="srclist" id="'+listId+'" style="display:'+(collapsed===false?'block':'none')+'">'+listHtml+'</div>'
+    +'</div>';
+}
+function wireSourceBanners(root){
+  (root||document).querySelectorAll('[data-srctoggle]').forEach(function(btn){
+    if(btn._wired) return; btn._wired=true;
+    btn.addEventListener('click',function(){
+      var l=document.getElementById(btn.dataset.srctoggle), open=l.style.display==="none";
+      l.style.display=open?"block":"none";
+      btn.textContent=open?"скрыть источники ▴":"показать источники ▾";
+    });
+  });
+}
+
 /* ---------- 3D · психика ---------- */
 
 /* колесо эмоций: 2 шага — широкая категория (обязательно), уточнение (опционально) */

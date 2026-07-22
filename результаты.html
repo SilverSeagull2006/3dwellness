@@ -84,6 +84,7 @@
   <div class="grid-2" id="host"></div>
 
   <div id="suppSection" style="display:none">
+    <div id="srcBannerHost"></div>
     <div class="glabel" style="margin:14px 0 2px 2px">БАД, которые могут помочь</div>
     <div id="supps"></div>
     <div class="card" style="margin-top:12px">
@@ -153,6 +154,8 @@ function renderSupps(flagged){
   const withSupp=flagged.filter(x=>SUPP[x.i]);
   if(!withSupp.length){ section.style.display="none"; return; }
   section.style.display="block";
+  const srcHost=document.getElementById("srcBannerHost");
+  if(srcHost && !srcHost.dataset.done){ srcHost.innerHTML=sourceBannerHTML("supps"); wireSourceBanners(); srcHost.dataset.done="1"; }
   host.innerHTML=withSupp.map(x=>{
     const hue=HUES[x.i], list=suppsFor(x.i, DATA[x.i]), dirs=RECS[x.i].dirs;
     const rows=list.map((s,ii)=>{
