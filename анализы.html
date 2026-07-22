@@ -46,7 +46,7 @@
   .entry .nm .val{font-weight:700}
   .entry .dt{font-size:12px;color:var(--sub);white-space:nowrap}
   .del{background:none;border:none;color:var(--sub);font-size:18px;cursor:pointer;padding:0 2px;line-height:1}
-  .empty{font-size:14px;color:var(--muted);padding:6px 2px}
+  .empty{font-size:14px;color:var(--muted);padding:22px 2px;text-align:center;line-height:1.6}
   .foot{text-align:center;font-size:12.5px;color:var(--sub);padding-top:14px;line-height:1.5}
 </style>
 </head>
@@ -110,7 +110,7 @@ function saveLabs(list){ try{ localStorage.setItem(KEY, JSON.stringify(list)); }
 function render(){
   const list=loadLabs();
   const host=document.getElementById("host");
-  if(!list.length){ host.innerHTML='<div class="empty">пока пусто — добавь первый результат выше</div>'; return; }
+  if(!list.length){ host.innerHTML='<div class="empty"><svg width="58" height="20" viewBox="0 0 58 20" fill="none" stroke="#9aa6b4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 12px"><path d="M4 14 Q13 5 21 14 Q22 15.5 23 14 Q31 5 40 14"/><path d="M38 8 Q45 3 53 8"/></svg>здесь будут твои анализы — <br>добавь первый выше, когда будет готово</div>'; return; }
   const sorted=[...list].sort((a,b)=>(b.date||"").localeCompare(a.date||""));
   host.innerHTML=sorted.map(e=>{
     const dt=e.date?new Date(e.date).toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit",year:"numeric"}):"";

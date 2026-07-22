@@ -94,7 +94,7 @@ function render(){
     });
   });
 
-  if(!any){ host.innerHTML='<div class="empty">пока пусто — <a href="результаты.html">посмотреть результаты опросника →</a></div>'; return; }
+  if(!any){ host.innerHTML='<div class="empty"><svg width="58" height="20" viewBox="0 0 58 20" fill="none" stroke="#9aa6b4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 12px"><path d="M4 14 Q13 5 21 14 Q22 15.5 23 14 Q31 5 40 14"/><path d="M38 8 Q45 3 53 8"/></svg>здесь соберётся твой режим по системам — <br>добавь что-нибудь из <a href="результаты.html">результатов →</a></div>'; return; }
 
   const blockNames=Object.keys(groups);
   let html="";
