@@ -227,7 +227,7 @@ function renderDay(){
   cats.forEach(function(c){
     if(c.id==="mood") html+=moodBlock(e);
     else if(c.id==="sleep") html+=sleepBlock(e);
-    else if(c.id==="cravings") html+=chipBlock("cravings","крейвинги",e.cravings);
+    else if(c.id==="cravings") html+=chipBlock("cravings","тянет к",e.cravings);
     else if(c.id==="symptoms") html+=chipBlock("symptoms","симптомы",e.symptoms);
     else if(c.id==="skin") html+=chipBlock("skin","кожа",e.skin);
     else if(c.id==="stress") html+=stressBlock(e);
