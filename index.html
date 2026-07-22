@@ -295,7 +295,7 @@ document.addEventListener("DOMContentLoaded", goToMapIfFirstVisit);
 <div class="overlay" id="onbOv">
   <div class="sheet" style="text-align:left">
     <h3 style="margin:0 0 8px">прежде чем начнём</h3>
-    <div style="font-size:14.5px;line-height:1.55;color:var(--text);margin-bottom:12px">начнём с малого, 1-2 дела, не больше. если что-то из этого ты и так делаешь каждый день стабильно, отметь, чтобы не потерять. остальное добавишь потом, когда будет свой темп.</div>
+    <div style="font-size:14.5px;line-height:1.55;color:var(--text);margin-bottom:12px">если что-то из этого ты и так делаешь стабильно, отмечай смело, сколько угодно, чтобы не потерять. а вот новых дел за раз лучше брать немного, 2-3, не больше. остальное добавишь потом, когда будет свой темп.</div>
     <div id="onbList" style="max-height:280px;overflow-y:auto"></div>
     <div id="onbHint" style="font-size:12.5px;color:var(--sub);min-height:16px;margin-top:2px"></div>
     <div class="row2" style="margin-top:12px"><button onclick="skipOnboarding()">пропустить</button><button class="go" onclick="finishOnboarding()">готово</button></div>
@@ -633,8 +633,8 @@ function paintOnbList(){
 function toggleOnbPick(si,item,row){
   var idx=onbPicked.findIndex(function(p){ return p.si===si && p.item.t===item.t; });
   if(idx>=0){ onbPicked.splice(idx,1); row.classList.remove("on"); document.getElementById("onbHint").textContent=""; return; }
-  if(onbPicked.length>=ONB_MAX){ document.getElementById("onbHint").textContent="начнём с "+ONB_MAX+", самого важного. остальное добавишь позже."; return; }
-  onbPicked.push({si:si,item:item}); row.classList.add("on"); document.getElementById("onbHint").textContent="";
+  onbPicked.push({si:si,item:item}); row.classList.add("on");
+  document.getElementById("onbHint").textContent = onbPicked.length>ONB_MAX ? "если это всё новое, а не то, что ты и так уже делаешь, лучше не больше 2-3 за раз" : "";
 }
 function closeOnboarding(){
   try{ localStorage.setItem("3dw_onboard_seen","1"); }catch(_){}
