@@ -64,6 +64,15 @@
   .chip{font-size:13px;padding:7px 12px;border-radius:999px;border:1px solid var(--border-strong);
     background:transparent;color:var(--text);cursor:pointer;user-select:none}
   .chip.on{background:#d3d0f2;color:#4a3f8f;border-color:transparent;font-weight:600}
+  .topicgroup{border-bottom:1px solid var(--border)}
+  .topicgroup:last-child{border-bottom:none}
+  .topicgrouphd{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 2px;cursor:pointer;user-select:none}
+  .topicgrouphd .tgt{font-size:14.5px;font-weight:700}
+  .topicgrouphd .tgc{font-size:12px;color:var(--sub);transition:transform .15s ease}
+  .topicgroup.open .tgc{transform:rotate(180deg)}
+  .topicsubs{display:none;flex-wrap:wrap;gap:8px;padding:0 2px 12px}
+  .topicgroup.open .topicsubs{display:flex}
+  .topicgroup.hasSel .topicgrouphd .tgt{color:#4a3f8f}
   .supp{border-top:1px solid var(--border);padding:10px 0}
   .supp:first-child{border-top:none}
   .supp .top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
@@ -109,10 +118,8 @@
     <button data-v="m">Мужчина</button>
   </div>
   <h1>что тебя беспокоит?</h1>
-  <div class="lead">22 системы организма, это много. Отметь то, что откликается прямо сейчас, остальное подождёт своей очереди без спешки. Можно вернуться и добавить ещё в любой момент.</div>
-  <div class="card"><div class="bd" style="padding:12px 14px">
-    <div class="chips" id="topicChips"></div>
-  </div></div>
+  <div class="lead">выбери, что откликается прямо сейчас, дальше можно раскрыть подробнее. Остальное подождёт своей очереди без спешки, можно вернуться и добавить в любой момент.</div>
+  <div class="card"><div class="bd" style="padding:4px 14px 8px" id="topicGroups"></div></div>
   <button class="btn" id="toProfile">далее →</button>
   <div class="foot">ничего страшного, если пока сложно выбрать, можно пропустить весь опросник</div>
 </div>
@@ -211,27 +218,51 @@
 </div>
 
 <script>
-/* ---------- триаж тем ---------- */
-const TOPICS=[
-  {label:"ЖКТ (пищеварение)", dataIdx:[0,1,2,3]},
-  {label:"печень и желчный пузырь", dataIdx:[4]},
-  {label:"эндокринная система (щитовидка)", dataIdx:[5]},
-  {label:"углеводный обмен", dataIdx:[6,7]},
-  {label:"сердечно-сосудистая система", dataIdx:[8,9]},
-  {label:"иммунная система", dataIdx:[16]},
-  {label:"почки и мочевыделительная система", dataIdx:[17]},
-  {label:"морщины, тусклая кожа", dataIdx:[18]},
-  {label:"хроническая усталость", dataIdx:[19]},
-  {label:"в семье были инсульты/тромбы", dataIdx:[20]},
-  {label:"простата и мужские гормоны", dataIdx:[22]},
-  {label:"женская репродуктивная система", dataIdx:[23]},
-  {label:"сухая кожа, ломкие ногти, боль в суставах", dataIdx:[21]},
-  {label:"упадок настроения, слабость мышц, боль в костях", dataIdx:[10]},
-  {label:"судороги, тревога, плохой сон", dataIdx:[11]},
-  {label:"частые простуды, плохо заживают ранки", dataIdx:[12]},
-  {label:"психический статус", dataIdx:[]},
-  {label:"нейромедиаторы", dataIdx:[]},
-  {label:"скелетно-мышечная система", dataIdx:[13,14,15]}
+/* ---------- триаж тем: группы по симптомам, не по названиям систем ---------- */
+const GROUPS=[
+  {label:"🫃 живот и пищеварение", subs:[
+    {label:"изжога, боль или тяжесть в желудке", dataIdx:[0,1]},
+    {label:"вздутие, плохо перевариваю жирную еду", dataIdx:[2]},
+    {label:"нерегулярный стул, чувствительный кишечник", dataIdx:[3]},
+    {label:"горечь во рту, тяжесть под правым ребром", dataIdx:[4]}
+  ]},
+  {label:"⚡ энергия и усталость", subs:[
+    {label:"постоянная усталость, нет сил даже после сна", dataIdx:[19]},
+    {label:"мёрзнешь, набираешь вес, туман в голове, выпадают волосы", dataIdx:[5]},
+    {label:"резкий голод, тянет на сладкое, скачки энергии после еды", dataIdx:[6]},
+    {label:"лишний вес, трудно похудеть", dataIdx:[7]}
+  ]},
+  {label:"😴 сон, настроение, нервы", subs:[
+    {label:"тревожность, раздражительность, плохой сон", dataIdx:[11]},
+    {label:"сезонная хандра, слабость в мышцах или костях", dataIdx:[10]}
+  ]},
+  {label:"💗 сердце и сосуды", subs:[
+    {label:"давление, учащённое сердцебиение, боль в груди", dataIdx:[8]},
+    {label:"холодные руки и ноги, отёки, сосудистые звёздочки", dataIdx:[9]}
+  ]},
+  {label:"🦴 кости, суставы, мышцы", subs:[
+    {label:"сухая кожа, ломкие ногти, боль в суставах", dataIdx:[21]},
+    {label:"боль во всём теле, общая скованность", dataIdx:[13]},
+    {label:"скованность по утрам, трудно нагнуться", dataIdx:[14]},
+    {label:"судороги, острая мышечная боль, болезненные точки", dataIdx:[15]}
+  ]},
+  {label:"🛡️ иммунитет и простуды", subs:[
+    {label:"ломкие ногти, частые простуды, притупились вкус и обоняние", dataIdx:[12]},
+    {label:"аллергии, заложенность носа или глаз, реакции на еду", dataIdx:[16]}
+  ]},
+  {label:"💧 почки и мочевой", subs:[
+    {label:"жжение при мочеиспускании, частые позывы, циститы", dataIdx:[17]}
+  ]},
+  {label:"гормоны", subs:[
+    {label:"простата, снижение либидо или эрекции", dataIdx:[22], sexOnly:"m"},
+    {label:"цикл, ПМС, гормональные колебания", dataIdx:[23], sexOnly:"f"}
+  ]},
+  {label:"профилактика старения и онкологии", target:true, subs:[
+    {label:"образ жизни, антиоксиданты, факторы риска", dataIdx:[18]}
+  ]},
+  {label:"риск тромбов и обмен фолатов", target:true, subs:[
+    {label:"свёртываемость крови, метилирование", dataIdx:[20]}
+  ]}
 ];
 const TOPIC_SEL=new Set();
 function loadTopics(){ try{ const raw=localStorage.getItem("3dw_quiz_topics"); if(raw) JSON.parse(raw).forEach(l=>TOPIC_SEL.add(l)); }catch(_){} }
@@ -253,25 +284,41 @@ function loadAnswers(){
   }catch(_){}
 }
 function buildTopicChips(){
-  const host=document.getElementById("topicChips"); host.innerHTML="";
-  TOPICS.forEach(t=>{
-    if(t.label==="простата и мужские гормоны" && PROFILE.sex==="f") return;
-    if(t.label==="женская репродуктивная система" && PROFILE.sex==="m") return;
-    const built=t.dataIdx.length>0;
-    const c=document.createElement("div"); c.className="chip"+(TOPIC_SEL.has(t.label)?" on":"");
-    c.textContent=t.label+(built?"":" · скоро");
-    if(!built) c.style.opacity=".55";
-    c.onclick=()=>{
-      if(TOPIC_SEL.has(t.label)){TOPIC_SEL.delete(t.label);c.classList.remove("on");}
-      else {TOPIC_SEL.add(t.label);c.classList.add("on");}
-      saveTopics();
-    };
-    host.appendChild(c);
+  const host=document.getElementById("topicGroups"); host.innerHTML="";
+  GROUPS.forEach(g=>{
+    const subs=g.subs.filter(s=>{
+      if(s.sexOnly==="m" && PROFILE.sex==="f") return false;
+      if(s.sexOnly==="f" && PROFILE.sex==="m") return false;
+      return true;
+    });
+    if(!subs.length) return;
+    const hasSel=subs.some(s=>TOPIC_SEL.has(s.label));
+    const wrap=document.createElement("div"); wrap.className="topicgroup"+(hasSel?" hasSel":"");
+    const hd=document.createElement("div"); hd.className="topicgrouphd";
+    hd.innerHTML='<span class="tgt">'+g.label+'</span><span class="tgc">▾</span>';
+    const subsEl=document.createElement("div"); subsEl.className="topicsubs";
+    subs.forEach(s=>{
+      const c=document.createElement("div"); c.className="chip"+(TOPIC_SEL.has(s.label)?" on":"");
+      c.textContent=s.label;
+      c.onclick=(e)=>{
+        e.stopPropagation();
+        if(TOPIC_SEL.has(s.label)){TOPIC_SEL.delete(s.label);c.classList.remove("on");}
+        else {TOPIC_SEL.add(s.label);c.classList.add("on");}
+        wrap.classList.toggle("hasSel", subs.some(x=>TOPIC_SEL.has(x.label)));
+        saveTopics();
+      };
+      subsEl.appendChild(c);
+    });
+    // одна подтема без выбора (цели профилактики) — сразу открыта, без отдельного тапа на заголовок
+    if(subs.length===1 && g.target){ wrap.classList.add("open"); }
+    hd.onclick=()=>{ wrap.classList.toggle("open"); };
+    wrap.appendChild(hd); wrap.appendChild(subsEl);
+    host.appendChild(wrap);
   });
 }
 function allowedIdx(){
   const set=new Set();
-  TOPICS.forEach(t=>{ if(TOPIC_SEL.has(t.label)) t.dataIdx.forEach(i=>set.add(i)); });
+  GROUPS.forEach(g=>g.subs.forEach(s=>{ if(TOPIC_SEL.has(s.label)) s.dataIdx.forEach(i=>set.add(i)); }));
   return set;
 }
 loadTopics();
