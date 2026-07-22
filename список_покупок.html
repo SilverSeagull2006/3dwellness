@@ -68,7 +68,7 @@
   <h1>список покупок</h1>
   <div class="lead">отмечай, что уже купила, остальное подождёт.</div>
   <div id="host"></div>
-  <div class="foot">здесь появляется всё, что добавлено в «Мой день» — из опросника или вручную</div>
+  <div class="foot">здесь появляется всё, что добавлено в «Мой день»: из опросника или вручную</div>
 </div>
 
 <script>
@@ -106,7 +106,7 @@ function render(){
     });
     host.appendChild(card);
   });
-  if(!any) host.innerHTML='<div class="empty">пока пусто — добавь дела на экране «сегодня» или пройди опросник</div>';
+  if(!any) host.innerHTML='<div class="empty">пока пусто. добавь дела на экране «сегодня» или пройди опросник</div>';
 }
 try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
 render();

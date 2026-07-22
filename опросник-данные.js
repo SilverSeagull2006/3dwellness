@@ -171,7 +171,7 @@ const DATA=[
     {t:"остеоартрит"},
     {t:"частые инфекции"},
     {t:"тёмная кожа (не европеоидная)"},
-    {t:"мне 60 лет и больше"}]},
+    {t:"мне 60 лет и больше", minAge:60}]},
   {name:"концентрация магния", scale:"bin01", items:[
     {t:"раздражительность"},
     {t:"СДВГ (синдром дефицита внимания и гиперактивности)"},
@@ -206,14 +206,14 @@ const DATA=[
     {t:"аллергик"},
     {t:"выпадают волосы"},
     {t:"перхоть"},
-    {t:"увеличение или воспаление простаты"},
+    {t:"увеличение или воспаление простаты", sexOnly:"m"},
     {t:"воспалительные заболевания кишечника"},
     {t:"ревматоидный артрит"},
     {t:"пью жёсткую воду"},
     {t:"алкоголь чаще 3 порций в неделю"},
     {t:"сильно потею"},
     {t:"заболевание почек или печени"},
-    {t:"мне 65 лет и больше"},
+    {t:"мне 65 лет и больше", minAge:65},
     {t:"принимаю мочегонные"},
     {t:"редко ем морепродукты, тыквенные семечки, бобовые"}]},
   {name:"скелетно-мышечная, кости", items:[
@@ -525,7 +525,13 @@ const LABTESTS=[
   "Трансвагинальное УЗИ","Тестостерон общий","Тестостерон свободный","ЛГ (лютеинизирующий гормон)","ФСГ (фолликулостимулирующий гормон)","Пролактин"
 ];
 
-function score(sub){ return sub.items.reduce((a,it)=>a+(it.v>0?it.v:0),0); }
+function itemApplicable(it, profile){
+  if(it.minAge && profile && Number(profile.age) && Number(profile.age)<it.minAge) return false;
+  if(it.sexOnly && profile && profile.sex && profile.sex!==it.sexOnly) return false;
+  return true;
+}
+function applicableItems(sub, profile){ return profile ? sub.items.filter(it=>itemApplicable(it, profile)) : sub.items; }
+function score(sub, profile){ return applicableItems(sub, profile).reduce((a,it)=>a+(it.v>0?it.v:0),0); }
 function clusterCount(sub,name){ return sub.items.filter(it=>it.cluster===name && it.v>0).length; }
 function hasClusterFocus(i,sub){
   const clusters=CLUSTERS[i];
@@ -543,10 +549,10 @@ function suppsFor(i,sub){
   });
   return list;
 }
-function bandOf(sub){
-  const sum=score(sub);
+function bandOf(sub, profile){
+  const sum=score(sub, profile);
   if(sub.scale==="bin01"){
-    const ratio=sum/sub.items.length;
+    const ratio=sum/applicableItems(sub, profile).length;
     if(ratio>=0.4) return {sum,label:"выраженно",focus:true,bg:"var(--bad-bg)",fg:"var(--bad-fg)"};
     if(ratio>=0.25) return {sum,label:"умеренно",focus:true,bg:"var(--warn-bg)",fg:"var(--warn-fg)"};
     if(sum>0) return {sum,label:"низкий",focus:false,bg:"var(--ok-bg)",fg:"var(--ok-fg)"};

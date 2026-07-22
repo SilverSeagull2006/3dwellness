@@ -116,12 +116,12 @@ function render(){
   const has=loadAnswers();
   const host=document.getElementById("host");
   if(!has){
-    host.innerHTML='<div class="empty"><svg width="58" height="20" viewBox="0 0 58 20" fill="none" stroke="#9aa6b4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 12px"><path d="M4 14 Q13 5 21 14 Q22 15.5 23 14 Q31 5 40 14"/><path d="M38 8 Q45 3 53 8"/></svg>здесь появятся твои результаты — <br>всё начинается с <a href="опросник.html">опросника →</a></div>';
+    host.innerHTML='<div class="empty"><svg width="58" height="20" viewBox="0 0 58 20" fill="none" stroke="#9aa6b4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 12px"><path d="M4 14 Q13 5 21 14 Q22 15.5 23 14 Q31 5 40 14"/><path d="M38 8 Q45 3 53 8"/></svg>здесь появятся твои результаты. <br>всё начинается с <a href="опросник.html">опросника →</a></div>';
     return;
   }
   const flagged=flaggedAll();
   if(!flagged.length){
-    host.innerHTML='<div class="empty">по всему, что пройдено — сейчас спокойно, ни один блок не в фокусе 🕊️</div>';
+    host.innerHTML='<div class="empty">по всему, что пройдено, сейчас спокойно, ни один блок не в фокусе 🕊️</div>';
     return;
   }
   const profile=loadDemoProfile();
@@ -132,10 +132,10 @@ function render(){
       +'<div class="hd" style="background:'+hue.bg+'"><span class="nm" style="color:'+hue.fg+'">'+x.name+'</span>'
       +'<span class="band" style="background:'+x.b.bg+';color:'+x.b.fg+'">балл '+x.b.sum+' · '+x.b.label+'</span></div>'
       +'<div class="bd">'
-      +'<div class="glabel">анализы — обсудить с врачом</div>'
+      +'<div class="glabel">анализы: обсудить с врачом</div>'
       + r.labs.map(l=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span>'+l+'</span></div>').join('')
       + extra.map(d=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span>'+d.text
-          +'<div style="font-size:12px;color:var(--sub);margin-top:2px">по возрасту/полу — '+d.why+' · источник: <a href="'+d.sourceUrl+'" target="_blank" rel="noopener" style="color:var(--sub)">'+d.source+'</a></div></span></div>').join('')
+          +'<div style="font-size:12px;color:var(--sub);margin-top:2px">по возрасту/полу: '+d.why+' · источник: <a href="'+d.sourceUrl+'" target="_blank" rel="noopener" style="color:var(--sub)">'+d.source+'</a></div></span></div>').join('')
       +'<div class="glabel">направления поддержки</div>'
       + r.dirs.map(d=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span>'+d+'</span></div>').join('')
       +'</div></div>';
@@ -221,7 +221,7 @@ function paintCart(){
     const added=rPlanHasName(c.name);
     return '<div class="crow">'
     +'<div style="display:flex;align-items:flex-start;gap:8px;padding:9px 0;'+(i===0?'':'border-top:0.5px solid var(--border)')+'">'
-    +'<span style="flex:1;font-size:14px;line-height:1.4">'+c.name+(c.form?' <span style="color:var(--sub);font-size:12.5px">— '+c.form+'</span>':'')+'</span>'
+    +'<span style="flex:1;font-size:14px;line-height:1.4">'+c.name+(c.form?' <span style="color:var(--sub);font-size:12.5px">· '+c.form+'</span>':'')+'</span>'
     +'<button class="cinfo" data-ti="'+i+'" style="background:none;border:none;color:var(--sub);font-size:15px;cursor:pointer;padding:0 2px;flex-shrink:0" aria-label="подробнее">ⓘ</button>'
     +'<button class="caddbtn'+(added?' on':'')+'" data-i="'+i+'" style="flex-shrink:0;font-size:11.5px;font-weight:700;border-radius:999px;padding:7px 12px;border:1px solid var(--border-strong);background:'+(added?'var(--soft)':'transparent')+';color:var(--text);cursor:pointer;font-family:inherit;white-space:nowrap">'+(added?'✓ в моём дне':'+ мой день')+'</button>'
     +'</div>'

@@ -236,7 +236,7 @@ const GROUPS=[
     {label:"сезонная хандра, слабость в мышцах или костях", dataIdx:[10]}
   ]},
   {label:"💗 сердце и сосуды", subs:[
-    {label:"давление, учащённое сердцебиение, боль в груди", dataIdx:[8]},
+    {label:"тяжесть или боль в груди, учащённое сердцебиение", dataIdx:[8]},
     {label:"холодные руки и ноги, отёки, сосудистые звёздочки", dataIdx:[9]}
   ]},
   {label:"🦴 кости, суставы, мышцы", subs:[
@@ -425,7 +425,7 @@ function renderBody(){
   body.innerHTML="";
   const allowed=allowedIdx();
   if(!allowed.size){
-    body.innerHTML='<div class="card"><div class="bd" style="padding:14px">пока не выбрано ни одной темы — <a href="#" id="toTriageBack">вернуться к выбору</a></div></div>';
+    body.innerHTML='<div class="card"><div class="bd" style="padding:14px">пока не выбрано ни одной темы. <a href="#" id="toTriageBack">вернуться к выбору</a></div></div>';
     const l=document.getElementById("toTriageBack");
     if(l) l.onclick=(e)=>{ e.preventDefault(); show("screen-triage"); };
     summary(); return;
@@ -440,7 +440,7 @@ function renderBody(){
     card.appendChild(hd);
     const bd=document.createElement("div"); bd.className="bd";
     sub.items.forEach((it,ii)=>{
-      if(it.minAge && Number(PROFILE.age) && Number(PROFILE.age)<it.minAge) return;
+      if(!itemApplicable(it, PROFILE)) return;
       const row=document.createElement("div"); row.className="row";
       const lab=document.createElement("div"); lab.className="lab"; lab.textContent=it.t; row.appendChild(lab);
       const seg=document.createElement("div"); seg.className="seg";
@@ -473,35 +473,37 @@ function renderBody(){
 }
 
 function recalc(si){
-  const b=bandOf(DATA[si]); const el=document.getElementById("band-"+si);
+  const b=bandOf(DATA[si], PROFILE); const el=document.getElementById("band-"+si);
   el.textContent=b.sum>0?("балл "+b.sum+" · "+b.label):"—";
   el.style.background=b.bg; el.style.color=b.fg;
 }
 function summary(){
   const allowed=allowedIdx();
   let answered=0,total=0;
-  DATA.forEach((s,i)=>{ if(!allowed.has(i)) return; s.items.forEach(it=>{ if(it.minAge && Number(PROFILE.age) && Number(PROFILE.age)<it.minAge) return; total++; if(it.v>=0)answered++;}); });
+  DATA.forEach((s,i)=>{ if(!allowed.has(i)) return; s.items.forEach(it=>{ if(!itemApplicable(it, PROFILE)) return; total++; if(it.v>=0)answered++;}); });
   document.getElementById("count").textContent="отвечено: "+answered+" / "+total;
   const flagged=flaggedBlocks();
   const host=document.getElementById("summary");
   host.innerHTML=flagged.length
     ? flagged.map(x=>'<div class="srow"><span>'+x.name+'</span><span class="band" style="background:'+x.b.bg+';color:'+x.b.fg+'">балл '+x.b.sum+' · '+x.b.label+'</span></div>').join("")
-    : '<div style="font-size:14px;color:var(--muted)">пока ничего в фокусе — заполни опросник</div>';
+    : '<div style="font-size:14px;color:var(--muted)">пока ничего в фокусе, заполни опросник</div>';
 }
 
 function flaggedBlocks(){
   const allowed=allowedIdx();
-  return DATA.map((s,i)=>({i,name:s.name,b:bandOf(s)})).filter(x=>allowed.has(x.i) && (x.b.focus || hasClusterFocus(x.i, DATA[x.i]))).sort((a,b)=>b.b.sum-a.b.sum);
+  return DATA.map((s,i)=>({i,name:s.name,b:bandOf(s, PROFILE)})).filter(x=>allowed.has(x.i) && (x.b.focus || hasClusterFocus(x.i, DATA[x.i]))).sort((a,b)=>b.b.sum-a.b.sum);
 }
 
 function renderResults(){
   const warn=document.getElementById("warn");
   const allowed=allowedIdx();
-  const flags=[]; DATA.forEach((s,i)=>{ if(!allowed.has(i)) return; s.items.forEach(it=>{ if(it.redflag&&it.v>=4) flags.push(it.t); }); });
-  warn.innerHTML=flags.length?'<div class="warnbox">⚠ Тревожный симптом: '+flags.join('; ')+'. Это повод показаться врачу очно, не откладывая.</div>':'';
+  const flags=[]; DATA.forEach((s,i)=>{ if(!allowed.has(i)) return; s.items.forEach(it=>{ if(!itemApplicable(it, PROFILE)) return; if(it.redflag&&it.v>=4) flags.push(it.t); }); });
+  warn.innerHTML=flags.length?'<div class="warnbox">⚠ Тревожный симптом.'
+    +flags.map(f=>'<div style="margin-top:4px">'+f+'.</div>').join('')
+    +'<div style="margin-top:6px">Это повод показаться врачу очно, не откладывая.</div></div>':'';
   const flagged=flaggedBlocks();
   const host=document.getElementById("results");
-  if(!flagged.length){ host.innerHTML='<div class="card"><div class="bd" style="padding:14px">По ЖКТ сейчас всё спокойно — ни один блок не в фокусе.</div></div>'; return; }
+  if(!flagged.length){ host.innerHTML='<div class="card"><div class="bd" style="padding:14px">По ЖКТ сейчас всё спокойно, ни один блок не в фокусе.</div></div>'; return; }
   host.innerHTML=flagged.map(x=>{
     const hue=HUES[x.i], r=RECS[x.i];
     const extra=demoLabsFor(x.i, PROFILE);
@@ -509,10 +511,10 @@ function renderResults(){
       +'<div class="hd" style="background:'+hue.bg+'"><span class="nm" style="color:'+hue.fg+'">'+x.name+'</span>'
       +'<span class="band" style="background:'+x.b.bg+';color:'+x.b.fg+'">балл '+x.b.sum+'</span></div>'
       +'<div class="bd" style="padding:8px 14px 12px">'
-      +'<div class="glabel">анализы — обсудить с врачом</div>'
+      +'<div class="glabel">анализы: обсудить с врачом</div>'
       + r.labs.map(l=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span>'+l+'</span></div>').join('')
       + extra.map(d=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span>'+d.text
-          +'<div style="font-size:12px;color:var(--sub);margin-top:2px">по возрасту/полу — '+d.why+' · источник: <a href="'+d.sourceUrl+'" target="_blank" rel="noopener" style="color:var(--sub)">'+d.source+'</a></div></span></div>').join('')
+          +'<div style="font-size:12px;color:var(--sub);margin-top:2px">по возрасту/полу: '+d.why+' · источник: <a href="'+d.sourceUrl+'" target="_blank" rel="noopener" style="color:var(--sub)">'+d.source+'</a></div></span></div>').join('')
       +'<div class="glabel">направления поддержки</div>'
       + r.dirs.map(d=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span>'+d+'</span></div>').join('')
       +'</div></div>';
@@ -524,7 +526,7 @@ function renderSupps(){
   const flagged=flaggedBlocks();
   const host=document.getElementById("supps");
   const cart=[];
-  if(!flagged.length){ host.innerHTML='<div class="card"><div class="bd" style="padding:14px">Нет блоков в фокусе — рекомендаций пока нет.</div></div>'; CART=[]; paintCart(); return; }
+  if(!flagged.length){ host.innerHTML='<div class="card"><div class="bd" style="padding:14px">Нет блоков в фокусе, рекомендаций пока нет.</div></div>'; CART=[]; paintCart(); return; }
   host.innerHTML=flagged.map(x=>{
     const hue=HUES[x.i], list=suppsFor(x.i, DATA[x.i]);
     const rows=list.map((s,ii)=>{
@@ -592,7 +594,7 @@ function paintCart(){
     const added=planHasName(c.name);
     return '<div class="crow">'
     +'<div style="display:flex;align-items:flex-start;gap:8px;padding:9px 0;'+(i===0?'':'border-top:0.5px solid var(--border)')+'">'
-    +'<span style="flex:1;font-size:14px;line-height:1.4">'+c.name+(c.form?' <span style="color:var(--sub);font-size:12.5px">— '+c.form+'</span>':'')+'</span>'
+    +'<span style="flex:1;font-size:14px;line-height:1.4">'+c.name+(c.form?' <span style="color:var(--sub);font-size:12.5px">· '+c.form+'</span>':'')+'</span>'
     +'<button class="cinfo" data-ti="'+i+'" style="background:none;border:none;color:var(--sub);font-size:15px;cursor:pointer;padding:0 2px;flex-shrink:0" aria-label="подробнее">ⓘ</button>'
     +'<button class="caddbtn'+(added?' on':'')+'" data-i="'+i+'" style="flex-shrink:0;font-size:11.5px;font-weight:700;border-radius:999px;padding:7px 12px;border:1px solid var(--border-strong);background:'+(added?'var(--soft)':'transparent')+';color:var(--text);cursor:pointer;font-family:inherit;white-space:nowrap">'+(added?'✓ в моём дне':'+ мой день')+'</button>'
     +'</div>'

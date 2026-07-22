@@ -178,8 +178,8 @@ function renderIntro(){
   if(localStorage.getItem(INTROKEY)==="1"){ host.innerHTML=""; return; }
   host.innerHTML =
     '<div class="intro">'
-    +'<p>3D — про психику, но по-честному тут почти всё связано с телом: сон, гормоны, стресс влияют на настроение так же сильно, как мысли. Это не отдельный изолированный раздел — то, что здесь, отражается и на 1D, и на 2D, и наоборот.</p>'
-    +'<p>Можно пройти общий тест (2-3 минуты, необязательно) — он просто подскажет, куда смотреть внимательнее. Или сразу перейти к инструментам ниже — решать тебе.</p>'
+    +'<p>3D, про психику, но по-честному тут почти всё связано с телом: сон, гормоны, стресс влияют на настроение так же сильно, как мысли. Это не отдельный изолированный раздел, то, что здесь, отражается и на 1D, и на 2D, и наоборот.</p>'
+    +'<p>Можно пройти общий тест (2-3 минуты, необязательно). Он просто подскажет, куда смотреть внимательнее. Или сразу перейти к инструментам ниже, решать тебе.</p>'
     +'<div class="row2"><button id="introToTest">пройти тест</button><button id="introSkip">пропустить, сразу к инструментам</button></div>'
     +'</div>';
   document.getElementById("introSkip").addEventListener("click", function(){
@@ -359,7 +359,7 @@ function renderGeneralTestForm(host){
     renderTestsMenu();
     var names=route.map(function(id){ return TEST_META[id].name; }).join(", ");
     host.innerHTML = '<div class="resultbox">'
-      + (route.length ? 'По ответам похоже, что стоит подробнее посмотреть: <b>'+names+'</b> — они отмечены ниже как рекомендованные.' : 'По ответам сейчас в целом спокойно, глубокие шкалы не обязательны, но всегда доступны ниже.')
+      + (route.length ? 'По ответам похоже, что стоит подробнее посмотреть: <b>'+names+'</b>, они отмечены ниже как рекомендованные.' : 'По ответам сейчас в целом спокойно, глубокие шкалы не обязательны, но всегда доступны ниже.')
       + '</div>';
   });
 }
@@ -379,7 +379,7 @@ function renderSimpleScaleTest(host, id, items, scoreFn, interpretFn){
     results[id]={date:new Date().toISOString().slice(0,10), score:score, level:interp.level, label:interp.label, advice:interp.advice};
     saveTestResults(results);
     renderTestsMenu();
-    host.innerHTML='<div class="resultbox">результат: <b>'+interp.label+'</b>'+(interp.advice?' — '+interp.advice:'')+'</div>';
+    host.innerHTML='<div class="resultbox">результат: <b>'+interp.label+'</b>'+(interp.advice?' · '+interp.advice:'')+'</div>';
   });
 }
 

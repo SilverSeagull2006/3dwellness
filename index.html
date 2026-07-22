@@ -570,7 +570,7 @@ function paintCatalog(){
     var list=AISUGGEST[catSection]||[];
     if(!list.length){
       var e=document.createElement("div"); e.className="catempty";
-      e.innerHTML="здесь появятся дела, подобранные под тебя — по опроснику и анализам. пока список пуст: <a href=\"опросник.html\">пройти опросник →</a>";
+      e.innerHTML="здесь появятся дела, подобранные под тебя по опроснику и анализам. пока список пуст: <a href=\"опросник.html\">пройти опросник →</a>";
       body.appendChild(e);
     }else{
       list.forEach(function(item){ body.appendChild(catRow(item)); });
