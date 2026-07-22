@@ -74,6 +74,7 @@
 <script>
 try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
 try{ localStorage.setItem("3dw_map_seen","1"); }catch(e){}
+try{ if(localStorage.getItem("3dw_quiz_done")==="1") document.getElementById("leaf1").href="результаты.html"; }catch(e){}
 </script>
 </body>
 </html>

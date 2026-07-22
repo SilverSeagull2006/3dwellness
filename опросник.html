@@ -658,7 +658,7 @@ document.getElementById("toQ").onclick=()=>{ renderBody(); show("screen-q"); };
 document.getElementById("backP").onclick=()=>show("screen-profile");
 document.getElementById("next").onclick=()=>{ renderResults(); show("screen-r"); };
 document.getElementById("backQ").onclick=()=>show("screen-q");
-document.getElementById("toS").onclick=()=>{ renderSupps(); show("screen-s"); };
+document.getElementById("toS").onclick=()=>{ renderSupps(); show("screen-s"); try{ localStorage.setItem("3dw_quiz_done","1"); }catch(_){} };
 document.getElementById("backR").onclick=()=>show("screen-r");
 
 try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
