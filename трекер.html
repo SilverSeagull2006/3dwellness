@@ -55,9 +55,15 @@
   .row .lb{font-size:12px;color:var(--muted);flex-shrink:0}
   .rowhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
   .rowhead .lb{font-size:12px;color:var(--muted)}
-  .facegrid,.stresswrap{display:flex;gap:6px}
-  .facebtn{flex:1;border:none;border-radius:10px;padding:7px 0;font-size:17px;background:var(--soft);cursor:pointer}
-  .facebtn.on{background:var(--peach-bg);box-shadow:inset 0 0 0 2px var(--peach-strong)}
+  .stresswrap{display:flex;gap:6px}
+  .emowheel{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .emobtn{display:flex;flex-direction:column;align-items:center;gap:4px;border:none;border-radius:14px;
+    padding:11px 4px;background:var(--soft);cursor:pointer;font-family:inherit;transition:transform .12s ease,background .12s ease}
+  .emobtn:hover{transform:translateY(-1px)}
+  .emobtn .emo{font-size:26px;line-height:1}
+  .emobtn .emolb{font-size:11px;font-weight:700;color:var(--muted)}
+  .emobtn.on{background:var(--peach-bg);box-shadow:inset 0 0 0 2px var(--peach-strong)}
+  .emobtn.on .emolb{color:var(--peach-fg)}
   .miniopt{flex:1;border:none;border-radius:10px;padding:7px 0;font-size:11.5px;font-weight:700;background:var(--soft);color:var(--muted);cursor:pointer;font-family:inherit}
   .miniopt.on{background:var(--peach-bg);color:var(--peach-fg);box-shadow:inset 0 0 0 2px var(--peach-strong)}
   .hourinp{width:48px;border:1px solid var(--border-strong);border-radius:8px;padding:6px 4px;font-size:12px;text-align:center;background:transparent;color:var(--text);font-family:inherit}
@@ -236,9 +242,9 @@ function renderDay(){
 }
 
 function emotionPicker(period, slot){
-  var cats='<div class="facegrid">'+EMOTION_WHEEL.map(function(em){
+  var cats='<div class="emowheel">'+EMOTION_WHEEL.map(function(em){
     var on=slot && slot.cat===em.label;
-    return '<button class="facebtn'+(on?' on':'')+'" data-emocat="'+period+'" data-cat="'+em.label+'" title="'+em.label+'">'+em.emoji+'</button>';
+    return '<button class="emobtn'+(on?' on':'')+'" data-emocat="'+period+'" data-cat="'+em.label+'"><span class="emo">'+em.emoji+'</span><span class="emolb">'+em.label+'</span></button>';
   }).join('')+'</div>';
   var nuanceHtml='';
   if(slot && slot.cat){
