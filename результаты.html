@@ -40,8 +40,16 @@
   .band{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap}
   .bd{padding:2px 14px 12px}
   .glabel{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.04em;margin:8px 0 2px}
-  .li{display:flex;gap:8px;padding:4px 0;font-size:13.5px;line-height:1.35}
+  .li{display:flex;gap:8px;padding:4px 0;font-size:13.5px;line-height:1.35;align-items:flex-start}
   .li .dot{flex-shrink:0}
+  .li .litx{flex:1}
+  .labbtn{flex-shrink:0;font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:999px;
+    border:1px solid var(--border-strong);background:transparent;color:var(--text);cursor:pointer;font-family:inherit;white-space:nowrap}
+  .labbtn.on{background:var(--ok-bg);color:var(--ok-fg);border-color:transparent}
+  .todocard{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:12px}
+  .todoitem{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-top:0.5px solid var(--border);font-size:13.5px}
+  .todoitem:first-of-type{border-top:none}
+  .todoitem button{background:none;border:none;color:var(--sub);font-size:16px;cursor:pointer;padding:2px 6px}
   .empty{font-size:14px;color:var(--muted);padding:20px 2px;text-align:center;line-height:1.6}
   .empty a{color:#1f6d54;font-weight:700;text-decoration:none}
   .foot{text-align:center;font-size:12.5px;color:var(--sub);padding-top:14px;line-height:1.5}
@@ -63,9 +71,10 @@
   .printbtn{width:100%;height:42px;border-radius:12px;border:1px solid var(--border-strong);background:transparent;
     color:var(--text);font-weight:700;font-size:13.5px;cursor:pointer;font-family:inherit;margin-bottom:12px}
   @media print{
-    .dsidebar,.top,.printbtn,.cta,#suppSection,.foot{display:none !important}
+    .dsidebar,.top,.printbtn,.cta,#suppSection,.foot,#host{display:none !important}
     body{background:#fff !important}
-    .card{break-inside:avoid;border:1px solid #ccc !important;box-shadow:none !important}
+    .todocard{break-inside:avoid;border:1px solid #ccc !important;box-shadow:none !important}
+    .todoitem button{display:none !important}
   }
 </style>
 </head>
@@ -89,6 +98,7 @@
   <h1>мои результаты</h1>
   <div class="lead">итог по всем пройденным темам опросника, без повторного прохождения. балл считается по последним сохранённым ответам.</div>
   <button class="printbtn" onclick="window.print()">🖨️ распечатать список анализов</button>
+  <div id="todoHost"></div>
   <div class="grid-2" id="host"></div>
 
   <div id="suppSection" style="display:none">
@@ -141,15 +151,42 @@ function render(){
       +'<span class="band" style="background:'+x.b.bg+';color:'+x.b.fg+'">балл '+x.b.sum+' · '+x.b.label+'</span></div>'
       +'<div class="bd">'
       +'<div class="glabel">анализы: обсудить с врачом</div>'
-      + r.labs.map(l=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span>'+l+'</span></div>').join('')
-      + extra.map(d=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span>'+d.text
-          +'<div style="font-size:12px;color:var(--sub);margin-top:2px">по возрасту/полу: '+d.why+' · источник: <a href="'+d.sourceUrl+'" target="_blank" rel="noopener" style="color:var(--sub)">'+d.source+'</a></div></span></div>').join('')
+      + r.labs.map(l=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span class="litx">'+l+'</span>'
+          +'<button class="labbtn'+(isLabTodo(l)?' on':'')+'" data-lab="'+l.replace(/"/g,'&quot;')+'" data-src="'+x.name+'">'+(isLabTodo(l)?'✓ в списке':'+ добавить')+'</button></div>').join('')
+      + extra.map(d=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span class="litx">'+d.text
+          +'<div style="font-size:12px;color:var(--sub);margin-top:2px">по возрасту/полу: '+d.why+' · источник: <a href="'+d.sourceUrl+'" target="_blank" rel="noopener" style="color:var(--sub)">'+d.source+'</a></div></span>'
+          +'<button class="labbtn'+(isLabTodo(d.text)?' on':'')+'" data-lab="'+d.text.replace(/"/g,'&quot;')+'" data-src="'+x.name+'">'+(isLabTodo(d.text)?'✓ в списке':'+ добавить')+'</button></div>').join('')
       +'<div class="glabel">направления поддержки</div>'
       + r.dirs.map(d=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span>'+d+'</span></div>').join('')
       +'</div></div>';
   }).join('');
 
+  wireLabButtons();
   renderSupps(flagged);
+}
+function renderTodo(){
+  const host=document.getElementById("todoHost");
+  const list=loadLabsTodo();
+  if(!list.length){ host.innerHTML=""; return; }
+  host.innerHTML='<div class="todocard"><div class="glabel" style="margin-top:0">сдать ('+list.length+')</div>'
+    + list.map((l,i)=>'<div class="todoitem"><span>'+l.text+(l.source?' <span style="color:var(--sub);font-size:11.5px">· '+l.source+'</span>':'')+'</span><button data-i="'+i+'" aria-label="убрать">×</button></div>').join('')
+    +'</div>';
+  host.querySelectorAll("button[data-i]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      const list2=loadLabsTodo(); list2.splice(parseInt(b.dataset.i,10),1); saveLabsTodo(list2);
+      renderTodo(); render();
+    });
+  });
+}
+function wireLabButtons(){
+  document.querySelectorAll(".labbtn").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      const on=toggleLabTodo(b.dataset.lab, b.dataset.src);
+      b.classList.toggle("on", on);
+      b.textContent = on ? "✓ в списке" : "+ добавить";
+      renderTodo();
+    });
+  });
 }
 
 var CART=[];
@@ -272,6 +309,7 @@ function paintCart(){
 }
 try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
 render();
+renderTodo();
 </script>
 </body>
 </html>

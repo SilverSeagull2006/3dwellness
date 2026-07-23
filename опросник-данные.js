@@ -1958,3 +1958,19 @@ function toggleRitualItem(target){
   saveRawPlan(p);
   return {on:true, section:ritualSectionName(idx), time:time};
 }
+
+/* ============ общий список "анализы к сдаче" — накапливается из 1D и 2D разом ============ */
+const LABS_TODO_KEY="3dw_labs_todo";
+function loadLabsTodo(){
+  try{ const raw=localStorage.getItem(LABS_TODO_KEY); return raw?JSON.parse(raw):[]; }catch(_){ return []; }
+}
+function saveLabsTodo(list){ try{ localStorage.setItem(LABS_TODO_KEY, JSON.stringify(list)); }catch(_){} }
+function isLabTodo(text){ return loadLabsTodo().some(function(l){ return l.text===text; }); }
+function toggleLabTodo(text, source){
+  const list=loadLabsTodo();
+  const pos=list.findIndex(function(l){ return l.text===text; });
+  if(pos>=0){ list.splice(pos,1); saveLabsTodo(list); return false; }
+  list.push({text:text, source:source||""});
+  saveLabsTodo(list);
+  return true;
+}
