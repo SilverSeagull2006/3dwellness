@@ -181,7 +181,7 @@ function renderProfilePrompt(){
   host.innerHTML =
     '<div class="promptcard">'+
       '<div class="tt">когда хочешь просыпаться и засыпать?</div>'+
-      '<div class="td">чтобы «Циркадные ритмы» и «Ритуал сна» на «Мой день» сами посчитали время каждого шага</div>'+
+      '<div class="td">чтобы «Циркадные ритмы» и «Ритуал сна» сами посчитали время каждого шага</div>'+
       '<div class="row2">'+
         '<div class="field"><label>хочу просыпаться</label><input type="time" id="wakeInp" value="'+p.wake+'"></div>'+
         '<div class="field"><label>хочу засыпать</label><input type="time" id="sleepInp" value="'+p.sleep+'"></div>'+
@@ -201,7 +201,7 @@ function renderProfilePrompt(){
     if(w==null || s==null){ hint.textContent=""; return; }
     var dur=((w-s)+1440)%1440;
     var h=Math.floor(dur/60), m=dur%60;
-    hint.textContent="между засыпанием и пробуждением получается "+h+" ч"+(m?" "+m+" мин":"")+", по рекомендации AASM взрослым нужно 7–9 часов, меньше 7 системно связано с ростом рисков для здоровья.";
+    hint.textContent="между временем засыпания и пробуждения получается "+h+" ч"+(m?" "+m+" мин":"")+", это соответствует рекомендации AASM: взрослым нужно 7–9 часов сна, меньше 7 системно связано с ростом рисков для здоровья.";
   }
   wakeInp.addEventListener("input", paintHint); sleepInp.addEventListener("input", paintHint); paintHint();
   document.getElementById("saveProf").addEventListener("click", function(){
