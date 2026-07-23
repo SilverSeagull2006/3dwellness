@@ -1803,11 +1803,11 @@ function routeGeneralTest(scaleAnswers, factors){
 /* ============ 2D · физика — карта из 8 элементов ============ */
 const TWODIM_MAP=[
   {id:"son", t:"Сон и циркадные ритмы", d:"фундамент восстановления", ic:"🌙", color:"#85b6b2", href:"сон.html", built:true},
-  {id:"dyhanie", t:"Дыхание", d:"настройка нервной системы", ic:"🍃", color:"#7ba9a7", href:"#", built:false},
-  {id:"mfr", t:"МФР", d:"снять напряжение в тканях", ic:"🪨", color:"#719d9d", href:"#", built:false},
-  {id:"gibkost", t:"Гибкость", d:"подвижность суставов", ic:"🎋", color:"#679092", href:"#", built:false},
-  {id:"kardio", t:"Кардио", d:"аэробная выносливость", ic:"⛰️", color:"#5d8387", href:"#", built:false},
-  {id:"balans", t:"Баланс", d:"координация, устойчивость", ic:"🌾", color:"#53767c", href:"#", built:false},
+  {id:"voda", t:"Баланс воды в организме", d:"питьевой режим, электролиты", ic:"💧", color:"#7ba9a7", href:"#", built:false},
+  {id:"pitanie", t:"Питание", d:"база: что и когда есть", ic:"🥗", color:"#719d9d", href:"#", built:false},
+  {id:"mfr", t:"МФР и расслабление мышц", d:"сауна, спазмы, зажатая шея", ic:"🪨", color:"#679092", href:"#", built:false},
+  {id:"gibkost", t:"Гибкость, осанка и равновесие", d:"подвижность, йога как практика", ic:"🎋", color:"#5d8387", href:"#", built:false},
+  {id:"kardio", t:"Кардио", d:"аэробная выносливость", ic:"⛰️", color:"#53767c", href:"#", built:false},
   {id:"silovye", t:"Силовые", d:"нагрузка и прогрессия", ic:"🌊", color:"#496a72", href:"#", built:false},
   {id:"byuti", t:"Бьюти", d:"уход, который поддерживает тело", ic:"💅", color:"#3f5d67", href:"#", built:false}
 ];
