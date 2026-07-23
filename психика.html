@@ -36,6 +36,7 @@
   .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:12px}
   .sechead{font-size:13px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.03em;margin:18px 2px 8px}
   .intro{background:var(--pu-bg);border-radius:16px;padding:16px;margin-bottom:14px;color:var(--pu-fg)}
+  .dxbanner{background:var(--warn-bg);color:var(--warn-fg);border-radius:16px;padding:14px 16px;margin-bottom:14px;font-size:13px;line-height:1.55}
   .intro p{margin:0 0 10px;font-size:13px;line-height:1.55}
   .intro button{border:none;border-radius:12px;padding:9px 14px;font-size:12.5px;font-weight:700;font-family:inherit;
     background:rgba(255,255,255,.5);color:var(--pu-fg);cursor:pointer}
@@ -131,6 +132,7 @@
   <h1>3D · психика</h1>
   <div class="lead">тихая вода или шторм, начни с того, что нужно сейчас.</div>
 
+  <div id="dxHost"></div>
   <div id="introHost"></div>
 
   <div class="sechead">регуляция</div>
@@ -173,6 +175,17 @@ function togglePlan(name){
 }
 
 var INTROKEY="3dw_psyche_intro_seen";
+function renderDxBanner(){
+  var host=document.getElementById("dxHost");
+  var profile=loadFullProfile();
+  if(profile.dx.has("тревога / депрессия")){
+    host.innerHTML='<div class="dxbanner">У тебя отмечен диагноз «тревога / депрессия» в профиле. Это приложение — поддержка, а не лечение и не замена специалиста. Если чувствуешь, что не справляешься, обратись к психиатру или психотерапевту — это взрослая забота о себе.</div>';
+  } else {
+    host.innerHTML="";
+  }
+}
+renderDxBanner();
+
 function renderIntro(){
   var host=document.getElementById("introHost");
   if(localStorage.getItem(INTROKEY)==="1"){ host.innerHTML=""; return; }
