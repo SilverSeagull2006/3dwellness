@@ -63,6 +63,8 @@
   .rule b{display:block;font-size:13.5px}
   .rule span{color:var(--muted);font-size:12.5px}
   .caveat{background:var(--warn-bg);color:var(--warn-fg);border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.5;margin-top:10px}
+  .warnbox{background:var(--bad-bg);color:var(--bad-fg);border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.5;margin-top:10px;font-weight:700}
+  .wb-row{font-weight:400;margin-top:6px}
 
   .testcard{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;text-align:center}
   .testcard .tt{font-size:15px;font-weight:700;margin-bottom:4px}
@@ -185,7 +187,11 @@ function renderProfilePrompt(){
         '<div class="field"><label>хочу засыпать</label><input type="time" id="sleepInp" value="'+p.sleep+'"></div>'+
       '</div>'+
       '<div class="hint" id="durHint"></div>'+
-      '<div class="caveat">⚠️ Важно: нехватка сна бьёт по всем трём измерениям сразу — растёт кортизол и тянет на вредное (1D), тренировки не восстанавливаются (2D), хуже эмоции и память (3D).</div>'+
+      '<div class="warnbox">⚠️ Важно: нехватка сна бьёт по всем трём измерениям сразу.'+
+        '<div class="wb-row"><b>1D · биохимия:</b> растёт кортизол и инсулинорезистентность, гормоны голода сбиваются, тянет на сладкое и вредное, слабее иммунитет</div>'+
+        '<div class="wb-row"><b>2D · тело:</b> именно в глубоком сне гипофиз выделяет гормон роста, который чинит мышцы и ткани, без сна тренировки не восстанавливаются, риск травм выше</div>'+
+        '<div class="wb-row"><b>3D · психика:</b> хуже регуляция эмоций, выше тревожность и реактивность, хуже память и решения на следующий день</div>'+
+      '</div>'+
       '<button class="savebtn" id="saveProf">сохранить →</button>'+
     '</div>';
   var wakeInp=document.getElementById("wakeInp"), sleepInp=document.getElementById("sleepInp");
