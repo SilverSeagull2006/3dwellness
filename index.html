@@ -19,12 +19,14 @@
     --lav-bg:#e8e4f6; --lav-fg:#4a3f7a;
     --peach-bg:#f7e8dc; --peach-fg:#7c4b2b;
     --pink-bg:#f4e6ef; --pink-fg:#6f2f52;
+    --dawn-bg:#fdf3e0; --dawn-fg:#8a6a2f;
+    --dusk-bg:rgba(63,93,103,.12); --dusk-fg:#3f5d67;
     --accent:#7bbfa3;
   }
   @media (prefers-color-scheme:dark){
     :root{--bg:#191b20;--card:#23262d;--soft:#2b2e35;
       --text:#f2f2ee;--muted:#a4a8b2;--sub:#878b95;
-      --border:rgba(255,255,255,.10);--border-strong:rgba(255,255,255,.2);--peach-bg:#3a2b21;--peach-fg:#e2b58f;--sage-bg:#1d3a2f;--sage-fg:#84cdac;--lav-bg:#2a2456;--lav-fg:#b7aef0;--pink-bg:#3a2230;--pink-fg:#e39bbf;}
+      --border:rgba(255,255,255,.10);--border-strong:rgba(255,255,255,.2);--peach-bg:#3a2b21;--peach-fg:#e2b58f;--sage-bg:#1d3a2f;--sage-fg:#84cdac;--lav-bg:#2a2456;--lav-fg:#b7aef0;--pink-bg:#3a2230;--pink-fg:#e39bbf;--dawn-bg:#3a2f1a;--dawn-fg:#e0b45c;--dusk-bg:rgba(133,182,178,.18);--dusk-fg:#85b6b2;}
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--text);
@@ -325,13 +327,17 @@ var PLANDATA=[
   {dim:"3D · психика", bg:"var(--lav-bg)", fg:"var(--lav-fg)", items:[
     {t:"дыхание 4·7·8", anchor:true, done:true},
     {t:"прогулка без телефона", done:false},
-    {t:"вечерний ритуал", beauty:true, done:false}]}
+    {t:"вечерний ритуал", beauty:true, done:false}]},
+  {dim:"☀️ Циркадные ритмы", bg:"var(--dawn-bg)", fg:"var(--dawn-fg)", optional:true, items:[]},
+  {dim:"🌙 Ритуал сна", bg:"var(--dusk-bg)", fg:"var(--dusk-fg)", optional:true, items:[]}
 ];
 var CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
 var ICONS=[
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="9.5" ry="3.6"/><ellipse cx="12" cy="12" rx="9.5" ry="3.6" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9.5" ry="3.6" transform="rotate(120 12 12)"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>',
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.2"/><path d="M12 7.2V14"/><path d="M12 14L9 20"/><path d="M12 14L15 20"/><path d="M12 9.5H6"/><path d="M12 9.5H18"/><path d="M4.5 7.8V11.2"/><path d="M6.5 7.8V11.2"/><path d="M17.5 7.8V11.2"/><path d="M19.5 7.8V11.2"/></svg>',
-  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5C10.4 8 10.4 11 12 13 13.6 11 13.6 8 12 5Z"/><path d="M12 13C9 11.4 7.6 8.5 8.2 6 10 7.4 11.4 10.2 12 13Z"/><path d="M12 13C15 11.4 16.4 8.5 15.8 6 14 7.4 12.6 10.2 12 13Z"/><path d="M12 14C8.5 13.6 4.8 14.6 3.5 16.5 6.8 17.4 10.2 16.4 12 14.5"/><path d="M12 14C15.5 13.6 19.2 14.6 20.5 16.5 17.2 17.4 13.8 16.4 12 14.5"/></svg>'
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5C10.4 8 10.4 11 12 13 13.6 11 13.6 8 12 5Z"/><path d="M12 13C9 11.4 7.6 8.5 8.2 6 10 7.4 11.4 10.2 12 13Z"/><path d="M12 13C15 11.4 16.4 8.5 15.8 6 14 7.4 12.6 10.2 12 13Z"/><path d="M12 14C8.5 13.6 4.8 14.6 3.5 16.5 6.8 17.4 10.2 16.4 12 14.5"/><path d="M12 14C15.5 13.6 19.2 14.6 20.5 16.5 17.2 17.4 13.8 16.4 12 14.5"/></svg>',
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.8 5.8l1.6 1.6M16.6 16.6l1.6 1.6M5.8 18.2l1.6-1.6M16.6 7.4l1.6-1.6"/></svg>',
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/></svg>'
 ];
 var host=document.getElementById("sections");
 var editMode=false;
@@ -346,6 +352,7 @@ var justDoneKey=null;
 function render(){
   host.innerHTML="";
   PLANDATA.forEach(function(sec,si){
+    if(sec.optional && sec.items.length===0) return;
     var card=document.createElement("div"); card.className="card";
     card.innerHTML='<div class="hd"><span class="hdic" style="color:'+sec.fg+'">'+ICONS[si]+'</span><span class="pill" style="background:'+sec.bg+';color:'+sec.fg+'">'+sec.dim+'</span></div>';
     var gentle = ((energy==="low" || curMode) && !editMode);
@@ -380,7 +387,7 @@ function render(){
         : "остальное сегодня подождёт, и это нормально";
       card.appendChild(soft);
     }
-    if(editMode){
+    if(editMode && !sec.optional){
       var addtrig=document.createElement("button"); addtrig.className="addtrig"; addtrig.textContent="+ добавить дело";
       addtrig.addEventListener("click",function(){ openCatalog(si); });
       card.appendChild(addtrig);

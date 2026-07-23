@@ -12,15 +12,13 @@
 <link rel="stylesheet" href="desktop.css">
 <style>
   :root{
-    --bg:#faf8f4; --card:#fff; --soft:#f0eee7;
-    --text:#1a1a18; --muted:#75746e; --sub:#93928b;
+    --bg:#faf8f4; --card:#fff;
+    --text:#1a1a18; --muted:#75746e;
     --border:rgba(0,0,0,.09); --border-strong:rgba(0,0,0,.18);
-    --peach-bg:#f7e8dc; --peach-fg:#7c4b2b;
+    --navy:#3f5d67;
   }
   @media (prefers-color-scheme:dark){
-    :root{--bg:#1a1a18;--card:#262523;--soft:#302f2c;
-      --text:#f4f3ee;--muted:#a8a69f;--sub:#8d8b84;
-      --border:rgba(255,255,255,.11);--border-strong:rgba(255,255,255,.22);--peach-bg:#3a2b21;--peach-fg:#e2b58f;}
+    :root{--bg:#1a1a18;--card:#262523;--text:#f4f3ee;--muted:#a8a69f;--border:rgba(255,255,255,.11);--border-strong:rgba(255,255,255,.22)}
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--text);
@@ -31,41 +29,26 @@
   .navbtn{flex:1;text-align:center;padding:9px 10px;border-radius:12px;font-size:13px;font-weight:700;
     text-decoration:none;border:1px solid var(--border-strong);color:var(--text)}
   h1{font-size:20px;font-weight:700;margin:6px 0 4px}
-  .lead{font-size:13.5px;color:var(--muted);line-height:1.5;margin-bottom:18px}
+  .lead{font-size:13.5px;color:var(--muted);line-height:1.5;margin-bottom:20px}
 
-  .stage{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:12px;overflow:hidden}
-  .shead{display:flex;align-items:center;gap:12px;padding:14px 16px}
-  .addbtn{margin-left:auto;flex-shrink:0;font-size:11.5px;font-weight:700;border-radius:999px;
-    padding:7px 11px;border:1px solid var(--border-strong);background:transparent;color:var(--text);
-    cursor:pointer;font-family:inherit;white-space:nowrap}
-  .addbtn.on{background:var(--peach-bg);color:var(--peach-fg);border-color:transparent}
-  .suppadd{display:flex;align-items:center;justify-content:space-between;gap:10px}
-  .miniadd{font-size:11px;font-weight:700;border-radius:999px;padding:5px 9px;flex-shrink:0;
-    border:1px solid var(--border-strong);background:transparent;color:var(--text);cursor:pointer;font-family:inherit}
-  .miniadd.on{background:var(--peach-bg);color:var(--peach-fg);border-color:transparent}
-  .num{width:26px;height:26px;border-radius:50%;background:var(--peach-bg);color:var(--peach-fg);
-    font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-  .st{display:block;font-size:15px;font-weight:700}
-  .sd{display:block;font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.4}
-  .why{display:none;padding:0 16px 14px 54px;font-size:12.5px;color:var(--sub);line-height:1.55}
-  .why.open{display:block}
-  .supp{margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border)}
-  .supp .sn{font-weight:700;color:var(--text)}
-  .supp .sdose{display:block;font-size:11.5px;margin-top:1px}
-  .labs{margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border)}
-  .labs .lt{font-weight:700;color:var(--text);display:block;margin-bottom:3px}
-  .labs .ll{font-size:11.5px}
-  .whybtn{font-size:11.5px;font-weight:700;color:var(--peach-fg);background:none;border:none;
-    padding:0 16px 12px 54px;cursor:pointer;font-family:inherit}
+  .path{position:relative;padding-left:46px}
+  .line{position:absolute;left:20px;top:22px;bottom:22px;width:0;border-left:2px dashed var(--navy);opacity:.45}
+  .step{position:relative;margin-bottom:14px}
+  .num{position:absolute;left:-46px;top:2px;width:36px;height:36px;border-radius:50%;
+    color:#fff;display:flex;align-items:center;justify-content:center;
+    font-size:16px;font-weight:800;z-index:2;box-shadow:0 0 0 4px var(--bg)}
+  .card{background:var(--card);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;
+    text-decoration:none;color:inherit;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .card .ic{font-size:22px;flex-shrink:0}
+  .card .tx{display:flex;flex-direction:column;min-width:0}
+  .card .t{font-size:14.5px;font-weight:700;line-height:1.25}
+  .card .d{font-size:11.5px;color:var(--muted);margin-top:1px}
+  .card .chev{margin-left:auto;color:var(--muted);font-size:16px;flex-shrink:0}
+  .step.soon .card{opacity:.55;filter:grayscale(.3);pointer-events:none}
+  .soontag{font-size:9.5px;font-weight:700;color:var(--muted);background:var(--bg);border:1px solid var(--border);
+    border-radius:999px;padding:2px 7px;margin-left:auto;flex-shrink:0}
 
-  .doorcard{background:var(--soft);border:1px dashed var(--border-strong);border-radius:16px;
-    padding:16px;margin-top:18px}
-  .doorcard .t{font-size:14.5px;font-weight:700;margin-bottom:4px}
-  .doorcard .d{font-size:12.5px;color:var(--muted);line-height:1.5;margin-bottom:12px}
-  .doorcard a{display:block;text-align:center;background:var(--peach-bg);color:var(--peach-fg);
-    text-decoration:none;font-weight:700;font-size:13.5px;padding:11px;border-radius:12px}
-
-  .foot{text-align:center;font-size:12.5px;color:var(--sub);padding-top:16px;line-height:1.5}
+  .foot{text-align:center;font-size:12.5px;color:var(--muted);padding-top:20px;line-height:1.5}
 </style>
 </head>
 <body>
@@ -86,120 +69,29 @@
     <a class="navbtn" href="журнал.html">⚓ бортовой журнал</a>
   </div>
   <h1>2D · физика</h1>
-  <div class="lead">тело поддерживает тебя каждый день. вот путь, иди в своём темпе, ничего не нужно осваивать сразу и полностью.</div>
+  <div class="lead">от фундамента к нагрузке, шаг за шагом. можно начать с любого этапа.</div>
 
-  <div class="grid-2" id="stages"></div>
-
-  <div class="doorcard">
-    <div class="t">хочешь заглянуть глубже?</div>
-    <div class="d">симптомный опросник, анализы и БАД для тела, отдельная дверь, доступна на любом этапе, не обязательна.</div>
-    <a href="опросник.html">глубже: симптомы, анализы, БАД →</a>
+  <div class="path" id="stages">
+    <div class="line"></div>
   </div>
 
-  <div class="foot">порядок, просто предложение, не требование. можно начать с любого этапа.</div>
+  <div class="foot">часть пунктов пока в разработке, появятся постепенно</div>
 </div>
 
 <script>
-var PLANKEY="3dw_plan_v1";
-var DIMBLOCK="2D · физика";
-function loadPlanArr(){
-  try{ var raw=localStorage.getItem(PLANKEY); var p = raw ? JSON.parse(raw) : [[],[],[]]; if(!p[1]) p[1]=[]; return p; }
-  catch(_){ return [[],[],[]]; }
-}
-function isInPlan(name){
-  var p=loadPlanArr();
-  return p[1].some(function(it){ return it.t===name; });
-}
-function togglePlan(name,kind,lib){
-  var p=loadPlanArr();
-  var idx=p[1].findIndex(function(it){ return it.t===name; });
-  if(idx>=0){ p[1].splice(idx,1); localStorage.setItem(PLANKEY,JSON.stringify(p)); return false; }
-  lib=lib||{};
-  p[1].push({t:name, form:kind==="dir"?"":lib.form, dose:kind==="dir"?"":lib.dose, time:"", beauty:false, anchor:false,
-    source:{block:DIMBLOCK, kind:kind}});
-  localStorage.setItem(PLANKEY,JSON.stringify(p));
-  return true;
-}
-var GEAR={
-  "Коврик для растяжки":{note:"базовый инвентарь для растяжки и функциональных движений"},
-  "Массажный ролл (МФР)":{note:"самостоятельный миофасциальный релиз, мягко снимает мышечное напряжение после нагрузки"},
-  "Резинки-эспандеры":{note:"дешёвый и безопасный способ добавить сопротивление дома, до перехода на гантели"},
-  "Гантели разборные":{note:"для силовой нагрузки, когда веса тела уже недостаточно"}
-};
-var STAGES=[
-  {t:"прогулки и растяжка", d:"10–15 минут ходьбы и лёгкая растяжка, каждый день, без цели «тренировки»",
-   why:"даже без нагрузки движение, это сигнал телу «мы в безопасности»: улучшается кровоток, настроение, сон. это фундамент, с которого стоит начинать всегда.",
-   gear:["Коврик для растяжки","Массажный ролл (МФР)"],
-   labs:["ОАК (общий анализ крови)","Ферритин","Витамин B12","Фолиевая кислота (витамин B9)"]},
-  {t:"функциональные движения", d:"присед, наклон (хиндж), выпад, три движения, которые тело и так использует каждый день",
-   why:"по данным IFM (Institute for Functional Medicine), именно эти базовые паттерны, основа безопасного движения. отработать их без нагрузки, лучшая защита от травм на следующих этапах."},
-  {t:"тай-чи или танцы", d:"мягкая практика на баланс и координацию, можно дома, под музыку, без правил",
-   why:"исследования, на которые опирается IFM, показывают: тай-чи улучшает баланс и снижает тревожность и подавленность, не только тело, но и настроение."},
-  {t:"силовая нагрузка", d:"постепенно добавляй сопротивление (вес тела, резинки, гантели)",
-   why:"это главная защита мышечной массы с возрастом (саркопения). здесь же становится важен белок в питании.",
-   supps:["Протеин (сывороточный)","Креатин моногидрат"],
-   gear:["Резинки-эспандеры","Гантели разборные"],
-   labs:["Альбумин","Креатинин","Тестостерон общий","ИФР-1 (IGF-1)"]},
-  {t:"интервалы", d:"короткие всплески высокой интенсивности, по самочувствию, не по норме",
-   why:"поддерживает сердечно-сосудистую систему. если давно не было нагрузки, стоит сдать анализ перед стартом.",
-   labs:["Креатинфосфокиназа (КФК)"]}
-];
 var host=document.getElementById("stages");
-STAGES.forEach(function(s,i){
-  var card=document.createElement("div"); card.className="stage";
-  var suppHtml="";
-  if(s.supps && typeof BADLIB!=="undefined"){
-    suppHtml = s.supps.map(function(name){
-      var b=BADLIB[name]; if(!b) return "";
-      var on=isInPlan(name);
-      return '<div class="supp"><div class="suppadd"><span><span class="sn">'+name+'</span><span class="sdose">'+b.dose+'</span></span>'+
-        '<button class="miniadd'+(on?' on':'')+'" data-supp="'+name+'">'+(on?"✓ добавлено":"+ добавить")+'</button></div></div>';
-    }).join("");
-  }
-  var gearHtml="";
-  if(s.gear){
-    gearHtml = s.gear.map(function(name){
-      var g=GEAR[name]; if(!g) return "";
-      var on=isInPlan(name);
-      return '<div class="supp"><div class="suppadd"><span><span class="sn">'+name+'</span><span class="sdose">'+g.note+'</span></span>'+
-        '<button class="miniadd'+(on?' on':'')+'" data-gear="'+name+'">'+(on?"✓ добавлено":"+ добавить")+'</button></div></div>';
-    }).join("");
-  }
-  var labsHtml="";
-  if(s.labs){
-    labsHtml = '<div class="labs"><span class="lt">анализы (по желанию, не обязательно)</span><span class="ll">'+s.labs.join(" · ")+'</span></div>';
-  }
-  var stageOn=isInPlan(s.t);
-  card.innerHTML =
-    '<div class="shead"><span class="num">'+(i+1)+'</span>'+
-    '<span><span class="st">'+s.t+'</span><span class="sd">'+s.d+'</span></span>'+
-    '<button class="addbtn'+(stageOn?' on':'')+'" data-stage="'+s.t+'">'+(stageOn?"✓ в моём дне":"+ мой день")+'</button></div>'+
-    '<button class="whybtn">почему? ↓</button>'+
-    '<div class="why">'+s.why+suppHtml+gearHtml+labsHtml+'</div>';
-  var btn=card.querySelector(".whybtn");
-  var why=card.querySelector(".why");
-  btn.addEventListener("click",function(){
-    var open=why.classList.toggle("open");
-    btn.textContent = open ? "почему? ↑" : "почему? ↓";
-  });
-  card.querySelector(".addbtn").addEventListener("click",function(e){
-    e.stopPropagation();
-    var on=togglePlan(s.t,"dir");
-    e.target.classList.toggle("on",on);
-    e.target.textContent = on ? "✓ в моём дне" : "+ мой день";
-  });
-  card.querySelectorAll(".miniadd").forEach(function(mb){
-    mb.addEventListener("click",function(e){
-      e.stopPropagation();
-      var name=mb.dataset.supp||mb.dataset.gear;
-      var kind=mb.dataset.supp?"supp":"gear";
-      var lib=kind==="supp"?BADLIB[name]:{form:"", dose:GEAR[name]?GEAR[name].note:""};
-      var on=togglePlan(name,kind,lib);
-      mb.classList.toggle("on",on);
-      mb.textContent = on ? "✓ добавлено" : "+ добавить";
-    });
-  });
-  host.appendChild(card);
+TWODIM_MAP.forEach(function(s,i){
+  var el=document.createElement(s.built ? "a" : "div");
+  el.className="step"+(s.built?"":" soon");
+  if(s.built) el.href=s.href;
+  el.innerHTML =
+    '<span class="num" style="background:'+s.color+'">'+(i+1)+'</span>'+
+    '<span class="card">'+
+      '<span class="ic">'+s.ic+'</span>'+
+      '<span class="tx"><span class="t">'+s.t+'</span><span class="d">'+s.d+'</span></span>'+
+      (s.built ? '<span class="chev">›</span>' : '<span class="soontag">скоро</span>')+
+    '</span>';
+  host.appendChild(el);
 });
 try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
 </script>

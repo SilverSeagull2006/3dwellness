@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>3dWellness, 2D · сон и циркадные ритмы</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="опросник-данные.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="desktop.css">
+<style>
+  :root{
+    --bg:#faf8f4; --card:#fff; --soft:#f0eee7;
+    --text:#1a1a18; --muted:#75746e; --sub:#93928b;
+    --border:rgba(0,0,0,.09); --border-strong:rgba(0,0,0,.18);
+    --navy:#3f5d67; --teal:#85b6b2;
+    --dawn-bg:#fdf3e0; --dawn-fg:#8a6a2f;
+    --dusk-bg:rgba(63,93,103,.12); --dusk-fg:var(--navy);
+    --ok-bg:#e3f3ec; --ok-fg:#1f6d54;
+    --warn-bg:#f7ecd6; --warn-fg:#86611f;
+    --bad-bg:#f7ddd3; --bad-fg:#8a3f24;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#1a1a18;--card:#262523;--soft:#302f2c;--text:#f4f3ee;--muted:#a8a69f;--sub:#8d8b84;--border:rgba(255,255,255,.11);--border-strong:rgba(255,255,255,.22);--dawn-bg:#3a2f1a;--dawn-fg:#e0b45c;--dusk-bg:rgba(133,182,178,.18);--dusk-fg:var(--teal);--ok-bg:#1d3a2f;--ok-fg:#84cdac;--warn-bg:#3a3220;--warn-fg:#e6c07a;--bad-bg:#3d2620;--bad-fg:#eaa38f}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:'Nunito',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:460px;margin:0 auto;padding:16px 18px 40px}
+  .top{display:flex;gap:8px;margin-bottom:14px}
+  .navbtn{flex:1;text-align:center;padding:9px 10px;border-radius:12px;font-size:13px;font-weight:700;
+    text-decoration:none;border:1px solid var(--border-strong);color:var(--text)}
+  h1{font-size:21px;font-weight:700;margin:6px 0 4px;display:flex;align-items:center;gap:8px}
+  .lead{font-size:13.5px;color:var(--muted);line-height:1.5;margin-bottom:16px}
+  .sec{margin:26px 0 10px;font-size:12px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.04em}
+
+  .srcbanner{background:var(--soft);border-radius:16px;padding:15px 16px;margin-bottom:6px}
+  .srchd{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:700;margin-bottom:6px}
+  .srclist{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+  .srcitem{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:9px 11px}
+  .srcn{font-size:12.5px;font-weight:700;margin-bottom:2px}
+  .srcd{font-size:11.5px;line-height:1.45;color:var(--muted)}
+
+  .promptcard{background:var(--card);border:1px dashed var(--border-strong);border-radius:16px;padding:16px;margin-bottom:10px}
+  .promptcard .tt{font-size:14.5px;font-weight:700;margin-bottom:4px}
+  .promptcard .td{font-size:12.5px;color:var(--muted);line-height:1.5;margin-bottom:12px}
+  .row2{display:flex;gap:10px}
+  .field{flex:1}
+  .field label{font-size:11.5px;color:var(--muted);display:block;margin-bottom:4px}
+  .field input{width:100%;padding:9px 10px;border:1px solid var(--border-strong);border-radius:10px;font-size:14px;font-family:inherit;background:var(--bg);color:var(--text)}
+  .hint{font-size:11.5px;color:var(--muted);line-height:1.5;margin-top:10px}
+  .savebtn{width:100%;height:42px;margin-top:12px;border-radius:12px;border:none;background:var(--navy);color:#fff;font-weight:700;font-size:14px;cursor:pointer}
+  .profilebar{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--soft);border-radius:14px;padding:10px 14px;margin-bottom:10px;font-size:12.5px;color:var(--muted)}
+  .profilebar b{color:var(--text)}
+  .profilebar button{border:none;background:none;color:var(--navy);font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:10px}
+  .rule{display:flex;gap:9px;padding:7px 0;border-top:0.5px solid var(--border);font-size:13.5px;line-height:1.4;align-items:flex-start}
+  .rule:first-of-type{border-top:none}
+  .rule b{display:block;font-size:13.5px}
+  .rule span{color:var(--muted);font-size:12.5px}
+  .caveat{background:var(--warn-bg);color:var(--warn-fg);border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.5;margin-top:10px}
+
+  .testcard{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;text-align:center}
+  .testcard .tt{font-size:15px;font-weight:700;margin-bottom:4px}
+  .testcard .td{font-size:12.5px;color:var(--muted);line-height:1.5;margin-bottom:12px}
+  .btn{width:100%;height:44px;border-radius:12px;border:none;background:var(--teal);color:#20343a;font-weight:700;font-size:14.5px;cursor:pointer}
+
+  .branch{border-radius:16px;padding:14px 16px;margin-top:10px}
+  .b-green{background:var(--ok-bg);color:var(--ok-fg)}
+  .b-yellow{background:var(--warn-bg);color:var(--warn-fg)}
+  .b-warn{background:var(--warn-bg);color:var(--warn-fg)}
+  .b-red{background:var(--bad-bg);color:var(--bad-fg)}
+  .branch .bt{font-weight:800;font-size:14px;margin-bottom:4px}
+  .branch .bd{font-size:12.5px;line-height:1.5}
+
+  .cbtstep{display:flex;gap:10px;padding:9px 0;border-top:0.5px solid var(--border);font-size:13px;line-height:1.4;align-items:flex-start}
+  .cbtstep:first-of-type{border-top:none}
+  .cbtstep .cn{width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
+
+  .supp{border-top:0.5px solid var(--border);padding:10px 0}
+  .supp:first-of-type{border-top:none}
+  .supp .top2{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .supp .sn{font-size:14.5px;font-weight:700}
+  .supp .dose{font-size:12.5px;font-weight:600;color:var(--text);margin-top:2px}
+  .supp .why{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.4}
+  .footnote{font-size:11px;color:var(--sub);line-height:1.5;margin-top:12px;padding-top:10px;border-top:0.5px solid var(--border)}
+
+  .addwrap{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:3px;margin-left:auto;padding-left:8px}
+  .addbtn{font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;border:1px solid var(--border-strong);
+    background:transparent;color:var(--text);cursor:pointer;font-family:inherit;white-space:nowrap}
+  .addbtn.dawn{border-color:transparent;background:var(--dawn-bg);color:var(--dawn-fg)}
+  .addbtn.dusk{border-color:transparent;background:var(--dusk-bg);color:var(--dusk-fg)}
+  .addbtn.on{background:var(--ok-bg);color:var(--ok-fg)}
+  .addtag{font-size:10px;color:var(--sub)}
+
+  .scaleq{margin-bottom:16px}
+  .scaletext{font-size:13px;margin-bottom:8px}
+  .scaledots{display:flex;justify-content:space-between}
+  .dotopt{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;flex:1}
+  .dot{width:20px;height:20px;border-radius:50%;background:var(--soft)}
+  .dot.on{background:var(--ok-bg);box-shadow:inset 0 0 0 2px var(--teal)}
+  .dotlabel{font-size:8px;color:var(--sub);text-align:center;line-height:1.2}
+
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#20242b;color:#fff;
+    padding:10px 16px;border-radius:999px;font-size:13px;opacity:0;transition:opacity .2s;white-space:nowrap;z-index:9;max-width:90vw;text-align:center}
+  .toast.on{opacity:1}
+</style>
+</head>
+<body>
+<nav class="dsidebar">
+  <div class="dbrand">3dWellness</div>
+  <a href="index.html">✦ мой день</a>
+  <a href="карта.html">карта маршрута</a>
+  <a href="журнал.html">⚓ бортовой журнал</a>
+  <div class="dgap"></div>
+  <a href="опросник.html">1D · биохимия</a>
+  <a href="физика.html" class="on">2D · физика</a>
+  <a href="психика.html">3D · психика</a>
+</nav>
+
+<div class="wrap">
+  <div class="top">
+    <a class="navbtn" href="физика.html">← 2D карта</a>
+    <a class="navbtn" href="журнал.html">⚓ бортовой журнал</a>
+  </div>
+  <h1>🌙 Сон и циркадные ритмы</h1>
+  <div class="lead">без нормального сна не наладить ни биохимию, ни психику, ни работу с телом.</div>
+
+  <div class="srcbanner">
+    <div class="srchd">🎓 на чём основано</div>
+    <div class="srclist" id="srclist"></div>
+  </div>
+
+  <div id="profileHost"></div>
+
+  <div class="sec">гигиена сна: что и почему работает</div>
+  <div class="card" id="hygieneHost"></div>
+
+  <div class="sec">самопроверка</div>
+  <div class="testcard" id="testHost">
+    <div class="tt">Индекс тяжести бессонницы (ISI)</div>
+    <div class="td">7 коротких вопросов о качестве сна за последние 2 недели</div>
+    <button class="btn" id="startTest">пройти тест →</button>
+  </div>
+
+  <div class="sec">КПТ-Б (терапия бессонницы): конкретные упражнения</div>
+  <div class="card" id="cbtiHost"></div>
+
+  <div class="sec">БАД (по желанию, не обязательно)</div>
+  <div class="card" id="suppHost"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---- источники ---- */
+document.getElementById("srclist").innerHTML = SLEEP_SOURCES.map(function(s){
+  return '<div class="srcitem"><div class="srcn">'+s.n+'</div><div class="srcd">'+s.d+'</div></div>';
+}).join("");
+
+/* ---- профиль пробуждения/засыпания ---- */
+function renderProfile(){
+  var host=document.getElementById("profileHost");
+  var p=getSleepProfile();
+  if(p){
+    host.innerHTML='<div class="profilebar"><span>пробуждение <b>'+p.wake+'</b> · сон <b>'+p.sleep+'</b></span><button id="editProf">изменить</button></div>';
+    document.getElementById("editProf").addEventListener("click", renderProfilePrompt);
+  } else {
+    renderProfilePrompt();
+  }
+}
+function renderProfilePrompt(){
+  var host=document.getElementById("profileHost");
+  var p=getSleepProfile()||{wake:"07:00", sleep:"23:00"};
+  host.innerHTML =
+    '<div class="promptcard">'+
+      '<div class="tt">когда хочешь просыпаться и засыпать?</div>'+
+      '<div class="td">чтобы «Циркадные ритмы» и «Ритуал сна» на «Мой день» сами посчитали время каждого шага</div>'+
+      '<div class="row2">'+
+        '<div class="field"><label>хочу просыпаться</label><input type="time" id="wakeInp" value="'+p.wake+'"></div>'+
+        '<div class="field"><label>хочу засыпать</label><input type="time" id="sleepInp" value="'+p.sleep+'"></div>'+
+      '</div>'+
+      '<div class="hint" id="durHint"></div>'+
+      '<div class="caveat">⚠️ Важно: нехватка сна бьёт по всем трём измерениям сразу — растёт кортизол и тянет на вредное (1D), тренировки не восстанавливаются (2D), хуже эмоции и память (3D).</div>'+
+      '<button class="savebtn" id="saveProf">сохранить →</button>'+
+    '</div>';
+  var wakeInp=document.getElementById("wakeInp"), sleepInp=document.getElementById("sleepInp");
+  function paintHint(){
+    var w=parseHM(wakeInp.value), s=parseHM(sleepInp.value);
+    var hint=document.getElementById("durHint");
+    if(w==null || s==null){ hint.textContent=""; return; }
+    var dur=((w-s)+1440)%1440;
+    var h=Math.floor(dur/60), m=dur%60;
+    hint.textContent="между засыпанием и пробуждением получается "+h+" ч"+(m?" "+m+" мин":"")+", по рекомендации AASM взрослым нужно 7–9 часов, меньше 7 системно связано с ростом рисков для здоровья.";
+  }
+  wakeInp.addEventListener("input", paintHint); sleepInp.addEventListener("input", paintHint); paintHint();
+  document.getElementById("saveProf").addEventListener("click", function(){
+    if(!wakeInp.value || !sleepInp.value) return;
+    setSleepProfile(wakeInp.value, sleepInp.value);
+    renderProfile(); renderHygiene(); renderCBTI(); renderSupps();
+  });
+}
+renderProfile();
+
+/* ---- перенос в "Мой день" ---- */
+var toastEl=document.getElementById("toast");
+function showToast(t){ toastEl.textContent=t; toastEl.classList.add("on"); setTimeout(function(){ toastEl.classList.remove("on"); }, 1800); }
+function addBtnHtml(target, tag, cls){
+  var on=isRitualItemOn(target);
+  return '<span class="addwrap"><button class="addbtn '+cls+(on?' on':'')+'" data-target="'+target+'">'+(on?"✓ добавлено":"+ Мой день")+'</button><span class="addtag">'+tag+'</span></span>';
+}
+function wireAddButtons(root){
+  root.querySelectorAll(".addbtn").forEach(function(b){
+    b.addEventListener("click", function(){
+      var res=toggleRitualItem(b.dataset.target);
+      if(!res) return;
+      if(res.needsProfile){ showToast("сначала укажи время пробуждения/сна выше"); renderProfilePrompt(); return; }
+      b.classList.toggle("on", res.on);
+      b.textContent = res.on ? "✓ добавлено" : "+ Мой день";
+      showToast(res.on ? "«"+b.dataset.target+"» → "+res.section+(res.time?" · "+res.time:"") : "убрано из «"+res.section+"»");
+    });
+  });
+}
+
+/* ---- гигиена сна ---- */
+function renderHygiene(){
+  var host=document.getElementById("hygieneHost");
+  host.innerHTML = SLEEP_HYGIENE.map(function(r){
+    return '<div class="rule"><span>'+r.ic+'</span><span><b>'+r.t+'</b><span> — '+r.d+'</span></span>'+
+      (r.target ? addBtnHtml(r.target, r.tag, r.cls) : '')+'</div>';
+  }).join("") + '<div class="caveat">⚠️ Это база, а не лечение. Если бессонница настоящая и постоянная, гигиена сна сама по себе не работает как единственная терапия — золотой стандарт это когнитивно-поведенческая терапия бессонницы, сокращённо КПТ-Б (ниже).</div>';
+  wireAddButtons(host);
+}
+renderHygiene();
+
+/* ---- КПТ-Б ---- */
+function renderCBTI(){
+  var host=document.getElementById("cbtiHost");
+  host.innerHTML = CBTI_STEPS.map(function(s,i){
+    return '<div class="cbtstep"><span class="cn">'+(i+1)+'</span><span><b>'+s.t+':</b> '+s.d+'</span>'+
+      (s.target ? addBtnHtml(s.target, s.tag, "dusk") : '')+'</div>';
+  }).join("");
+  wireAddButtons(host);
+}
+renderCBTI();
+
+/* ---- БАД ---- */
+function renderSupps(){
+  var host=document.getElementById("suppHost");
+  host.innerHTML = SLEEP_SUPPS.map(function(s){
+    return '<div class="supp"><div class="top2"><span class="sn">🌿 '+s.n+'</span>'+addBtnHtml(s.target, "вечером", "dusk")+'</div>'+
+      '<div class="dose">'+s.dose+'</div><div class="why">'+s.why+'</div></div>';
+  }).join("") + '<div class="footnote">'+SLEEP_SUPPS_FOOTNOTE+'</div>';
+  wireAddButtons(host);
+}
+renderSupps();
+
+/* ---- тест ISI ---- */
+function scaleQ(idx, q){
+  return '<div class="scaleq" data-scaleq="'+idx+'"><div class="scaletext">'+q.q+'</div><div class="scaledots">'
+    + q.opts.map(function(lb,v){ return '<div class="dotopt" data-scaleval="'+v+'"><div class="dot"></div><div class="dotlabel">'+lb+'</div></div>'; }).join('')
+    +'</div></div>';
+}
+function wireScaleQ(idx, onSet){
+  var q=document.querySelector('[data-scaleq="'+idx+'"]');
+  q.querySelectorAll('.dotopt').forEach(function(opt){
+    opt.addEventListener("click", function(){
+      q.querySelectorAll('.dot').forEach(function(d){ d.classList.remove("on"); });
+      opt.querySelector('.dot').classList.add("on");
+      onSet(parseInt(opt.dataset.scaleval,10));
+    });
+  });
+}
+document.getElementById("startTest").addEventListener("click", function(){
+  var host=document.getElementById("testHost");
+  var answers=new Array(ISI_ITEMS.length).fill(null);
+  host.innerHTML = ISI_ITEMS.map(function(q,i){ return scaleQ(i,q); }).join("")
+    + '<button class="btn" id="submitISI">завершить</button>';
+  ISI_ITEMS.forEach(function(q,i){ wireScaleQ(i, function(v){ answers[i]=v; }); });
+  document.getElementById("submitISI").addEventListener("click", function(){
+    if(answers.some(function(a){return a==null;})){ showToast("ответь на все вопросы"); return; }
+    var score=scoreISI(answers);
+    var r=interpretISI(score);
+    host.innerHTML='<div class="branch b-'+r.level+'"><div class="bt">'+score+' баллов — '+r.label+'</div><div class="bd">'+r.advice+'</div></div>';
+  });
+});
+
+try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
+</script>
+</body>
+</html>
