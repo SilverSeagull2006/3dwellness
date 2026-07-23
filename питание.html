@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>3dWellness, 2D · питание</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="опросник-данные.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="desktop.css">
+<style>
+  :root{
+    --bg:#faf8f4; --card:#fff; --soft:#f0eee7;
+    --text:#1a1a18; --muted:#75746e; --sub:#93928b;
+    --border:rgba(0,0,0,.09); --border-strong:rgba(0,0,0,.18);
+    --navy:#3f5d67; --teal:#85b6b2;
+    --ok-bg:#e3f3ec; --ok-fg:#1f6d54;
+    --warn-bg:#f7ecd6; --warn-fg:#86611f;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#1a1a18;--card:#262523;--soft:#302f2c;--text:#f4f3ee;--muted:#a8a69f;--sub:#8d8b84;--border:rgba(255,255,255,.11);--border-strong:rgba(255,255,255,.22);--ok-bg:#1d3a2f;--ok-fg:#84cdac;--warn-bg:#3a3220;--warn-fg:#e6c07a}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:'Nunito',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:460px;margin:0 auto;padding:16px 18px 40px}
+  .top{display:flex;gap:8px;margin-bottom:14px}
+  .navbtn{flex:1;text-align:center;padding:9px 10px;border-radius:12px;font-size:13px;font-weight:700;
+    text-decoration:none;border:1px solid var(--border-strong);color:var(--text)}
+  h1{font-size:21px;font-weight:700;margin:4px 0 4px;display:flex;align-items:center;gap:8px}
+  .lead{font-size:13.5px;color:var(--muted);line-height:1.5;margin-bottom:16px}
+  .sec{margin:26px 0 10px;font-size:12px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.04em}
+  .subsec{margin:14px 0 6px;font-size:12.5px;font-weight:700;color:var(--muted)}
+  .secimg{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:14px;display:block;margin-bottom:10px}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:10px}
+  .infobox{background:var(--soft);border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.6;color:var(--text)}
+  .rule{display:flex;gap:9px;padding:9px 0;border-top:0.5px solid var(--border);font-size:13.5px;line-height:1.45;align-items:flex-start}
+  .rule:first-of-type{border-top:none}
+  .rule .txt{flex:1;display:flex;flex-direction:column;gap:2px}
+  .rule b{font-size:13.5px;color:var(--text)}
+  .rule span.d{color:var(--muted);font-size:12.5px}
+  .addwrap{flex-shrink:0}
+  .addbtn{font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;border:1px solid var(--border-strong);
+    background:transparent;color:var(--text);cursor:pointer;font-family:inherit;white-space:nowrap}
+  .addbtn.on{background:var(--ok-bg);color:var(--ok-fg);border-color:transparent}
+
+  .agebadge{display:inline-flex;align-items:center;gap:6px;background:var(--soft);border-radius:999px;padding:4px 10px;font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:10px}
+
+  .philocard{background:linear-gradient(160deg,var(--teal),var(--navy));border-radius:16px;padding:18px;margin-bottom:10px;color:#fff}
+  .philocard img.secimg{margin:-18px -18px 14px -18px;width:calc(100% + 36px);border-radius:16px 16px 0 0}
+  .philocard .tt{font-size:15px;font-weight:700;margin-bottom:8px}
+  .philocard .td{font-size:13px;line-height:1.6}
+
+  .plateimg{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;border-radius:12px 12px 0 0}
+  .platecard{padding:0;overflow:hidden}
+  .platebody{padding:14px 16px 16px}
+  .platehead{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .platehead .lab{font-size:14.5px;font-weight:700}
+  .platehead .chk{width:26px;height:26px;border-radius:50%;border:2px solid var(--border-strong);flex-shrink:0;cursor:pointer;background:transparent}
+  .platehead .chk.on{background:var(--teal);border-color:transparent;position:relative}
+  .platehead .chk.on::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#20343a}
+  .legend{display:flex;gap:14px;margin-top:10px;font-size:11.5px;color:var(--muted)}
+  .legend span{display:flex;align-items:center;gap:5px}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+
+  .promptcard{background:var(--card);border:1px dashed var(--border-strong);border-radius:16px;padding:16px;margin-bottom:10px}
+  .promptcard .tt{font-size:14.5px;font-weight:700;margin-bottom:4px}
+  .promptcard .td{font-size:12.5px;color:var(--muted);line-height:1.5;margin-bottom:14px}
+  .field label{font-size:11.5px;color:var(--muted);display:block;margin-bottom:4px}
+  .field input{width:100%;padding:9px 10px;border:1px solid var(--border-strong);border-radius:10px;font-size:14px;font-family:inherit;background:var(--bg);color:var(--text)}
+  .winrow{display:flex;gap:8px;margin-top:12px}
+  .winbtn{flex:1;text-align:center;font-size:13px;font-weight:700;padding:9px 6px;border-radius:10px;border:1px solid var(--border-strong);background:transparent;color:var(--text);cursor:pointer;font-family:inherit}
+  .winbtn.on{background:var(--teal);color:#20343a;border-color:transparent}
+  .winline{display:flex;align-items:center;justify-content:space-between;margin-top:12px;font-size:13px}
+  .winline .val{color:var(--muted)}
+  .winline .val b{color:var(--text)}
+  .editlink{font-size:12.5px;font-weight:700;color:var(--navy);background:none;border:none;cursor:pointer;font-family:inherit;padding:0}
+  .resultline{margin-top:14px;background:var(--soft);border-radius:12px;padding:12px 14px;font-size:13.5px;line-height:1.5}
+  .resultline b{color:var(--navy)}
+  .savebtn{width:100%;height:42px;margin-top:12px;border-radius:12px;border:none;background:var(--navy);color:#fff;font-weight:700;font-size:14px;cursor:pointer}
+
+  .fastrow{display:flex;align-items:center;justify-content:space-between}
+  .fastrow .lab{font-size:14px;font-weight:700}
+  .fastrow .sub{font-size:12px;color:var(--muted);margin-top:2px}
+  .ring{position:relative;width:64px;height:64px;flex-shrink:0}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--navy)}
+
+  .caveat{background:var(--warn-bg);color:var(--warn-fg);border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.5;margin-top:10px}
+
+  .labitem{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-top:0.5px solid var(--border);font-size:13px}
+  .labitem:first-of-type{border-top:none}
+  .labbtn{flex-shrink:0;font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:999px;
+    border:1px solid var(--border-strong);background:transparent;color:var(--text);cursor:pointer;font-family:inherit;white-space:nowrap}
+  .labbtn.on{background:var(--ok-bg);color:var(--ok-fg);border-color:transparent}
+
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#20242b;color:#fff;
+    padding:10px 16px;border-radius:999px;font-size:13px;opacity:0;transition:opacity .2s;white-space:nowrap;z-index:9;max-width:90vw;text-align:center}
+  .toast.on{opacity:1}
+</style>
+</head>
+<body>
+<nav class="dsidebar">
+  <div class="dbrand">3dWellness</div>
+  <a href="index.html">✦ мой день</a>
+  <a href="карта.html">карта маршрута</a>
+  <a href="журнал.html">⚓ бортовой журнал</a>
+  <div class="dgap"></div>
+  <a href="опросник.html">1D · биохимия</a>
+  <a href="физика.html" class="on">2D · физика</a>
+  <a href="психика.html">3D · психика</a>
+</nav>
+
+<div class="wrap">
+  <div class="top">
+    <a class="navbtn" href="физика.html">← 2D карта</a>
+    <a class="navbtn" href="журнал.html">⚓ бортовой журнал</a>
+  </div>
+  <h1>🍽️ Питание</h1>
+  <div class="lead">принципы, на которые реально можно опираться каждый день — без диет и запретов, по желанию, в своём темпе.</div>
+
+  <div class="sec">философия</div>
+  <div class="philocard">
+    <img class="secimg" src="питание_философия.jpg" alt="">
+    <div class="tt">Едим так, будто живём у моря</div>
+    <div class="td">Тарелка — это цвет: спелый томат, сладкий перец, тёмные маслины, оливковое масло первого отжима — густое, с лёгкой горчинкой. Хрустящий огурец, ломтик выдержанного сыра, немного лимона и крупной соли. Овощи — основа тарелки, а не гарнир, горсть орехов — вместо десерта, зелень и специи — вместо лишнего сахара и соуса из банки. Просто, ярко, без спешки: еда, которую хочется рассмотреть, а не просто доесть. Чем больше оттенков на тарелке — тем больше в ней того, что действительно нужно телу.</div>
+  </div>
+
+  <div class="sec">инсулинорезистентность</div>
+  <div class="card">
+    <div class="infobox">Инсулинорезистентность — когда клетки хуже реагируют на инсулин, сахар и жир накапливаются в печени и поджелудочной. Без изменений это со временем ведёт к диабету 2 типа. Крупное британское исследование (DiRECT, Ньюкасл) показало: похудение убирает жир из печени/поджелудочной — у 46% участников диабет ушёл в ремиссию за год, у 36% держалось два года, а из них почти четверть — ещё пять лет после этого. Ремиссия диабета — официально признанный медицинский термин с 2021 года, держится, пока держится вес и образ жизни. А значит и более раннюю стадию, саму инсулинорезистентность, тем более можно развернуть назад, пока она ещё не стала диабетом.</div>
+  </div>
+
+  <div class="sec">средиземноморская диета</div>
+  <img class="secimg" src="питание_средиземноморье.jpg" alt="">
+  <div class="card">
+    <div class="infobox">Из всех подходов к питанию у неё самая надёжная и проверенная доказательная база — не одно исследование, а согласованный результат многих. Рандомизированное исследование PREDIMED показало снижение серьёзных сердечно-сосудистых событий на 30%, а по нескольким крупным метаанализам — снижение риска основных видов рака. Основа — овощи, цельные злаки, рыба, оливковое масло, орехи, сыр.</div>
+    <div class="subsec">каждый день</div>
+    <div id="medDailyHost"></div>
+    <div class="subsec">несколько раз в неделю</div>
+    <div id="medWeeklyHost"></div>
+    <div class="subsec">редко</div>
+    <div id="medRareHost"></div>
+  </div>
+
+  <div class="sec">качество жира</div>
+  <img class="secimg" src="питание_жир.jpg" alt="">
+  <div class="card">
+    <div class="infobox">Тип жира важнее, чем количество. Оливковое масло, рыба, орехи снижают «плохой» холестерин и повышают «хороший» лучше рафинированных углеводов. Приоритет: оливковое масло, рыба, орехи вместо трансжиров и рафинированных углеводов.</div>
+  </div>
+
+  <div class="sec">обработанная еда</div>
+  <img class="secimg" src="питание_обработка.jpg" alt="">
+  <div class="card">
+    <div class="infobox">Приоритет: минимально обработанная еда и домашняя готовка как основа, обработанное — по минимуму.</div>
+  </div>
+
+  <div class="sec">микробиом</div>
+  <img class="secimg" src="питание_микробиом.jpg" alt="">
+  <div class="card">
+    <div id="microbiomeHost"></div>
+    <div class="subsec">клетчатка становится пользой не сама по себе</div>
+    <div class="infobox" style="margin-top:6px">Чтобы клетчатка превратилась в бутират (короткоцепочечную жирную кислоту, которая кормит и защищает стенку кишечника), нужны конкретные бактерии — они не продаются как обычный пробиотик с полки (это чувствительные к кислороду виды, их пока не умеют стабилизировать в капсулах). Единственный рабочий путь — кормить те бактерии, что уже есть: псиллиум и инулин, вместе с разнообразием растений выше.</div>
+  </div>
+
+  <div class="sec">воспаление</div>
+  <div class="card">
+    <div class="infobox">Хроническое вялотекущее воспаление — измеримый маркер (СРБ, ИЛ-6), который напрямую связан с сердцем, диабетом, раком и старением кожи — это не отдельная тема, а общий знаменатель почти всего, что уже разобрано выше.</div>
+    <div class="subsec">омега-3</div>
+    <div class="rule" style="border-top:none"><span class="txt"><b>1-2г ЭПК+ДГК в день</b><span class="d">рабочая доза с доказанным эффектом. Верхний безопасный предел — 3г в день из еды и добавок вместе (жирная рыба, добавка рыбьего жира).</span></span><span class="addwrap"><button class="addbtn" data-target="Омега-3">+ Мой день</button></span></div>
+  </div>
+
+  <div class="sec">энергия</div>
+  <img class="secimg" src="питание_энергия.jpg" alt="">
+  <div class="card">
+    <div class="infobox">Стабильный сахар в крови и работающие митохондрии — вот что реально даёт ровную энергию в течение дня, не стимуляторы. По сути это те же «важные привычки питания» (чистые промежутки, белок в приём), просто с другого угла: скачки инсулина истощают, стабильность — питает.</div>
+  </div>
+
+  <div class="sec">сульфорафан</div>
+  <img class="secimg" src="питание_сульфорафан.jpg" alt="">
+  <div class="card">
+    <div class="infobox"><b>БАД с проростков брокколи</b><br>свежие ростки брокколи (в 100 раз активнее зрелой брокколи) трудно найти в России — рабочая альтернатива добавка. Важно: смотреть на этикетке «активная мирозиназа» — без этого фермента предшественник не превращается в сульфорафан.</div>
+    <div class="rule" style="border-top:none"><span class="txt"><b>20-40мг активного сульфорафана в день</b></span><span class="addwrap"><button class="addbtn" data-target="Сульфорафан">+ Мой день</button></span></div>
+  </div>
+
+  <div class="sec">циклическое голодание-имитация (FMD)</div>
+  <img class="secimg" src="питание_fmd.jpg" alt="">
+  <div class="card">
+    <div class="infobox">5 дней подряд низкобелковой растительной еды с урезанной калорийностью (день 1 — ~1100 ккал, дни 2-5 — ~800 ккал) — имитирует эффект полного голодания, запускает обновление клеток на уровне, недостижимом обычным окном голода.</div>
+    <div class="rule" style="border-top:none"><b>Частота у здоровых</b><span class="d">2 раза в год.</span></div>
+    <div class="caveat">💊 Это не то же самое, что ежедневное окно голода — серьёзное вмешательство в питание на несколько дней. Если есть сахароснижающие препараты, частоту и саму возможность стоит обсудить с врачом лично для себя, не по общей схеме.</div>
+  </div>
+
+  <div class="sec">саркопения</div>
+  <img class="secimg" src="питание_саркопения.jpg" alt="">
+  <div class="agebadge">📅 показывается с 40 лет</div>
+  <div class="card">
+    <div class="infobox">Мышечная масса начинает снижаться примерно с 30 лет, незаметно. После 40 — ускоряется, около 8% за десятилетие. После 70 — резко, около 15% за десятилетие: без противодействия к этому возрасту можно потерять 25-40% мышц молодости.<br><br>Синтез мышечного белка почти не запускается при дозе меньше ~20г за один приём — нужно 25-30г белка именно за один приём пищи, размазать по дню тонким слоем не работает. Для сохранения мышц с возрастом официальную норму (0.8г/кг) считают заниженной — реальный ориентир 1.6-2г белка на кг веса в день.</div>
+  </div>
+
+  <div class="sec">аутофагия</div>
+  <img class="secimg" src="питание_аутофагия.jpg" alt="">
+  <div class="card">
+    <div class="infobox"><b>Аутофагия — естественный процесс уборки клеток</b>, когда организм разбирает и перерабатывает повреждённые/старые части клеток на запчасти. Ни у людей, ни у животных в дикой природе никогда не было гарантированного доступа к еде каждые несколько часов — организм эволюционно настроен именно на периоды без еды, а не на постоянный приток топлива. Голод — это не стресс для тела, это его обычный, ожидаемый режим.<br><br>Практика: чем дольше чистое окно без еды (от 14 часов и дальше), тем активнее идёт этот процесс уборки.</div>
+    <div class="caveat">🫙 Если беспокоит застой желчи (склонность к камням/густой желчи) — начинать с более короткого окна (12-13 часов) и следить, чтобы первый приём после голода включал немного жира (яйцо, авокадо, оливковое масло) — это стимулирует отток желчи мягко, без риска.</div>
+  </div>
+
+  <div class="sec">красота: кожа изнутри</div>
+  <img class="secimg" src="питание_красота.jpg" alt="">
+  <div class="card">
+    <div class="infobox">Сахар в крови необратимо связывается с коллагеном (гликация) — это делает его жёстким и ломким, буквально ускоряя старение кожи. У людей с низкоуглеводным рационом коллаген перекрёстно сшивается на 30% меньше, чем у тех, кто ест много рафинированных углеводов — то есть всё, что уже есть выше про сахар и промежутки между едой, работает и здесь. Способ готовки тоже играет роль: варка и пар дают в разы меньше повреждающих соединений, чем жарка и гриль — та же еда, разный эффект на кожу просто от способа готовки.</div>
+    <div class="subsec">коллаген — реальные данные, не только маркетинг</div>
+    <div id="beautyHost"></div>
+  </div>
+
+  <div class="sec">анализы, которые здесь имеют смысл</div>
+  <div class="card" id="labsHost"></div>
+
+  <div class="sec">важные привычки питания</div>
+  <img class="secimg" src="питание_привычки.jpg" alt="">
+  <div class="card" id="habitsHost"></div>
+
+  <div class="sec">включить в «Мой день»?</div>
+
+  <div class="card platecard">
+    <img class="plateimg" src="питание_тарелка.jpg" alt="тарелка: половина овощи и фрукты, четверть злаки, четверть белок">
+    <div class="platebody">
+      <div class="platehead">
+        <span class="lab">🍽️ Тарелка обеда/ужина</span>
+        <button class="chk" id="platechk"></button>
+      </div>
+      <div class="d" style="font-size:12.5px;color:var(--muted)">½ овощи и фрукты · ¼ цельные злаки · ¼ белок</div>
+      <div class="legend">
+        <span><span class="dot" style="background:#7ba36a"></span>овощи, фрукты</span>
+        <span><span class="dot" style="background:#d9b25c"></span>злаки</span>
+        <span><span class="dot" style="background:#b06a5a"></span>белок</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="promptcard">
+    <div class="tt">во сколько сегодня ужин?</div>
+    <div class="td">время меняется каждый день — вводишь заново, окно голода можно не трогать</div>
+    <div class="field"><label>ужин</label><input type="time" id="dinnerTimeInp" value="19:00"></div>
+    <div class="winline">
+      <span class="val">окно голода: <b id="winval">14ч</b></span>
+      <button class="editlink" id="editbtn">изменить</button>
+    </div>
+    <div class="winrow" id="winrow" style="display:none">
+      <button class="winbtn" data-w="12">12ч</button>
+      <button class="winbtn" data-w="13">13ч</button>
+      <button class="winbtn on" data-w="14">14ч</button>
+      <button class="winbtn" data-w="15">15ч</button>
+      <button class="winbtn" data-w="16">16ч</button>
+    </div>
+    <div class="resultline">не завтракать раньше <b id="notBeforeVal">09:00</b></div>
+    <button class="savebtn" id="saveDinnerBtn">отметить ужин →</button>
+  </div>
+
+  <div class="sec">так это выглядит на «Мой день»</div>
+  <div class="card">
+    <div class="fastrow">
+      <span>
+        <span class="lab">🍽️ Окно голода</span>
+        <span class="sub" id="fastSub">отметь ужин выше, чтобы увидеть окно</span>
+      </span>
+      <span class="ring">
+        <svg width="64" height="64" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="27" fill="none" stroke="var(--soft)" stroke-width="6"/>
+          <circle cx="32" cy="32" r="27" fill="none" stroke="var(--teal)" stroke-width="6" id="fastRingFg"
+            stroke-dasharray="169.6" stroke-dashoffset="169.6" stroke-linecap="round"/>
+        </svg>
+        <span class="pct" id="fastPct">—</span>
+      </span>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+var toastEl=document.getElementById("toast");
+function showToast(t){ toastEl.textContent=t; toastEl.classList.add("on"); setTimeout(function(){ toastEl.classList.remove("on"); }, 1800); }
+function addBtnHtml(target, on){
+  return '<button class="addbtn'+(on?' on':'')+'" data-target="'+target+'">'+(on?"✓ добавлено":"+ Мой день")+'</button>';
+}
+function wireAddButtons(root){
+  root.querySelectorAll(".addbtn").forEach(function(b){
+    b.addEventListener("click", function(){
+      var on=togglePlanItem(1, b.dataset.target);
+      b.classList.toggle("on", on);
+      b.textContent = on ? "✓ добавлено" : "+ Мой день";
+      showToast(on ? "«"+b.dataset.target+"» → 2D · физика" : "убрано из «2D · физика»");
+    });
+  });
+}
+
+/* ---- средиземноморская пирамида (только текст, без кнопок) ---- */
+function renderRuleList(hostId, list){
+  document.getElementById(hostId).innerHTML = list.map(function(r){
+    return '<div class="rule" style="border-top:none"><span class="txt"><b>'+r.t+'</b><span class="d">'+r.d+'</span></span></div>';
+  }).join("");
+}
+renderRuleList("medDailyHost", PITANIE_MED_DAILY);
+renderRuleList("medWeeklyHost", PITANIE_MED_WEEKLY);
+renderRuleList("medRareHost", PITANIE_MED_RARE);
+renderRuleList("microbiomeHost", PITANIE_MICROBIOME);
+renderRuleList("beautyHost", PITANIE_BEAUTY);
+
+/* ---- важные привычки питания (с кнопками) ---- */
+function renderHabits(){
+  var host=document.getElementById("habitsHost");
+  host.innerHTML = PITANIE_HABITS.map(function(r){
+    var on=isPlanItemOn(1, r.target);
+    return '<div class="rule"><span class="txt"><b>'+r.t+'</b><span class="d">'+r.d+'</span></span><span class="addwrap">'+addBtnHtml(r.target, on)+'</span></div>';
+  }).join("");
+  wireAddButtons(host);
+}
+renderHabits();
+
+/* ---- отдельные кнопки: омега-3, сульфорафан ---- */
+wireAddButtons(document.body);
+document.querySelectorAll(".addbtn").forEach(function(b){
+  var on=isPlanItemOn(1, b.dataset.target);
+  b.classList.toggle("on", on);
+  b.textContent = on ? "✓ добавлено" : "+ Мой день";
+});
+
+/* ---- анализы ---- */
+function renderLabs(){
+  var host=document.getElementById("labsHost");
+  host.innerHTML = PITANIE_LABS.map(function(l){
+    var on=isLabTodo(l);
+    return '<div class="labitem"><span>'+l+'</span><button class="labbtn'+(on?' on':'')+'" data-lab="'+l+'">'+(on?"✓ сдать":"+ сдать")+'</button></div>';
+  }).join("");
+  host.querySelectorAll(".labbtn").forEach(function(b){
+    b.addEventListener("click", function(){
+      var on=toggleLabTodo(b.dataset.lab, "Питание");
+      b.classList.toggle("on", on);
+      b.textContent = on ? "✓ сдать" : "+ сдать";
+      showToast(on ? "«"+b.dataset.lab+"» → сдать" : "убрано из «сдать»");
+    });
+  });
+}
+renderLabs();
+
+/* ---- тарелка ---- */
+var plateOn = isPlanItemOn(1, "Тарелка обеда/ужина");
+var plateBtn = document.getElementById("platechk");
+plateBtn.classList.toggle("on", plateOn);
+plateBtn.addEventListener("click", function(){
+  var on=togglePlanItem(1, "Тарелка обеда/ужина");
+  this.classList.toggle("on", on);
+  showToast(on ? "«Тарелка обеда/ужина» → 2D · физика" : "убрано из «2D · физика»");
+});
+
+/* ---- окно голода: ежедневная отметка, не разовый профиль ---- */
+var fastState = loadFasting();
+var winrow = document.getElementById("winrow");
+var winval = document.getElementById("winval");
+var notBeforeVal = document.getElementById("notBeforeVal");
+var dinnerInp = document.getElementById("dinnerTimeInp");
+
+function updateResultLine(){
+  var mins = parseHM(dinnerInp.value);
+  var win = fastState.window;
+  if(mins!=null){ notBeforeVal.textContent = fmtMin(mins + win*60); }
+}
+winval.textContent = fastState.window + "ч";
+document.querySelectorAll(".winbtn").forEach(function(b){
+  b.classList.toggle("on", +b.dataset.w === fastState.window);
+  b.addEventListener("click", function(){
+    document.querySelectorAll(".winbtn").forEach(function(x){x.classList.remove("on")});
+    b.classList.add("on");
+    fastState.window = +b.dataset.w;
+    winval.textContent = fastState.window + "ч";
+    updateResultLine();
+  });
+});
+document.getElementById("editbtn").addEventListener("click", function(){
+  winrow.style.display = winrow.style.display === "none" ? "flex" : "none";
+});
+dinnerInp.addEventListener("input", updateResultLine);
+updateResultLine();
+
+function renderFastRing(){
+  var sub=document.getElementById("fastSub");
+  var pct=document.getElementById("fastPct");
+  var fg=document.getElementById("fastRingFg");
+  if(!fastState.lastDinner){ return; }
+  sub.textContent = "ужин "+fastState.lastDinner+" · можно завтракать с "+breakfastNotBefore(fastState);
+  var elapsed = fastingElapsedHours(fastState);
+  if(elapsed==null){ pct.textContent="—"; return; }
+  pct.textContent = Math.floor(elapsed)+"ч";
+  var frac = Math.min(1, elapsed / fastState.window);
+  var circumference = 169.6;
+  fg.setAttribute("stroke-dashoffset", (circumference * (1-frac)).toFixed(1));
+}
+renderFastRing();
+
+document.getElementById("saveDinnerBtn").addEventListener("click", function(){
+  fastState = setDinnerTime(dinnerInp.value, fastState.window);
+  updateResultLine();
+  renderFastRing();
+  showToast("ужин "+dinnerInp.value+" отмечен");
+});
+
+try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
+</script>
+</body>
+</html>
