@@ -1809,7 +1809,7 @@ const TWODIM_MAP=[
   {id:"kardio", t:"Кардио", d:"аэробная выносливость", ic:"⛰️", color:"#5d8387", href:"#", built:false},
   {id:"balans", t:"Баланс", d:"координация, устойчивость", ic:"🌾", color:"#53767c", href:"#", built:false},
   {id:"silovye", t:"Силовые", d:"нагрузка и прогрессия", ic:"🌊", color:"#496a72", href:"#", built:false},
-  {id:"sauna", t:"Сауна / термо", d:"необязательный бонус поверх базы", ic:"♨️", color:"#3f5d67", href:"#", built:false}
+  {id:"byuti", t:"Бьюти", d:"уход, который поддерживает тело", ic:"💅", color:"#3f5d67", href:"#", built:false}
 ];
 
 /* ============ Сон и циркадные ритмы ============ */
