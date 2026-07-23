@@ -291,6 +291,7 @@ document.getElementById("startTest").addEventListener("click", function(){
     if(answers.some(function(a){return a==null;})){ showToast("ответь на все вопросы"); return; }
     var score=scoreISI(answers);
     var r=interpretISI(score);
+    saveISIResult(score, r);
     host.innerHTML='<div class="branch b-'+r.level+'"><div class="bt">'+score+' баллов — '+r.label+'</div><div class="bd">'+r.advice+'</div></div>';
   });
 });

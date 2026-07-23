@@ -1585,6 +1585,17 @@ function correlationInsights(log, cycleLog, profile){
       }
     }
   }
+  /* отдельная, изолированная проверка: тест ISI (2D · Сон) + фактический сон из трекера */
+  const isi=typeof loadISIResult==="function" ? loadISIResult() : null;
+  if(isi && isi.score>=15){
+    const hoursEntries=recent.map(d=>log[d] && log[d].sleep && log[d].sleep.hours).filter(h=>h!=null);
+    if(hoursEntries.length>=3){
+      const avgHours=hoursEntries.reduce((a,b)=>a+b,0)/hoursEntries.length;
+      if(avgHours<7){
+        insights.push("тест ISI на «Сон» показал "+isi.label.toLowerCase()+" ("+isi.score+" баллов), и трекер это подтверждает: в среднем меньше 7 часов сна за неделю — стоит попробовать КПТ-Б на странице «Сон»");
+      }
+    }
+  }
   return insights;
 }
 /* предложить общий тест 3D, если в трекере накопился устойчивый паттерн — ненавязчиво, не диагноз */
@@ -1809,7 +1820,7 @@ const TWODIM_MAP=[
   {id:"gibkost", t:"Гибкость, осанка и равновесие", d:"подвижность, йога как практика", ic:"🎋", color:"#5d8387", href:"#", built:false},
   {id:"kardio", t:"Кардио", d:"аэробная выносливость", ic:"⛰️", color:"#53767c", href:"#", built:false},
   {id:"silovye", t:"Силовые", d:"нагрузка и прогрессия", ic:"🌊", color:"#496a72", href:"#", built:false},
-  {id:"byuti", t:"Бьюти", d:"уход, который поддерживает тело", ic:"💅", color:"#3f5d67", href:"#", built:false}
+  {id:"byuti", t:"Бьюти", d:"уход, который поддерживает тело", ic:"✨", color:"#3f5d67", href:"#", built:false}
 ];
 
 /* ============ Сон и циркадные ритмы ============ */
@@ -1872,10 +1883,17 @@ const ISI_ITEMS=[
 ];
 function scoreISI(answers){ return answers.reduce((a,b)=>a+b,0); }
 function interpretISI(score){
-  if(score>=22) return {level:"red", label:"выраженная бессонница", advice:"стоит обсудить с врачом-сомнологом или терапевтом"};
+  if(score>=22) return {level:"red", label:"выраженная бессонница", advice:"стоит попробовать техники КПТ-Б ниже и обсудить с врачом-сомнологом или терапевтом"};
   if(score>=15) return {level:"warn", label:"умеренная бессонница", advice:"стоит попробовать техники КПТ-Б ниже, если через 2-3 недели легче не станет, обсудить со специалистом"};
-  if(score>=8) return {level:"yellow", label:"подпороговая бессонница", advice:"стоит последить за динамикой и попробовать гигиену сна ниже"};
-  return {level:"green", label:"клинически незначимо", advice:"похоже, с механикой сна сейчас всё в порядке"};
+  if(score>=8) return {level:"yellow", label:"подпороговая бессонница", advice:"с этого балла уже имеет смысл попробовать техники КПТ-Б ниже, а не только гигиену сна"};
+  return {level:"green", label:"клинически незначимо", advice:"похоже, с механикой сна сейчас всё в порядке, КПТ-Б не нужна"};
+}
+const ISI_RESULT_KEY="3dw_sleep_isi";
+function saveISIResult(score, interp){
+  try{ localStorage.setItem(ISI_RESULT_KEY, JSON.stringify({date:new Date().toISOString().slice(0,10), score:score, level:interp.level, label:interp.label})); }catch(_){}
+}
+function loadISIResult(){
+  try{ const raw=localStorage.getItem(ISI_RESULT_KEY); return raw?JSON.parse(raw):null; }catch(_){ return null; }
 }
 
 const CBTI_STEPS=[
