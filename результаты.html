@@ -152,10 +152,10 @@ function render(){
       +'<div class="bd">'
       +'<div class="glabel">анализы: обсудить с врачом</div>'
       + r.labs.map(l=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span class="litx">'+l+'</span>'
-          +'<button class="labbtn'+(isLabTodo(l)?' on':'')+'" data-lab="'+l.replace(/"/g,'&quot;')+'" data-src="'+x.name+'">'+(isLabTodo(l)?'✓ в списке':'+ добавить')+'</button></div>').join('')
+          +'<button class="labbtn'+(isLabTodo(l)?' on':'')+'" data-lab="'+l.replace(/"/g,'&quot;')+'" data-src="'+x.name+'">'+(isLabTodo(l)?'✓ сдать':'+ сдать')+'</button></div>').join('')
       + extra.map(d=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span class="litx">'+d.text
           +'<div style="font-size:12px;color:var(--sub);margin-top:2px">по возрасту/полу: '+d.why+' · источник: <a href="'+d.sourceUrl+'" target="_blank" rel="noopener" style="color:var(--sub)">'+d.source+'</a></div></span>'
-          +'<button class="labbtn'+(isLabTodo(d.text)?' on':'')+'" data-lab="'+d.text.replace(/"/g,'&quot;')+'" data-src="'+x.name+'">'+(isLabTodo(d.text)?'✓ в списке':'+ добавить')+'</button></div>').join('')
+          +'<button class="labbtn'+(isLabTodo(d.text)?' on':'')+'" data-lab="'+d.text.replace(/"/g,'&quot;')+'" data-src="'+x.name+'">'+(isLabTodo(d.text)?'✓ сдать':'+ сдать')+'</button></div>').join('')
       +'<div class="glabel">направления поддержки</div>'
       + r.dirs.map(d=>'<div class="li"><span class="dot" style="color:'+hue.fg+'">•</span><span>'+d+'</span></div>').join('')
       +'</div></div>';
@@ -183,7 +183,7 @@ function wireLabButtons(){
     b.addEventListener("click", ()=>{
       const on=toggleLabTodo(b.dataset.lab, b.dataset.src);
       b.classList.toggle("on", on);
-      b.textContent = on ? "✓ в списке" : "+ добавить";
+      b.textContent = on ? "✓ сдать" : "+ сдать";
       renderTodo();
     });
   });
