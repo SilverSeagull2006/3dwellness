@@ -1186,6 +1186,7 @@ const BADLIB={
 
 /* БАД по блокам; contra(P) -> {level:'bad'|'warn', text} или null. Детали (доза/форма/источник) — в BADLIB выше */
 const cPreg=P=>P.preg!=="none";
+const cDiabetes=P=>P.dx.has("диабет 1 типа")||P.dx.has("диабет 2 типа");
 const cAcid=P=>P.dx.has("гастрит / язва")||P.meds.has("ИПП (омепразол и т.п.)");
 const SUPP=[
   [ {name:"Пищеварительные ферменты",
@@ -1277,9 +1278,9 @@ const CLUSTERS={
   7:{
     glucose:{supps:[
       {name:"Берберин",
-       contra:P=>cPreg(P)?{level:"bad",text:"не рекомендуется при беременности/ГВ"}:(P.dx.has("диабет")?{level:"warn",text:"снижает сахар, согласовать дозу с врачом, если уже на сахароснижающих препаратах"}:null)},
+       contra:P=>cPreg(P)?{level:"bad",text:"не рекомендуется при беременности/ГВ"}:(cDiabetes(P)?{level:"warn",text:"снижает сахар, согласовать дозу с врачом, если уже на сахароснижающих препаратах"}:null)},
       {name:"Альфа-липоевая кислота",
-       contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ, только с врачом"}:(P.dx.has("диабет")?{level:"warn",text:"снижает сахар, согласовать дозу с врачом, если уже на сахароснижающих препаратах"}:null)},
+       contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ, только с врачом"}:(cDiabetes(P)?{level:"warn",text:"снижает сахар, согласовать дозу с врачом, если уже на сахароснижающих препаратах"}:null)},
       {name:"Хром пиколинат",
        contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ, только с врачом"}:null}
     ]},
@@ -1392,7 +1393,7 @@ const CLUSTERS={
       {name:"Хром пиколинат",
        contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ, только с врачом"}:null},
       {name:"Альфа-липоевая кислота",
-       contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ, только с врачом"}:(P.dx.has("диабет")?{level:"warn",text:"снижает сахар, согласовать дозу с врачом, если уже на сахароснижающих препаратах"}:null)}
+       contra:P=>cPreg(P)?{level:"warn",text:"при беременности/ГВ, только с врачом"}:(cDiabetes(P)?{level:"warn",text:"снижает сахар, согласовать дозу с врачом, если уже на сахароснижающих препаратах"}:null)}
     ]},
     endo:{supps:[]},
     perimenopause:{supps:[
