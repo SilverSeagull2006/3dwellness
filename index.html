@@ -343,8 +343,8 @@ var host=document.getElementById("sections");
 var editMode=false;
 var PLANKEY="3dw_plan_v1";
 var DAYKEY="3dw_done_"+new Date().toISOString().slice(0,10);
-function savePlan(){try{localStorage.setItem(PLANKEY,JSON.stringify(PLANDATA.map(function(s){return s.items.map(function(i){return {t:i.t,form:i.form||undefined,dose:i.dose||undefined,time:i.time||"",beauty:!!i.beauty,anchor:!!i.anchor,source:i.source||undefined};});})));}catch(e){}}
-function loadPlan(){try{var raw=localStorage.getItem(PLANKEY);if(!raw)return;JSON.parse(raw).forEach(function(items,si){if(PLANDATA[si])PLANDATA[si].items=items.map(function(o){return {t:o.t,form:o.form,dose:o.dose,time:o.time,beauty:o.beauty,anchor:!!o.anchor,done:false,source:o.source};});});}catch(e){}}
+function savePlan(){try{localStorage.setItem(PLANKEY,JSON.stringify(PLANDATA.map(function(s){return s.items.map(function(i){return {t:i.t,form:i.form||undefined,dose:i.dose||undefined,time:i.time||"",beauty:!!i.beauty,anchor:!!i.anchor,source:i.source||undefined,days:(i.days&&i.days.length)?i.days:undefined};});})));}catch(e){}}
+function loadPlan(){try{var raw=localStorage.getItem(PLANKEY);if(!raw)return;JSON.parse(raw).forEach(function(items,si){if(PLANDATA[si])PLANDATA[si].items=items.map(function(o){return {t:o.t,form:o.form,dose:o.dose,time:o.time,beauty:o.beauty,anchor:!!o.anchor,done:false,source:o.source,days:o.days||[]};});});}catch(e){}}
 function saveState(){try{localStorage.setItem(DAYKEY,JSON.stringify(PLANDATA.map(function(s){return s.items.map(function(i){return i.done?1:0;});})));}catch(e){}}
 function loadState(){try{var raw=localStorage.getItem(DAYKEY);if(!raw)return;var st=JSON.parse(raw);PLANDATA.forEach(function(s,si){s.items.forEach(function(it,ii){if(st[si]&&st[si][ii]!=null)it.done=!!st[si][ii];});});}catch(e){}}
 
@@ -359,6 +359,7 @@ function render(){
     var hasAnchors = sec.items.some(function(i){ return i.anchor && !i.done; });
     var firstUndoneShown = false, hidden = 0;
     sec.items.forEach(function(it,ii){
+      if(!editMode && !isPlanItemVisibleToday(it)){ return; }
       if(gentle && !it.done){
         if(hasAnchors){
           if(!it.anchor){ hidden++; return; }

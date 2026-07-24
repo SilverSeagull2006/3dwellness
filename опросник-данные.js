@@ -1980,11 +1980,21 @@ function isPlanItemOn(dimIdx, name){
   const p=loadRawPlan();
   return p[dimIdx].some(function(it){ return it.t===name; });
 }
-function togglePlanItem(dimIdx, name, time){
+/* дни недели для нерегулярных рутин (МФР, силовые, кардио, бьюти и т.д.): 1=понедельник..7=воскресенье, ISO.
+   days отсутствует или пустой массив = показывать каждый день (обратная совместимость со старыми пунктами) */
+function getTodayWeekdayISO(){
+  const js = new Date().getDay(); // 0=вс..6=сб
+  return js===0 ? 7 : js;
+}
+function isPlanItemVisibleToday(item){
+  if(!item.days || !item.days.length) return true;
+  return item.days.indexOf(getTodayWeekdayISO()) >= 0;
+}
+function togglePlanItem(dimIdx, name, time, days){
   const p=loadRawPlan();
   const pos=p[dimIdx].findIndex(function(it){ return it.t===name; });
   if(pos>=0){ p[dimIdx].splice(pos,1); saveRawPlan(p); return false; }
-  p[dimIdx].push({t:name, time:time||"", done:false, anchor:false, beauty:false});
+  p[dimIdx].push({t:name, time:time||"", done:false, anchor:false, beauty:false, days:days||[]});
   saveRawPlan(p);
   return true;
 }
