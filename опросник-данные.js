@@ -1805,7 +1805,7 @@ function routeGeneralTest(scaleAnswers, factors){
   return route;
 }
 
-/* ============ 2D · физика — карта из 8 элементов ============ */
+/* ============ 2D · тело — карта из 8 элементов ============ */
 const TWODIM_MAP=[
   {id:"son", t:"Сон и циркадные ритмы", d:"фундамент восстановления", ic:"🌙", color:"#85b6b2", href:"сон.html", built:true},
   {id:"voda", t:"Баланс воды в организме", d:"питьевой режим, электролиты", ic:"💧", color:"#7ba9a7", href:"вода.html", built:true},

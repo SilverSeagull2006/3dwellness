@@ -122,7 +122,7 @@
   <a href="журнал.html">⚓ бортовой журнал</a>
   <div class="dgap"></div>
   <a href="опросник.html">1D · биохимия</a>
-  <a href="физика.html" class="on">2D · физика</a>
+  <a href="физика.html" class="on">2D · тело</a>
   <a href="психика.html">3D · психика</a>
 </nav>
 
@@ -259,7 +259,7 @@ function toggleItem(kind, target, time){
     return {on:res.on, section:res.section, time:res.time};
   }
   var on=togglePlanItem(1, target, time||"");
-  return {on:on, section:"2D · физика"};
+  return {on:on, section:"2D · тело"};
 }
 function addBtnHtml(target, tag, cls, kind){
   var on=isItemOn(kind, target);
@@ -342,7 +342,7 @@ function renderDrainage(){
     var on=togglePlanItem(1, "Цель по шагам", val+" шагов/день");
     this.classList.toggle("on", on);
     this.textContent = on ? "✓ добавлено" : "+ Мой день";
-    showToast(on ? "«Цель по шагам» → 2D · физика" : "убрано из «2D · физика»");
+    showToast(on ? "«Цель по шагам» → 2D · тело" : "убрано из «2D · тело»");
   });
 }
 renderDrainage();

@@ -111,7 +111,7 @@
   <a href="журнал.html">⚓ бортовой журнал</a>
   <div class="dgap"></div>
   <a href="опросник.html">1D · биохимия</a>
-  <a href="физика.html" class="on">2D · физика</a>
+  <a href="физика.html" class="on">2D · тело</a>
   <a href="психика.html">3D · психика</a>
 </nav>
 
@@ -293,7 +293,7 @@ function wireAddButtons(root){
       var on=togglePlanItem(1, b.dataset.target);
       b.classList.toggle("on", on);
       b.textContent = on ? "✓ добавлено" : "+ Мой день";
-      showToast(on ? "«"+b.dataset.target+"» → 2D · физика" : "убрано из «2D · физика»");
+      showToast(on ? "«"+b.dataset.target+"» → 2D · тело" : "убрано из «2D · тело»");
     });
   });
 }
@@ -354,7 +354,7 @@ plateBtn.classList.toggle("on", plateOn);
 plateBtn.addEventListener("click", function(){
   var on=togglePlanItem(1, "Тарелка обеда/ужина");
   this.classList.toggle("on", on);
-  showToast(on ? "«Тарелка обеда/ужина» → 2D · физика" : "убрано из «2D · физика»");
+  showToast(on ? "«Тарелка обеда/ужина» → 2D · тело" : "убрано из «2D · тело»");
 });
 
 /* ---- окно голода: ежедневная отметка, не разовый профиль ---- */
