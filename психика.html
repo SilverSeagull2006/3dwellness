@@ -6,6 +6,7 @@
 <title>3dWellness, 3D · психика</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="опросник-данные.js"></script>
+<script src="состояние.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -21,54 +22,48 @@
   .navbtn{flex:1;text-align:center;padding:9px 10px;border-radius:12px;font-size:13px;font-weight:700;
     text-decoration:none;border:1px solid var(--border-strong);color:var(--text)}
   h1{font-size:20px;font-weight:700;margin:10px 0 4px}
-  .lead{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:16px}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:12px}
-  .sechead{font-size:13px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.03em;margin:18px 2px 8px}
-  .intro{background:var(--pu-bg);border-radius:16px;padding:16px;margin-bottom:14px;color:var(--pu-fg)}
-  .dxbanner{background:var(--warn-bg);color:var(--warn-fg);border-radius:16px;padding:14px 16px;margin-bottom:14px;font-size:13px;line-height:1.55}
-  .intro p{margin:0 0 10px;font-size:13px;line-height:1.55}
-  .intro button{border:none;border-radius:12px;padding:9px 14px;font-size:12.5px;font-weight:700;font-family:inherit;
-    background:rgba(255,255,255,.5);color:var(--pu-fg);cursor:pointer}
-  .toolhead{display:flex;justify-content:space-between;align-items:center;gap:8px}
-  .toolname{font-size:14.5px;font-weight:700}
-  .toolshort{font-size:12px;color:var(--muted);margin-top:2px}
-  .addbtn{flex-shrink:0;font-size:11.5px;font-weight:700;border-radius:999px;padding:7px 12px;
-    border:1px solid var(--border-strong);background:transparent;color:var(--text);cursor:pointer;font-family:inherit;white-space:nowrap}
-  .addbtn.on{background:var(--pu-bg);color:var(--pu-fg);border-color:transparent}
-  .whybtn{font-size:11.5px;font-weight:700;color:var(--pu-fg);background:none;border:none;padding:8px 0 0;cursor:pointer;font-family:inherit}
-  .toolwhy{display:none;font-size:12.5px;color:var(--sub);line-height:1.55;margin-top:6px}
-  .toolwhy.open{display:block}
-  .toolwhy ol{margin:6px 0 0;padding-left:18px}
-  .toolwhy li{margin-bottom:3px}
+  .lead{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px}
+  .dxbanner{background:var(--warn-bg);color:var(--warn-fg);border-radius:16px;padding:14px 16px;
+    margin-bottom:14px;font-size:13px;line-height:1.55}
+
+  .stateline{background:var(--dusk-bg);color:var(--dusk-fg);border-radius:14px;padding:12px 14px}
+  .stateline .st{font-size:14.5px;font-weight:700;margin-bottom:2px}
+  .stateline .sl{font-size:12.5px;line-height:1.5}
+  .stateask{background:var(--soft);color:var(--muted);border-radius:14px;padding:12px 14px;
+    font-size:12.5px;line-height:1.5}
+  .stateask a{color:var(--pu-fg);font-weight:700;text-decoration:none}
+
+  .sechead{font-size:13px;font-weight:700;color:var(--sub);text-transform:uppercase;
+    letter-spacing:.03em;margin:18px 2px 8px}
+  .dirs{display:flex;flex-direction:column;gap:8px}
+  .dir{display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+    background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:13px 15px;text-decoration:none;color:var(--text);
+    font-family:inherit;font-size:14px;cursor:pointer;transition:opacity .18s}
+  .dir:focus-visible{outline:2px solid var(--pu-strong);outline-offset:2px}
+  .dir .dt{font-size:14.5px;font-weight:700}
+  .dir .dd{font-size:12px;color:var(--muted);margin-top:2px}
+  .dir .grow{flex:1;min-width:0}
+  .dir .chev{color:var(--sub);font-size:15px;flex-shrink:0}
+  .dir .soon{font-size:9.5px;font-weight:700;color:var(--muted);background:var(--bg);
+    border:1px solid var(--border);border-radius:999px;padding:3px 8px;flex-shrink:0;white-space:nowrap}
+  /* приглушить — значит опустить ниже и убавить контраст, но НЕ отключить.
+     всё нажимается и всё отвечает: молчащая кнопка заставляет человека
+     решить, что сломался он, а не приложение */
+  .dir.dim{opacity:.62}
+  .soonnote{font-size:12.5px;color:var(--sub);line-height:1.5;padding:4px 4px 0}
+  .soonnote:empty{display:none}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 16px}
+  .btn{width:100%;border-radius:12px;padding:11px;font-size:13.5px;font-weight:700;
+    font-family:inherit;cursor:pointer;background:transparent;
+    border:1px solid var(--border-strong);color:var(--text)}
   .practicebox{background:var(--soft);border-radius:12px;padding:12px 14px;margin-top:10px;font-size:13px;line-height:1.5}
   .practicecat{font-size:11px;font-weight:700;color:var(--pu-fg);text-transform:uppercase;margin-bottom:4px}
-  .btn{width:100%;border:none;border-radius:12px;padding:11px;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer}
-  .btn.primary{background:var(--pu-strong);color:#fff}
-  .btn.ghost{background:transparent;border:1px solid var(--border-strong);color:var(--text)}
-  .row2{display:flex;gap:8px}
-  .testrow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:0.5px solid var(--border)}
-  .testrow:first-of-type{border-top:none}
-  .testname{font-size:13.5px;font-weight:700}
-  .testdesc{font-size:11.5px;color:var(--sub);margin-top:1px}
-  .tag{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
-  .tag.green{background:var(--ok-bg);color:var(--ok-fg)}
-  .tag.yellow{background:var(--warn-bg);color:var(--warn-fg)}
-  .tag.red{background:var(--bad-bg);color:var(--bad-fg)}
-  .tag.needed{background:var(--soft);color:var(--sub)}
-  .scaleq{margin-bottom:16px}
-  .scaletext{font-size:13px;margin-bottom:8px}
-  .scaledots{display:flex;justify-content:space-between}
-  .dotopt{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;flex:1}
-  .dot{width:20px;height:20px;border-radius:50%;background:var(--soft)}
-  .dot.on{background:var(--pu-bg);box-shadow:inset 0 0 0 2px var(--pu-strong)}
-  .dotlabel{font-size:8.5px;color:var(--sub);text-align:center}
-  .textopt{display:block;width:100%;text-align:left;border:none;border-radius:10px;padding:9px 12px;margin-bottom:6px;
-    font-size:12.5px;background:var(--soft);color:var(--text);cursor:pointer;font-family:inherit}
-  .textopt.on{background:var(--pu-bg);color:var(--pu-fg);box-shadow:inset 0 0 0 2px var(--pu-strong)}
-  .chipwrap{display:flex;flex-wrap:wrap;gap:7px}
-  .chip{font-size:12px;font-weight:700;padding:7px 12px;border-radius:999px;background:var(--soft);color:var(--muted);cursor:pointer;border:none;font-family:inherit}
-  .chip.on{background:var(--pu-bg);color:var(--pu-fg);box-shadow:inset 0 0 0 2px var(--pu-strong)}
-  .resultbox{background:var(--soft);border-radius:12px;padding:12px 14px;margin-top:10px}
+
+  .port{background:var(--bad-bg);color:var(--bad-fg);border-radius:16px;padding:14px 16px;
+    font-size:12.5px;line-height:1.55;margin-top:18px}
+  .port b{display:block;margin-bottom:4px;font-size:13.5px}
   .foot{text-align:center;font-size:12px;color:var(--sub);padding-top:16px;line-height:1.5}
 </style>
 </head>
@@ -88,82 +83,40 @@
   <div class="top">
     <a class="navbtn" href="index.html">✦ мой день</a>
     <a class="navbtn" href="карта.html">← карта</a>
-    <a class="navbtn" href="журнал.html">⚓ бортовой журнал</a>
+    <a class="navbtn" href="журнал.html">⚓ журнал</a>
   </div>
-</div>
 
-<svg class="hero" viewBox="0 0 460 170" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style="display:block;width:100%">
-  <defs>
-    <linearGradient id="nsky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#3c3489"/><stop offset="0.45" stop-color="#534ab7"/><stop offset="0.75" stop-color="#7f77dd"/><stop offset="1" stop-color="#afa9ec"/>
-    </linearGradient>
-    <radialGradient id="nmoon" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#fdfcf8"/><stop offset="1" stop-color="#e6e2f5" stop-opacity="0"/>
-    </radialGradient>
-  </defs>
-  <rect width="460" height="170" fill="url(#nsky)"/>
-  <circle cx="80" cy="46" r="1.4" fill="#fff" opacity=".8"/>
-  <circle cx="140" cy="30" r="1" fill="#fff" opacity=".6"/>
-  <circle cx="360" cy="40" r="1.4" fill="#fff" opacity=".7"/>
-  <circle cx="310" cy="24" r="1" fill="#fff" opacity=".5"/>
-  <circle cx="400" cy="62" r="1" fill="#fff" opacity=".6"/>
-  <circle cx="340" cy="54" r="52" fill="url(#nmoon)"/>
-  <circle cx="340" cy="54" r="16" fill="#fdfcf8"/>
-  <path d="M0 106 C80 96 190 104 230 100 C300 94 380 104 460 98 L460 170 L0 170 Z" fill="#3c3489"/>
-  <path d="M0 122 C90 114 200 120 235 116 C310 110 390 118 460 114 L460 170 L0 170 Z" fill="#26215c"/>
-  <path d="M0 138 C100 132 210 136 240 133 C320 129 390 135 460 132 L460 170 L0 170 Z" fill="#1a1642"/>
-  <g stroke="#e6e2f5" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".85">
-    <path d="M180 38 Q192 30 202 38 Q203.5 39.5 205 38 Q215 30 227 38"/>
-  </g>
-</svg>
-
-<div class="wrap">
   <h1>3D · психика</h1>
   <div class="lead">тихая вода или шторм, начни с того, что нужно сейчас.</div>
 
   <div id="dxHost"></div>
-  <div id="introHost"></div>
+  <div id="stateHost"></div>
 
-  <div class="sechead">регуляция</div>
-  <div class="grid-2" id="regHost"></div>
+  <div class="sechead">куда пойти сегодня</div>
+  <div class="dirs" id="dirsHost"></div>
+
+  <div class="sechead">разобраться</div>
+  <div class="dirs" id="servicesHost"></div>
+
+  <div class="soonnote" id="soonNote"></div>
 
   <div class="sechead">практики</div>
   <div class="card">
     <div style="font-size:13px;color:var(--muted);margin-bottom:10px">короткое задание для бумаги, ничего не сохраняем здесь, просто подсказка</div>
-    <button class="btn ghost" id="drawPractice">вытянуть задание</button>
+    <button class="btn" id="drawPractice">вытянуть задание</button>
     <div id="practiceHost"></div>
   </div>
 
-  <div class="sechead">тесты, необязательно</div>
-  <div class="card">
-    <div style="font-size:12.5px;color:var(--muted);margin-bottom:10px">это не диагноз, а ориентир, куда смотреть. можно пропустить и вернуться позже.</div>
-    <div id="testsHost"></div>
+  <div class="port">
+    <b>это делаем не сами</b>
+    переработка травмы, переписывание тяжёлых воспоминаний, постепенное сближение со страхом при фобиях, работа с питанием — вместе с человеком, а не в одиночку. и сразу к специалисту, если не ем или не могу остановиться, не сплю неделями, не выхожу из дома, думаю о том, чтобы уйти.
   </div>
 
   <div class="foot">3dWellness · не заменяет психолога/психиатра, там, где нужно, приложение прямо об этом скажет</div>
 </div>
 
 <script>
-var PLANKEY="3dw_plan_v1";
-var DIMBLOCK="3D · психика";
-function loadPlanArr(){
-  try{ var raw=localStorage.getItem(PLANKEY); var p = raw ? JSON.parse(raw) : [[],[],[]]; if(!p[2]) p[2]=[]; return p; }
-  catch(_){ return [[],[],[]]; }
-}
-function isInPlan(name){
-  var p=loadPlanArr();
-  return p[2].some(function(it){ return it.t===name; });
-}
-function togglePlan(name){
-  var p=loadPlanArr();
-  var idx=p[2].findIndex(function(it){ return it.t===name; });
-  if(idx>=0){ p[2].splice(idx,1); localStorage.setItem(PLANKEY,JSON.stringify(p)); return false; }
-  p[2].push({t:name, form:"", dose:"", time:"", beauty:false, anchor:false, source:{block:DIMBLOCK, kind:"dir"}});
-  localStorage.setItem(PLANKEY,JSON.stringify(p));
-  return true;
-}
-
-var INTROKEY="3dw_psyche_intro_seen";
+/* ---- предупреждение по профилю (как было) ---- */
 function renderDxBanner(){
   var host=document.getElementById("dxHost");
   var profile=loadFullProfile();
@@ -173,269 +126,75 @@ function renderDxBanner(){
     host.innerHTML="";
   }
 }
-renderDxBanner();
 
-function renderIntro(){
-  var host=document.getElementById("introHost");
-  if(localStorage.getItem(INTROKEY)==="1"){ host.innerHTML=""; return; }
-  host.innerHTML =
-    '<div class="intro">'
-    +'<p>3D, про психику, но по-честному тут почти всё связано с телом: сон, гормоны, стресс влияют на настроение так же сильно, как мысли. Это не отдельный изолированный раздел, то, что здесь, отражается и на 1D, и на 2D, и наоборот.</p>'
-    +'<p>Можно пройти общий тест (2-3 минуты, необязательно). Он просто подскажет, куда смотреть внимательнее. Или сразу перейти к инструментам ниже, решать тебе.</p>'
-    +'<div class="row2"><button id="introToTest">пройти тест</button><button id="introSkip">пропустить, сразу к инструментам</button></div>'
-    +'</div>';
-  document.getElementById("introSkip").addEventListener("click", function(){
-    localStorage.setItem(INTROKEY,"1"); renderIntro();
-  });
-  document.getElementById("introToTest").addEventListener("click", function(){
-    localStorage.setItem(INTROKEY,"1"); renderIntro();
-    document.getElementById("testsHost").scrollIntoView({behavior:"smooth"});
-    openGeneralTest();
-  });
-}
-
-var USAGEKEY="3dw_tool_usage";
-var TIERKEY="3dw_tool_tier_unlocked";
-function loadUsage(){ try{ var r=localStorage.getItem(USAGEKEY); return r?JSON.parse(r):{}; }catch(_){ return {}; } }
-function markUsedToday(name){
-  var u=loadUsage(); var today=new Date().toISOString().slice(0,10);
-  if(!u[name]) u[name]=[];
-  if(u[name].indexOf(today)<0) u[name].push(today);
-  try{ localStorage.setItem(USAGEKEY, JSON.stringify(u)); }catch(_){}
-  return u[name].length;
-}
-function usageCount(name){ var u=loadUsage(); return (u[name]||[]).length; }
-function unlockedTier(){ try{ return parseInt(localStorage.getItem(TIERKEY)||"1",10); }catch(_){ return 1; } }
-function setUnlockedTier(n){ try{ localStorage.setItem(TIERKEY, String(n)); }catch(_){} }
-
-function toolCardHtml(tool, i){
-  var on=isInPlan(tool.name);
-  var uses=usageCount(tool.name);
-  var noteHtml = tool.note ? '<br><br>'+tool.note+(tool.id==="bodyscan" ? ' <a href="физика.html">→ к растяжке 2D</a>' : '') : '';
-  return '<div class="card">'
-    +'<div class="toolhead"><div><div class="toolname">'+tool.name+'</div><div class="toolshort">'+tool.short+'</div></div>'
-    +'<button class="addbtn'+(on?' on':'')+'" data-tool="'+i+'">'+(on?"✓ в моём дне":"+ мой день")+'</button></div>'
-    +'<button class="whybtn" data-why="'+i+'">почему и как ↓</button>'
-    +'<div class="toolwhy" data-toolwhy="'+i+'">'+tool.why+noteHtml+'<ol>'+tool.steps.map(function(s){return '<li>'+s+'</li>';}).join('')+'</ol></div>'
-    +'<button class="btn ghost" style="margin-top:10px" data-used="'+i+'">сделано сегодня'+(uses?' ('+uses+')':'')+'</button>'
-    +'</div>';
-}
-
-function renderRegulation(){
-  var host=document.getElementById("regHost");
-  var unlocked=unlockedTier();
-  var visible=REGULATION_TOOLS.slice(0, unlocked);
-  var html=visible.map(function(tool,i){ return toolCardHtml(tool,i); }).join('');
-  if(unlocked<REGULATION_TOOLS.length){
-    var firstTool=REGULATION_TOOLS[unlocked-1];
-    if(usageCount(firstTool.name)>=3){
-      html += '<button class="btn primary" id="unlockNext" style="margin-bottom:12px">плывём дальше?</button>';
-    }
+/* ---- состояние: только показываем. спрашивают в «Моём дне», второй раз не переспрашиваем ---- */
+function renderState(){
+  var s=stateToday(), host=document.getElementById("stateHost");
+  if(!s){
+    host.innerHTML='<div class="stateask">отметь в <a href="index.html">«Моём дне»</a>, сколько сегодня сил, и здесь наверх поднимется то, что под это состояние подходит. без отметки просто показываем всё поровну.</div>';
+    return;
   }
-  html += '<div class="card" style="text-align:center;font-size:12px;color:var(--sub)">дыхание уже доступно кнопкой «дыши» на любом экране приложения</div>';
-  host.innerHTML = html;
+  host.innerHTML='<div class="stateline"><div class="st">сегодня '+s.t+'</div><div class="sl">'+s.line+'</div></div>';
+}
 
-  var unlockBtn=document.getElementById("unlockNext");
-  if(unlockBtn) unlockBtn.addEventListener("click", function(){
-    setUnlockedTier(unlocked+1);
-    renderRegulation();
+function soonRow(title, subtitle, onSoon){
+  var el=document.createElement("button");
+  el.type="button";
+  el.addEventListener("click", function(){
+    document.getElementById("soonNote").textContent="«"+title+"» ещё делается. это одно из ближайшего, что тут появится.";
   });
+  return el;
+}
 
-  visible.forEach(function(tool,i){
-    document.querySelector('[data-used="'+i+'"]').addEventListener("click", function(e){
-      markUsedToday(tool.name);
-      renderRegulation();
+function makeRow(title, subtitle, href, built, dim){
+  var el;
+  if(built){ el=document.createElement("a"); el.href=href; }
+  else{
+    el=document.createElement("button"); el.type="button";
+    el.addEventListener("click", function(){
+      document.getElementById("soonNote").textContent="«"+title+"» ещё делается. это одно из ближайшего, что тут появится.";
     });
-  });
+  }
+  el.className="dir"+(dim?" dim":"");
+  el.innerHTML='<div class="grow"><div class="dt">'+title+'</div><div class="dd">'+subtitle+'</div></div>'
+    + (built ? '<span class="chev">›</span>' : '<span class="soon">скоро</span>');
+  return el;
+}
 
-  visible.forEach(function(tool,i){
-    document.querySelector('[data-tool="'+i+'"]').addEventListener("click", function(e){
-      var on=togglePlan(tool.name);
-      e.target.classList.toggle("on",on);
-      e.target.textContent = on ? "✓ в моём дне" : "+ мой день";
-    });
-    document.querySelector('[data-why="'+i+'"]').addEventListener("click", function(){
-      var w=document.querySelector('[data-toolwhy="'+i+'"]');
-      var open=w.classList.toggle("open");
-      this.textContent = open ? "почему и как ↑" : "почему и как ↓";
-    });
+/* ---- восемь направлений, порядок под сегодняшнее состояние ---- */
+function renderDirs(){
+  var host=document.getElementById("dirsHost");
+  host.innerHTML="";
+  directionsToday().forEach(function(row){
+    host.appendChild(makeRow(row.d.t, row.d.d, row.d.href, row.d.built, row.dim));
   });
 }
 
+/* ---- служебные входы ---- */
+var SERVICES=[
+  {t:"что уносит силы", d:"короткий опросник про пробоины", href:"пробоины.html",  built:false},
+  {t:"чем наполняет",   d:"собрать свой список мелочей",    href:"наполнение.html", built:false},
+  {t:"тесты",           d:"необязательно, просто ориентир", href:"тесты.html",      built:true}
+];
+function renderServices(){
+  var host=document.getElementById("servicesHost");
+  host.innerHTML="";
+  SERVICES.forEach(function(s){
+    host.appendChild(makeRow(s.t, s.d, s.href, s.built, false));
+  });
+}
+
+/* ---- практики: остаются здесь, пока не разойдутся по своим направлениям ---- */
 document.getElementById("drawPractice").addEventListener("click", function(){
   var p=PRACTICES[Math.floor(Math.random()*PRACTICES.length)];
   document.getElementById("practiceHost").innerHTML =
     '<div class="practicebox"><div class="practicecat">'+p.cat+'</div>'+p.text+'</div>';
 });
 
-/* ---------- тесты ---------- */
-var TESTS_RESULT_KEY="3dw_psyche_tests";
-function loadTestResults(){ try{ var raw=localStorage.getItem(TESTS_RESULT_KEY); return raw?JSON.parse(raw):{}; }catch(_){ return {}; } }
-function saveTestResults(r){ try{ localStorage.setItem(TESTS_RESULT_KEY, JSON.stringify(r)); }catch(_){} }
-
-var TEST_META={
-  general:{name:"общий тест", desc:"12 вопросов · куда смотреть дальше"},
-  phq8:{name:"PHQ-8 (депрессия)", desc:"8 пунктов, международный стандарт"},
-  gad7:{name:"GAD-7 (тревога)", desc:"7 пунктов, международный стандарт"},
-  cbi:{name:"выгорание (CBI)", desc:"19 пунктов, 3 подшкалы"},
-  holmesrahe:{name:"Холмс-Рэй (события года)", desc:"нагрузка жизненных событий"}
-};
-
-function renderTestsMenu(){
-  var host=document.getElementById("testsHost");
-  var results=loadTestResults();
-  var recommended=(results.general && results.general.route) || [];
-  var order=["general","phq8","gad7","cbi","holmesrahe"];
-  host.innerHTML = order.map(function(id){
-    var meta=TEST_META[id];
-    var r=results[id];
-    var tag='<span class="tag needed">не пройден</span>';
-    if(r) tag='<span class="tag '+r.level+'">'+r.label+'</span>';
-    var rec = id!=="general" && recommended.indexOf(id)>=0 && !r ? ' <span class="tag yellow">рекомендован</span>' : '';
-    return '<div class="testrow"><div><div class="testname">'+meta.name+'</div><div class="testdesc">'+meta.desc+'</div></div><div style="display:flex;gap:6px;align-items:center">'+tag+rec+'</div></div>'
-      +'<button class="btn ghost" style="margin:6px 0 10px" data-opentest="'+id+'">'+(r?"пройти заново":"пройти")+'</button>';
-  }).join('');
-  order.forEach(function(id){
-    document.querySelector('[data-opentest="'+id+'"]').addEventListener("click", function(){ openTest(id); });
-  });
-}
-
-function scaleQuestionHtml(idx, text){
-  return '<div class="scaleq" data-scaleq="'+idx+'"><div class="scaletext">'+text+'</div><div class="scaledots">'
-    + SCALE5.map(function(lb,v){ return '<div class="dotopt" data-scaleval="'+v+'"><div class="dot"></div><div class="dotlabel">'+lb+'</div></div>'; }).join('')
-    +'</div></div>';
-}
-function wireScaleQuestion(idx, onSet){
-  var q=document.querySelector('[data-scaleq="'+idx+'"]');
-  q.querySelectorAll('.dotopt').forEach(function(opt){
-    opt.addEventListener("click", function(){
-      q.querySelectorAll('.dot').forEach(function(d){ d.classList.remove("on"); });
-      opt.querySelector('.dot').classList.add("on");
-      onSet(parseInt(opt.dataset.scaleval,10));
-    });
-  });
-}
-
-function openGeneralTest(){ openTest("general"); }
-
-function openTest(id){
-  var host=document.getElementById("testsHost");
-  if(id==="general") return renderGeneralTestForm(host);
-  if(id==="phq8") return renderSimpleScaleTest(host, id, PHQ8_ITEMS, scorePHQ8, interpretPHQ8);
-  if(id==="gad7") return renderSimpleScaleTest(host, id, GAD7_ITEMS, scoreGAD7, interpretGAD7);
-  if(id==="cbi") return renderCBITest(host);
-  if(id==="holmesrahe") return renderHolmesRaheTest(host);
-}
-
-function renderGeneralTestForm(host){
-  var answers=new Array(GENERAL_TEST_SCALE.length).fill(null);
-  var sleep=null, factors=[];
-  host.innerHTML = '<div class="card">'
-    + GENERAL_TEST_SCALE.map(function(q,i){ return scaleQuestionHtml(i,q.t); }).join('')
-    + '<div style="font-size:13px;margin:6px 0 8px">Как в целом сон в последнее время?</div>'
-    + '<div data-sleepopts>' + GENERAL_TEST_SLEEP_OPTIONS.map(function(o){ return '<button class="textopt" data-sleepopt="'+o+'">'+o+'</button>'; }).join('') + '</div>'
-    + '<div style="font-size:13px;margin:14px 0 8px">Что из этого было в последнее время?</div>'
-    + '<div class="chipwrap" data-factorsopts>' + GENERAL_TEST_FACTORS.map(function(f){ return '<button class="chip" data-factor="'+f+'">'+f+'</button>'; }).join('') + '</div>'
-    + '<button class="btn primary" id="submitGeneral" style="margin-top:16px">завершить</button>'
-    + '</div>';
-  GENERAL_TEST_SCALE.forEach(function(q,i){ wireScaleQuestion(i, function(v){ answers[i]=v; }); });
-  host.querySelectorAll('[data-sleepopt]').forEach(function(b){
-    b.addEventListener("click", function(){
-      host.querySelectorAll('[data-sleepopt]').forEach(function(x){ x.classList.remove("on"); });
-      b.classList.add("on"); sleep=b.dataset.sleepopt;
-    });
-  });
-  host.querySelectorAll('[data-factor]').forEach(function(b){
-    b.addEventListener("click", function(){
-      var f=b.dataset.factor;
-      var idx=factors.indexOf(f);
-      if(idx>=0){ factors.splice(idx,1); b.classList.remove("on"); } else { factors.push(f); b.classList.add("on"); }
-    });
-  });
-  document.getElementById("submitGeneral").addEventListener("click", function(){
-    var route=routeGeneralTest(answers, factors);
-    var results=loadTestResults();
-    results.general={date:new Date().toISOString().slice(0,10), answers:answers, sleep:sleep, factors:factors, route:route,
-      level: route.length ? "yellow" : "green", label: route.length ? "есть на что посмотреть" : "в целом спокойно"};
-    saveTestResults(results);
-    renderTestsMenu();
-    var names=route.map(function(id){ return TEST_META[id].name; }).join(", ");
-    host.innerHTML = '<div class="resultbox">'
-      + (route.length ? 'По ответам похоже, что стоит подробнее посмотреть: <b>'+names+'</b>, они отмечены ниже как рекомендованные.' : 'По ответам сейчас в целом спокойно, глубокие шкалы не обязательны, но всегда доступны ниже.')
-      + '</div>';
-  });
-}
-
-function renderSimpleScaleTest(host, id, items, scoreFn, interpretFn){
-  var answers=new Array(items.length).fill(null);
-  host.innerHTML = '<div class="card">'
-    + items.map(function(t,i){ return scaleQuestionHtml(i,t); }).join('')
-    + '<button class="btn primary" id="submitSimple" style="margin-top:8px">завершить</button>'
-    + '</div>';
-  items.forEach(function(t,i){ wireScaleQuestion(i, function(v){ answers[i]=v; }); });
-  document.getElementById("submitSimple").addEventListener("click", function(){
-    if(answers.some(function(a){return a==null;})){ alert("ответь на все вопросы"); return; }
-    var score=scoreFn(answers);
-    var interp=interpretFn(score);
-    var results=loadTestResults();
-    results[id]={date:new Date().toISOString().slice(0,10), score:score, level:interp.level, label:interp.label, advice:interp.advice};
-    saveTestResults(results);
-    renderTestsMenu();
-    host.innerHTML='<div class="resultbox">результат: <b>'+interp.label+'</b>'+(interp.advice?' · '+interp.advice:'')+'</div>';
-  });
-}
-
-function renderCBITest(host){
-  var all=CBI_ITEMS.personal.concat(CBI_ITEMS.work, CBI_ITEMS.client);
-  var answers=new Array(all.length).fill(null);
-  host.innerHTML = '<div class="card">'
-    + all.map(function(t,i){ return scaleQuestionHtml(i,t); }).join('')
-    + '<button class="btn primary" id="submitCBI" style="margin-top:8px">завершить</button>'
-    + '</div>';
-  all.forEach(function(t,i){ wireScaleQuestion(i, function(v){ answers[i]=v; }); });
-  document.getElementById("submitCBI").addEventListener("click", function(){
-    if(answers.some(function(a){return a==null;})){ alert("ответь на все вопросы"); return; }
-    var pn=CBI_ITEMS.personal.length, wn=CBI_ITEMS.work.length;
-    var personal=answers.slice(0,pn), work=answers.slice(pn,pn+wn), client=answers.slice(pn+wn);
-    var sc=scoreCBI(personal, work, client);
-    var pI=interpretCBIScore(sc.personal), wI=interpretCBIScore(sc.work), cI=interpretCBIScore(sc.client);
-    var overall = [pI,wI,cI].some(function(x){return x.level==="red";}) ? "red" : ([pI,wI,cI].some(function(x){return x.level==="yellow";}) ? "yellow" : "green");
-    var label = overall==="red" ? "высокое выгорание" : (overall==="yellow" ? "умеренное выгорание" : "низкое выгорание");
-    var results=loadTestResults();
-    results.cbi={date:new Date().toISOString().slice(0,10), personal:sc.personal, work:sc.work, client:sc.client, level:overall, label:label};
-    saveTestResults(results);
-    renderTestsMenu();
-    host.innerHTML='<div class="resultbox">личное: <b>'+pI.label+'</b><br>рабочее: <b>'+wI.label+'</b><br>клиентское: <b>'+cI.label+'</b></div>';
-  });
-}
-
-function renderHolmesRaheTest(host){
-  var selected=[];
-  host.innerHTML = '<div class="card">'
-    + '<div style="font-size:12.5px;color:var(--muted);margin-bottom:10px">отметь, что было за последний год</div>'
-    + '<div class="chipwrap">' + HOLMES_RAHE_ITEMS.map(function(it){ return '<button class="chip" data-hr="'+it.t+'">'+it.t+'</button>'; }).join('') + '</div>'
-    + '<button class="btn primary" id="submitHR" style="margin-top:16px">завершить</button>'
-    + '</div>';
-  host.querySelectorAll('[data-hr]').forEach(function(b){
-    b.addEventListener("click", function(){
-      var t=b.dataset.hr; var idx=selected.indexOf(t);
-      if(idx>=0){ selected.splice(idx,1); b.classList.remove("on"); } else { selected.push(t); b.classList.add("on"); }
-    });
-  });
-  document.getElementById("submitHR").addEventListener("click", function(){
-    var score=scoreHolmesRahe(selected);
-    var interp=interpretHolmesRahe(score);
-    var results=loadTestResults();
-    results.holmesrahe={date:new Date().toISOString().slice(0,10), score:score, level:interp.level, label:interp.label};
-    saveTestResults(results);
-    renderTestsMenu();
-    host.innerHTML='<div class="resultbox">суммарная нагрузка: <b>'+score+'</b> — <b>'+interp.label+'</b></div>';
-  });
-}
-
-renderIntro();
-renderRegulation();
-renderTestsMenu();
+renderDxBanner();
+renderState();
+renderDirs();
+renderServices();
 try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
 </script>
 </body>
