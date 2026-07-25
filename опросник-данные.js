@@ -564,8 +564,74 @@ function bandOf(sub, profile){
   return {sum:0,label:"—",focus:false,bg:"var(--soft)",fg:"var(--muted)"};
 }
 
-function flaggedAll(){
-  return DATA.map((s,i)=>({i,name:s.name,b:bandOf(s)})).filter(x=>x.b.focus || hasClusterFocus(x.i, DATA[x.i])).sort((a,b)=>b.b.sum-a.b.sum);
+/* ---------- триаж тем: группы по симптомам, не по названиям систем ----------
+   лежит здесь, а не в опросник.html, потому что «какие блоки человек вообще выбрал»
+   нужно и результатам, и итогу, и журналу — иначе экраны считают фокус по-разному */
+const GROUPS=[
+  {label:"🫃 живот и пищеварение", subs:[
+    {label:"изжога, боль или тяжесть в желудке", dataIdx:[0,1]},
+    {label:"вздутие, плохо перевариваю жирную еду", dataIdx:[2]},
+    {label:"нерегулярный стул, чувствительный кишечник", dataIdx:[3]},
+    {label:"горечь во рту, тяжесть под правым ребром", dataIdx:[4]}
+  ]},
+  {label:"⚡ энергия и усталость", subs:[
+    {label:"постоянная усталость, нет сил даже после сна", dataIdx:[19]},
+    {label:"мёрзнешь, набираешь вес, туман в голове, выпадают волосы", dataIdx:[5]},
+    {label:"резкий голод, тянет на сладкое, скачки энергии после еды", dataIdx:[6]},
+    {label:"лишний вес, трудно похудеть", dataIdx:[7]}
+  ]},
+  {label:"😴 сон, настроение, нервы", subs:[
+    {label:"тревожность, раздражительность, плохой сон", dataIdx:[11]},
+    {label:"сезонная хандра, слабость в мышцах или костях", dataIdx:[10]}
+  ]},
+  {label:"💗 сердце и сосуды", subs:[
+    {label:"тяжесть или боль в груди, учащённое сердцебиение", dataIdx:[8]},
+    {label:"холодные руки и ноги, отёки, сосудистые звёздочки", dataIdx:[9]}
+  ]},
+  {label:"🦴 кости, суставы, мышцы", subs:[
+    {label:"сухая кожа, ломкие ногти, боль в суставах", dataIdx:[21]},
+    {label:"боль во всём теле, общая скованность", dataIdx:[13]},
+    {label:"скованность по утрам, трудно нагнуться", dataIdx:[14]},
+    {label:"судороги, острая мышечная боль, болезненные точки", dataIdx:[15]}
+  ]},
+  {label:"🛡️ иммунитет и простуды", subs:[
+    {label:"ломкие ногти, частые простуды, притупились вкус и обоняние", dataIdx:[12]},
+    {label:"аллергии, заложенность носа или глаз, реакции на еду", dataIdx:[16]}
+  ]},
+  {label:"💧 почки и мочевой", subs:[
+    {label:"жжение при мочеиспускании, частые позывы, циститы", dataIdx:[17]}
+  ]},
+  {label:"🧬 гормоны", subs:[
+    {label:"простата, снижение либидо или эрекции", dataIdx:[22], sexOnly:"m"},
+    {label:"цикл, ПМС, гормональные колебания", dataIdx:[23], sexOnly:"f"}
+  ]},
+  {label:"🎗️ профилактика старения и онкологии", target:true, subs:[
+    {label:"образ жизни, антиоксиданты, факторы риска", dataIdx:[18]}
+  ]},
+  {label:"🩸 риск тромбов и обмен фолатов", target:true, subs:[
+    {label:"свёртываемость крови, метилирование", dataIdx:[20]}
+  ]}
+];
+function loadTopicSel(){
+  try{ const raw=localStorage.getItem("3dw_quiz_topics"); return raw?JSON.parse(raw):[]; }catch(_){ return []; }
+}
+/* индексы блоков DATA, которые человек взял в работу на экране триажа */
+function allowedTopicIdx(){
+  const sel=new Set(loadTopicSel());
+  const set=new Set();
+  GROUPS.forEach(g=>g.subs.forEach(s=>{ if(sel.has(s.label)) s.dataIdx.forEach(i=>set.add(i)); }));
+  return set;
+}
+/* блоки «в фокусе» — теми же правилами, что и в опроснике: с учётом профиля (пол/возраст
+   меняют состав применимых пунктов, а значит и порог) и только по выбранным темам */
+function flaggedAll(profile){
+  const p = profile || loadFullProfile();
+  const allowed=allowedTopicIdx();
+  // данные старше экрана триажа: тем не сохранено, но ответы есть — идём по отвеченным блокам
+  if(!allowed.size) DATA.forEach((s,i)=>{ if(s.items.some(it=>it.v>=0)) allowed.add(i); });
+  return DATA.map((s,i)=>({i,name:s.name,b:bandOf(s,p)}))
+    .filter(x=>allowed.has(x.i) && (x.b.focus || hasClusterFocus(x.i, DATA[x.i])))
+    .sort((a,b)=>b.b.sum-a.b.sum);
 }
 
 /* надбавки к анализам по возрасту/полу — только там, где найден реальный источник (см. опросник-данные.js RECS[i].demoLabs) */

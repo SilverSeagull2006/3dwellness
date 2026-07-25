@@ -189,13 +189,15 @@ function wireLabButtons(){
   });
 }
 
-var CART=[];
+var CART=[], CART_BLOCKED=0;
 function renderSupps(flagged){
   const section=document.getElementById("suppSection");
   const host=document.getElementById("supps");
   const profile=loadFullProfile();
-  const cart=[];
-  const withSupp=flagged.filter(x=>SUPP[x.i]);
+  const cart=[]; let blockedCount=0;
+  // SUPP[x.i] — массив, пустой массив истинен, поэтому прежняя проверка пропускала блоки
+  // без единой добавки и рисовала карточку с одним заголовком
+  const withSupp=flagged.filter(x=>suppsFor(x.i, DATA[x.i]).length);
   if(!withSupp.length){ section.style.display="none"; return; }
   section.style.display="block";
   const srcHost=document.getElementById("srcBannerHost");
@@ -206,7 +208,8 @@ function renderSupps(flagged){
       const lib=BADLIB[s.name]||{};
       const c=s.contra(profile);
       const blocked=c&&c.level==="bad";
-      if(!blocked) cart.push({name:s.name, form:lib.form, dose:lib.dose, source:lib.source, sourceUrl:lib.sourceUrl, kind:"supp", block:x.name});
+      if(blocked) blockedCount++;
+      else cart.push({name:s.name, form:lib.form, dose:lib.dose, source:lib.source, sourceUrl:lib.sourceUrl, kind:"supp", block:x.name});
       const detId="rdet-"+x.i+"-"+ii;
       return '<div class="supp'+(blocked?' blocked':'')+'">'
         +'<div class="top"><span class="snm">'+s.name+'</span><span class="src">ИИ</span></div>'
@@ -234,6 +237,7 @@ function renderSupps(flagged){
   const seen={}; const uniq=[];
   cart.forEach(c=>{ if(!seen[c.name]){ seen[c.name]=true; uniq.push(c); } });
   CART = uniq.map(c=>({name:c.name, form:c.form, dose:c.dose, source:c.source, sourceUrl:c.sourceUrl, block:c.block}));
+  CART_BLOCKED = blockedCount;
   paintCart();
 }
 function rPlanHasName(name){
@@ -261,7 +265,11 @@ function rRemoveFromPlan(name){
 function paintCart(){
   const host=document.getElementById("cart");
   document.getElementById("cartHint").textContent="";
-  if(!CART.length){ host.innerHTML='<div style="font-size:14px;color:var(--muted)">всё рекомендованное отфильтровано профилем, обсуди с врачом</div>'; return; }
+  // «отфильтровано профилем» пишем только когда это правда, иначе объяснение врёт
+  if(!CART.length){ host.innerHTML='<div style="font-size:14px;color:var(--muted)">'
+    + (CART_BLOCKED ? 'всё рекомендованное отфильтровано профилем, обсуди с врачом'
+                    : 'по этим блокам добавки не предлагаем')
+    + '</div>'; return; }
   host.innerHTML = CART.map((c,i)=>{
     const added=rPlanHasName(c.name);
     return '<div class="crow">'

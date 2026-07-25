@@ -218,54 +218,10 @@
 </div>
 
 <script>
-/* ---------- триаж тем: группы по симптомам, не по названиям систем ---------- */
-const GROUPS=[
-  {label:"🫃 живот и пищеварение", subs:[
-    {label:"изжога, боль или тяжесть в желудке", dataIdx:[0,1]},
-    {label:"вздутие, плохо перевариваю жирную еду", dataIdx:[2]},
-    {label:"нерегулярный стул, чувствительный кишечник", dataIdx:[3]},
-    {label:"горечь во рту, тяжесть под правым ребром", dataIdx:[4]}
-  ]},
-  {label:"⚡ энергия и усталость", subs:[
-    {label:"постоянная усталость, нет сил даже после сна", dataIdx:[19]},
-    {label:"мёрзнешь, набираешь вес, туман в голове, выпадают волосы", dataIdx:[5]},
-    {label:"резкий голод, тянет на сладкое, скачки энергии после еды", dataIdx:[6]},
-    {label:"лишний вес, трудно похудеть", dataIdx:[7]}
-  ]},
-  {label:"😴 сон, настроение, нервы", subs:[
-    {label:"тревожность, раздражительность, плохой сон", dataIdx:[11]},
-    {label:"сезонная хандра, слабость в мышцах или костях", dataIdx:[10]}
-  ]},
-  {label:"💗 сердце и сосуды", subs:[
-    {label:"тяжесть или боль в груди, учащённое сердцебиение", dataIdx:[8]},
-    {label:"холодные руки и ноги, отёки, сосудистые звёздочки", dataIdx:[9]}
-  ]},
-  {label:"🦴 кости, суставы, мышцы", subs:[
-    {label:"сухая кожа, ломкие ногти, боль в суставах", dataIdx:[21]},
-    {label:"боль во всём теле, общая скованность", dataIdx:[13]},
-    {label:"скованность по утрам, трудно нагнуться", dataIdx:[14]},
-    {label:"судороги, острая мышечная боль, болезненные точки", dataIdx:[15]}
-  ]},
-  {label:"🛡️ иммунитет и простуды", subs:[
-    {label:"ломкие ногти, частые простуды, притупились вкус и обоняние", dataIdx:[12]},
-    {label:"аллергии, заложенность носа или глаз, реакции на еду", dataIdx:[16]}
-  ]},
-  {label:"💧 почки и мочевой", subs:[
-    {label:"жжение при мочеиспускании, частые позывы, циститы", dataIdx:[17]}
-  ]},
-  {label:"🧬 гормоны", subs:[
-    {label:"простата, снижение либидо или эрекции", dataIdx:[22], sexOnly:"m"},
-    {label:"цикл, ПМС, гормональные колебания", dataIdx:[23], sexOnly:"f"}
-  ]},
-  {label:"🎗️ профилактика старения и онкологии", target:true, subs:[
-    {label:"образ жизни, антиоксиданты, факторы риска", dataIdx:[18]}
-  ]},
-  {label:"🩸 риск тромбов и обмен фолатов", target:true, subs:[
-    {label:"свёртываемость крови, метилирование", dataIdx:[20]}
-  ]}
-];
+/* GROUPS (карта тем триажа) теперь в общем файле опросник-данные.js — её же читают
+   результаты, итог и журнал, чтобы «в фокусе» везде считалось одинаково */
 const TOPIC_SEL=new Set();
-function loadTopics(){ try{ const raw=localStorage.getItem("3dw_quiz_topics"); if(raw) JSON.parse(raw).forEach(l=>TOPIC_SEL.add(l)); }catch(_){} }
+function loadTopics(){ loadTopicSel().forEach(l=>TOPIC_SEL.add(l)); }
 function saveTopics(){ try{ localStorage.setItem("3dw_quiz_topics", JSON.stringify([...TOPIC_SEL])); }catch(_){} }
 
 /* ---------- сохранение ответов, чтобы результаты были доступны позже ---------- */
@@ -316,11 +272,9 @@ function buildTopicChips(){
     host.appendChild(wrap);
   });
 }
-function allowedIdx(){
-  const set=new Set();
-  GROUPS.forEach(g=>g.subs.forEach(s=>{ if(TOPIC_SEL.has(s.label)) s.dataIdx.forEach(i=>set.add(i)); }));
-  return set;
-}
+/* тот же расчёт, что и на остальных экранах: TOPIC_SEL пишется в localStorage при каждом тапе,
+   поэтому общая функция всегда видит актуальный выбор */
+function allowedIdx(){ return allowedTopicIdx(); }
 loadTopics();
 
 /* ---------- профиль ---------- */
@@ -522,19 +476,30 @@ function renderResults(){
   }).join("");
 }
 
-var CART=[];
+var CART=[], CART_BLOCKED=0;
 function renderSupps(){
   const flagged=flaggedBlocks();
   const host=document.getElementById("supps");
-  const cart=[];
-  if(!flagged.length){ host.innerHTML='<div class="card"><div class="bd" style="padding:14px">Нет блоков в фокусе, рекомендаций пока нет.</div></div>'; CART=[]; paintCart(); return; }
-  host.innerHTML=flagged.map(x=>{
+  const cart=[]; let blockedCount=0;
+  // по девяти блокам БАД не предусмотрены вовсе или подключаются только кластером симптомов —
+  // без этой проверки рисовалась карточка с одним заголовком и пустотой внутри
+  const withSupp=flagged.filter(x=>suppsFor(x.i, DATA[x.i]).length);
+  if(!withSupp.length){
+    host.innerHTML='<div class="card"><div class="bd" style="padding:14px">'
+      + (flagged.length
+          ? 'По блокам в фокусе добавки не предлагаем: там работают анализы, режим и разговор с врачом.'
+          : 'Нет блоков в фокусе, рекомендаций пока нет.')
+      + '</div></div>';
+    CART=[]; CART_BLOCKED=0; paintCart(); return;
+  }
+  host.innerHTML=withSupp.map(x=>{
     const hue=HUES[x.i], list=suppsFor(x.i, DATA[x.i]);
     const rows=list.map((s,ii)=>{
       const lib=BADLIB[s.name]||{};
       const c=s.contra(PROFILE);
       const blocked=c&&c.level==="bad";
-      if(!blocked) cart.push({name:s.name, form:lib.form, dose:lib.dose, source:lib.source, sourceUrl:lib.sourceUrl, kind:"supp", block:x.name});
+      if(blocked) blockedCount++;
+      else cart.push({name:s.name, form:lib.form, dose:lib.dose, source:lib.source, sourceUrl:lib.sourceUrl, kind:"supp", block:x.name});
       const detId="det-"+x.i+"-"+ii;
       return '<div class="supp'+(blocked?' blocked':'')+'">'
         +'<div class="top"><span class="snm">'+s.name+'</span><span class="src">ИИ</span></div>'
@@ -563,6 +528,7 @@ function renderSupps(){
   const seen={}; const uniq=[];
   cart.forEach(c=>{ if(!seen[c.name]){ seen[c.name]=true; uniq.push(c); } });
   CART = uniq.map(c=>({name:c.name, form:c.form, dose:c.dose, source:c.source, sourceUrl:c.sourceUrl, block:c.block}));
+  CART_BLOCKED = blockedCount;
   paintCart();
 }
 function planHasName(name){
@@ -590,7 +556,11 @@ function removeFromPlan(name){
 function paintCart(){
   const host=document.getElementById("cart");
   document.getElementById("cartHint").textContent="";
-  if(!CART.length){ host.innerHTML='<div style="font-size:14px;color:var(--muted)">всё рекомендованное отфильтровано профилем, обсуди с врачом</div>'; return; }
+  // «отфильтровано профилем» пишем только когда это правда, иначе объяснение врёт
+  if(!CART.length){ host.innerHTML='<div style="font-size:14px;color:var(--muted)">'
+    + (CART_BLOCKED ? 'всё рекомендованное отфильтровано профилем, обсуди с врачом'
+                    : 'по этим блокам добавки не предлагаем')
+    + '</div>'; return; }
   host.innerHTML = CART.map((c,i)=>{
     const added=planHasName(c.name);
     return '<div class="crow">'
