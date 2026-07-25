@@ -8,23 +8,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="палитра.css">
 <link rel="stylesheet" href="desktop.css">
 <script src="опросник-данные.js"></script>
 <style>
-  :root{
-    --bg:#faf8f4; --card:#fff; --soft:#f0eee7;
-    --text:#1a1a18; --muted:#75746e; --sub:#93928b;
-    --border:rgba(0,0,0,.09); --border-strong:rgba(0,0,0,.18);
-    --ok-bg:#e3f3ec; --ok-fg:#1f6d54;
-    --warn-bg:#f7ecd6; --warn-fg:#86611f;
-    --bad-bg:#f7ddd3; --bad-fg:#8a3f24;
-    --info-bg:#e9edfb; --info-fg:#3f4a8f;
-  }
-  @media (prefers-color-scheme:dark){
-    :root{--bg:#1a1a18;--card:#262523;--soft:#302f2c;
-      --text:#f4f3ee;--muted:#a8a69f;--sub:#8d8b84;
-      --border:rgba(255,255,255,.11);--border-strong:rgba(255,255,255,.22);--ok-bg:#1d3a2f;--ok-fg:#84cdac;--warn-bg:#3a3220;--warn-fg:#e6c07a;--bad-bg:#3d2620;--bad-fg:#eaa38f;--info-bg:#1e3550;--info-fg:#8fbdf0;}
-  }
   *{box-sizing:border-box}
   input[type=number]::-webkit-outer-spin-button,
   input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
@@ -376,7 +363,6 @@ paintBMI();
 /* HUES, DATA, RECS — теперь в общем файле опросник-данные.js (используется и результаты.html) */
 
 /* BADLIB, SUPP (и вспомогательные cPreg/cAcid) — теперь в общем файле опросник-данные.js (используется и результаты.html) */
-
 
 const FULL=[["нет",0],["иногда",1],["часто",4],["оч.часто",8]];
 const BIN=[["нет",0],["да",8]];
