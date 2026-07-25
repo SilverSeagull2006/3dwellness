@@ -34,6 +34,16 @@
   --pu-bg:#eeedfe;   --pu-fg:#3c3489; --pu-strong:#7f77dd;
   --leaf-fg:#ffffff;
 
+  /* мягкие «духотонные» поверхности «Моего дня»: карточка «сейчас», баннер режима,
+     выбранная кнопка, шар дыхания. Раньше были зашиты хардкодом мимо палитры,
+     поэтому не менялись вместе с ней */
+  --tint:linear-gradient(135deg,#e6f1ec,#e9e5f6);
+  --tint-on:linear-gradient(135deg,#e0efe8,#e6e2f5);
+  --tint-ink:#3d4654; --tint-quiet:#5a6570;
+  --warm:linear-gradient(135deg,#f7e8dc,#f3e0d6); --warm-ink:#7c4b2b;
+  --orb:linear-gradient(135deg,#c6e6d8,#d3ccef);
+  --orb-inner:linear-gradient(135deg,#c9e3d6,#cdc6ec);
+
   /* статусы: ок / внимание / тревожно / справка */
   --ok-bg:#e3f3ec;   --ok-fg:#1f6d54;
   --warn-bg:#f7ecd6; --warn-fg:#86611f;
@@ -55,6 +65,13 @@
     --dawn-bg:#3a2f1a; --dawn-fg:#e0b45c;
     --dusk-bg:rgba(133,182,178,.18); --dusk-fg:var(--teal);
     --pu-bg:#2a2456;   --pu-fg:#b7aef0;
+
+    --tint:linear-gradient(135deg,#20302c,#272442);
+    --tint-on:linear-gradient(135deg,#24382f,#2b2748);
+    --tint-ink:#e6ebef; --tint-quiet:#a9b6bd;
+    --warm:linear-gradient(135deg,#33291f,#3a2b22); --warm-ink:#e0b58c;
+    --orb:linear-gradient(135deg,#2b4a3f,#39335e);
+    --orb-inner:linear-gradient(135deg,#2f5147,#3d3766);
 
     --ok-bg:#1d3a2f;   --ok-fg:#84cdac;
     --warn-bg:#3a3220; --warn-fg:#e6c07a;

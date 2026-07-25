@@ -34,15 +34,15 @@
     padding:9px 4px;border-radius:12px;border:0.5px solid var(--border-strong);
     background:transparent;color:var(--muted);font-size:12.5px;cursor:pointer;font-family:inherit;
     transition:background .2s,color .2s}
-  .eopts button.on{background:linear-gradient(135deg,#e0efe8,#e6e2f5);color:#3d4654;border-color:transparent;font-weight:600}
+  .eopts button.on{background:var(--tint-on);color:var(--tint-ink);border-color:transparent;font-weight:600}
   .eopts .eic{font-size:19px}
   .enote{font-size:13px;color:var(--muted);line-height:1.45;margin-top:10px;min-height:0}
   .enote:empty{display:none}
   .softrest{font-size:13px;color:var(--sub);padding:9px 0 4px;border-top:0.5px solid var(--border)}
   .loadhint{font-size:13px;color:var(--sub);text-align:center;padding:4px 6px 10px;line-height:1.5}
   .loadhint:empty{display:none}
-  .modebanner{display:none;font-size:13px;color:#3d4654;line-height:1.45;
-    background:linear-gradient(135deg,#e6f1ec,#e9e5f6);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+  .modebanner{display:none;font-size:13px;color:var(--tint-ink);line-height:1.45;
+    background:var(--tint);border-radius:12px;padding:10px 12px;margin-bottom:10px}
   .modebanner.on{display:block}
   .modebanner button{margin-left:2px;margin-top:6px}
   .modelink{font-size:12.5px;color:var(--sub);text-align:center;padding-top:10px;margin-top:2px;
@@ -50,23 +50,23 @@
   .modebtn{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 12px;
     border-radius:12px;border:0.5px solid var(--border-strong);background:transparent;color:var(--text);
     font-family:inherit;font-size:14px;cursor:pointer;margin-bottom:8px}
-  .modebtn.on{background:linear-gradient(135deg,#e0efe8,#e6e2f5);border-color:transparent;font-weight:600}
+  .modebtn.on{background:var(--tint-on);border-color:transparent;font-weight:600}
   .modebtn .ic{font-size:18px}
 
   .now{border-radius:16px;padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:12px;
-    background:linear-gradient(135deg,#e6f1ec,#e9e5f6);border:0.5px solid var(--border)}
+    background:var(--tint);border:0.5px solid var(--border)}
   .now .ic{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.7);
     flex-shrink:0;display:flex;align-items:center;justify-content:center}
   .now .t{flex:1;min-width:0}
-  .now .lb{font-size:12px;color:#5a6570}
-  .now .ti{font-size:16px;font-weight:500;color:#333}
+  .now .lb{font-size:12px;color:var(--tint-quiet)}
+  .now .ti{font-size:16px;font-weight:500;color:var(--tint-ink)}
   .now button{flex-shrink:0;border:none;border-radius:999px;padding:8px 16px;font-size:14px;font-weight:600;
-    font-family:inherit;color:#3d4654;background:rgba(255,255,255,.8);cursor:pointer}
+    font-family:inherit;color:var(--tint-ink);background:rgba(255,255,255,.8);cursor:pointer}
 
   .daytrack{border-radius:16px;padding:12px 14px;margin-bottom:16px;
-    background:linear-gradient(135deg,#f7e8dc,#f3e0d6);border:0.5px solid var(--border)}
-  .daytrack a{display:block;font-size:14px;font-weight:600;color:#7c4b2b;text-decoration:none;margin-bottom:2px}
-  .daytrack .dtins{font-size:12.5px;color:#7c4b2b;line-height:1.4;opacity:.85}
+    background:var(--warm);border:0.5px solid var(--border)}
+  .daytrack a{display:block;font-size:14px;font-weight:600;color:var(--warm-ink);text-decoration:none;margin-bottom:2px}
+  .daytrack .dtins{font-size:12.5px;color:var(--warm-ink);line-height:1.4;opacity:.85}
 
   .card{background:var(--card);border:0.5px solid var(--border);border-radius:16px;
     padding:8px 14px;margin-bottom:12px}
@@ -95,7 +95,13 @@
     background:var(--pink-bg);color:var(--pink-fg)}
   .foot{text-align:center;font-size:13px;color:var(--sub);padding-top:6px}
   .editbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:-2px 2px 8px}
-  .editbtn{flex:1;min-width:88px;text-align:center;font-size:13px;padding:5px 12px;border-radius:999px;background:transparent;border:0.5px solid var(--border-strong);color:var(--muted);cursor:pointer;font-family:inherit}
+  /* залитые, а не прозрачные: на фоне страницы контурные кнопки почти не читались */
+  .editbtn{flex:1;min-width:88px;text-align:center;font-size:13px;font-weight:600;padding:7px 12px;border-radius:999px;
+    background:var(--card);border:1px solid var(--border-strong);color:var(--text);cursor:pointer;font-family:inherit;
+    text-decoration:none;transition:background .12s ease}
+  .editbtn:hover{background:var(--soft)}
+  /* «изменить» — действие, а не переход: отличается заливкой, чтобы не сливаться с навигацией */
+  #editBtn{background:var(--accent-bg);color:var(--accent-fg);border-color:transparent;font-weight:700}
   .item .del{margin-left:auto;width:26px;height:26px;border:none;background:var(--soft);color:var(--muted);border-radius:50%;font-size:17px;line-height:1;cursor:pointer;flex-shrink:0}
   .item .anch{width:26px;height:26px;border:none;background:transparent;border-radius:50%;font-size:15px;line-height:1;cursor:pointer;flex-shrink:0;opacity:.3;filter:grayscale(1)}
   .item .anch.on{opacity:1;filter:none;background:var(--soft)}
@@ -110,7 +116,7 @@
   .cattabs{display:flex;gap:6px;margin:2px 0 12px}
   .cattabs button{flex:1;font-size:12.5px;padding:7px 4px;border-radius:10px;border:0.5px solid var(--border-strong);
     background:transparent;color:var(--muted);cursor:pointer;font-family:inherit}
-  .cattabs button.on{background:linear-gradient(135deg,#e0efe8,#e6e2f5);color:#3d4654;border-color:transparent;font-weight:600}
+  .cattabs button.on{background:var(--tint-on);color:var(--tint-ink);border-color:transparent;font-weight:600}
   .catbody{max-height:320px;overflow-y:auto;text-align:left}
   .catrow{display:flex;align-items:center;gap:10px;padding:10px 4px;border-top:0.5px solid var(--border)}
   .catrow:first-child{border-top:none}
@@ -122,7 +128,7 @@
 
   .fab{position:fixed;right:18px;bottom:20px;z-index:20;display:flex;align-items:center;gap:8px;
     height:52px;padding:0 18px 0 14px;border-radius:999px;border:none;cursor:pointer;color:#37485a;
-    background:linear-gradient(135deg,#c6e6d8,#d3ccef);box-shadow:0 6px 18px rgba(60,70,100,.2);
+    background:var(--orb);box-shadow:0 6px 18px rgba(60,70,100,.2);
     font-size:15px;font-weight:600;font-family:inherit}
   .fab svg{width:24px;height:24px}
 
@@ -134,7 +140,7 @@
   .sheet .sub{font-size:13px;color:var(--muted);margin-bottom:6px}
   .stage{position:relative;height:230px;display:flex;align-items:center;justify-content:center}
   .ring{position:absolute;border-radius:50%;border:1px solid rgba(140,150,180,.16)}
-  #brc{width:190px;height:190px;border-radius:50%;background:linear-gradient(135deg,#c9e3d6,#cdc6ec);
+  #brc{width:190px;height:190px;border-radius:50%;background:var(--orb-inner);
     transform:scale(.55);transition:transform 4s ease-in-out;display:flex;flex-direction:column;
     align-items:center;justify-content:center;color:#4c5560}
   #brp{font-size:15px;font-weight:500}
@@ -207,7 +213,7 @@ document.addEventListener("DOMContentLoaded", goToMapIfFirstVisit);
     <a href="журнал.html" class="editbtn dnavlinks" style="text-decoration:none">бортовой журнал</a>
     <a href="опросник.html" class="editbtn dnavlinks" style="text-decoration:none">опросник</a>
     <button class="editbtn" onclick="openAnchorIntro(false)">об опорах</button>
-    <button id="editBtn" class="editbtn" onclick="toggleEdit()">✏️ изменить</button>
+    <button id="editBtn" class="editbtn" onclick="toggleEdit()">изменить</button>
   </div>
   </div>
 
@@ -624,7 +630,7 @@ function closeAnchorIntro(){
   document.getElementById("anchOv").classList.remove("on");
   if(pendingEdit && !editMode){ pendingEdit=false; applyEdit(true); }
 }
-function applyEdit(on){ editMode=on; document.getElementById("editBtn").textContent=editMode?"готово ✓":"✏️ изменить"; render(); }
+function applyEdit(on){ editMode=on; document.getElementById("editBtn").textContent=editMode?"готово ✓":"изменить"; render(); }
 function toggleEdit(){
   if(!editMode && !introSeen()){ openAnchorIntro(true); return; }
   applyEdit(!editMode);
@@ -649,8 +655,8 @@ var brc=document.getElementById("brc"), brp=document.getElementById("brp"), brn=
 function paintChips(){
   document.querySelectorAll("#brchips button").forEach(function(c){
     var on=c.dataset.k===curP.key;
-    c.style.background=on?"#cdc6ec":"transparent";
-    c.style.color=on?"#463f6b":"var(--muted)";
+    c.style.background=on?"var(--lav-bg)":"transparent";
+    c.style.color=on?"var(--lav-fg)":"var(--muted)";
     c.style.borderColor=on?"transparent":"var(--border-strong)";
   });
 }
