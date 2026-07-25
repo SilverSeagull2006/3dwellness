@@ -42,7 +42,7 @@ var DIRECTIONS = [
   {id:"sochuvstvie", c:"Compassion",    t:"Сочувствие", d:"к себе, как к близкому",             href:"сочувствие.html", built:false},
   {id:"yasnost",     c:"Clarity",       t:"Ясность",    d:"видеть, что происходит",             href:"ясность.html",    built:false},
   {id:"smelost",     c:"Courage",       t:"Смелость",   d:"двинуться, не дожидаясь настроения", href:"смелость.html",   built:false},
-  {id:"opora",       c:"Confidence",    t:"Опора",      d:"на что можно встать",                href:"опора.html",      built:false},
+  {id:"uverennost",  c:"Confidence",    t:"Уверенность", d:"опереться на то, что уже выдержала", href:"уверенность.html", built:false},
   {id:"tvorchestvo", c:"Creativity",    t:"Творчество", d:"выразить без слов",                  href:"творчество.html", built:false},
   {id:"svyaz",       c:"Connectedness", t:"Связь",      d:"наружу, к людям",                    href:"связь.html",      built:false}
 ];
@@ -55,7 +55,7 @@ var STATES = {
     id:"drowning", t:"тонешь",
     line:"сегодня только пережить. ничего умственного, всё через тело.",
     up:["pokoy"],
-    dim:["yasnost","smelost","opora","tvorchestvo","svyaz","interes","sochuvstvie"]
+    dim:["yasnost","smelost","uverennost","tvorchestvo","svyaz","interes","sochuvstvie"]
   },
   storm:{
     id:"storm", t:"шторм",
