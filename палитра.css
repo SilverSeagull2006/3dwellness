@@ -1,82 +1,87 @@
-/* Единая палитра 3dWellness.
+/* Единая палитра 3dWellness — направление «Компас».
 
-   Источник — иллюстрация карты маршрута: в ней доминируют морская бирюза (#8cb5b7)
-   и глубокий сине-серый (#647d99 … #465f7b), а карточки-лепестки лежат тёплым
-   кремом (#fdf6ec) с коричневым текстом. Ближе всего к этому уже были страницы 2D,
-   поэтому их палитра и взята за основу: тёплая бумажная база + морские акценты
-   navy/teal.
+   Все цвета сняты с иллюстраций проекта, ничего не взято со стороны:
+   - navy #274a5a и teal #4e8a86 — берег, маяк и вода на карте маршрута;
+   - барвинок #9197b1 — единственная полоса неба в шапке «Моего дня»
+     (высота 20–35%), где тон уходит с синего 210° на 229°. Рядом с бирюзой
+     моря читается как лиловый. Живёт на плашке 3D · психика, на карточке
+     «сейчас» и шаре дыхания, на вечерних метках раздела сна (вечер — это
+     буквально то самое небо) и на справочных блоках с источниками;
+   - охра, хвоя и песок — из тех же иллюстраций.
 
-   Раньше цвета были продублированы в :root каждой страницы, и две ветки разошлись:
-   «Мой день» и список покупок красились до появления новой карты и остались на
-   холодном #20242b, остальные четырнадцать — на тёплом #1a1a18. Теперь источник
-   один, этот файл.
+   Пастель (лавандовый #e8e4f6, персиковый, розовый) убрана осознанно:
+   именно она задавала мягкий, «женский» тон. Замена — сталь, песок и хвоя.
 
-   Правило: здесь только общие переменные. Цвета, осмысленные для одной страницы
-   (оттенки блоков опросника HUES, фон иллюстрации на карте), остаются у страницы. */
+   Раньше цвета были продублированы в :root каждой из шестнадцати страниц,
+   и ветки разошлись. Теперь источник один, этот файл: поменять цвет можно
+   в одном месте, включая тёмную тему. У страниц остались только те цвета,
+   которые осмысленны именно там: оттенки блоков опросника HUES и фон
+   иллюстрации на карте. */
 
 :root{
-  /* база: тёплая бумага, как крем карточек на карте */
-  --bg:#faf8f4; --card:#ffffff; --soft:#f0eee7;
-  --text:#1a1a18; --muted:#75746e; --sub:#93928b;
-  --border:rgba(0,0,0,.09); --border-strong:rgba(0,0,0,.18);
+  /* база: прохладная, без бумажности */
+  --bg:#f4f5f3; --card:#ffffff; --soft:#e6e8e3;
+  --text:#171a17; --muted:#5c6360; --sub:#888e8a;
+  --border:rgba(23,26,23,.11); --border-strong:rgba(23,26,23,.22);
 
-  /* морские акценты прямо с иллюстрации карты */
-  --navy:#3f5d67; --teal:#85b6b2;
-  --accent:#7bbfa3;
+  /* морские акценты с карты маршрута */
+  --navy:#274a5a; --teal:#4e8a86; --accent:#2f7d6b;
 
   /* акцентные пары «фон + текст» */
-  --sage-bg:#e2f0e9; --sage-fg:#2f5d4a;
-  --lav-bg:#e8e4f6;  --lav-fg:#4a3f7a;
-  --peach-bg:#f7e8dc; --peach-fg:#7c4b2b; --peach-strong:#d88870;
-  --pink-bg:#f4e6ef; --pink-fg:#6f2f52;
-  --dawn-bg:#fdf3e0; --dawn-fg:#8a6a2f;
-  --dusk-bg:rgba(63,93,103,.12); --dusk-fg:var(--navy);
-  --pu-bg:#eeedfe;   --pu-fg:#3c3489; --pu-strong:#7f77dd;
+  --sage-bg:#d7e6dc; --sage-fg:#1d4a35;                       /* хвоя, 1D */
+  --lav-bg:#dfe2ef;  --lav-fg:#343a5c;                        /* барвинок #9197b1, 3D */
+  --peach-bg:#ecdfc9; --peach-fg:#7a5518; --peach-strong:#b98b3c; /* охра, 2D */
+  --pink-bg:#e0e4e6; --pink-fg:#33474f;                       /* сланец вместо розового */
+  --dawn-bg:#f0e2c4; --dawn-fg:#7a5c17;
+  --dusk-bg:rgba(145,151,177,.20); --dusk-fg:#454b6b;         /* вечер = то самое небо */
+  --pu-bg:#dfe2ef;   --pu-fg:#343a5c; --pu-strong:#7f86ac;
   --leaf-fg:#ffffff;
 
   /* мягкие «духотонные» поверхности «Моего дня»: карточка «сейчас», баннер режима,
      выбранная кнопка, шар дыхания. Раньше были зашиты хардкодом мимо палитры,
      поэтому не менялись вместе с ней */
-  --tint:linear-gradient(135deg,#e6f1ec,#e9e5f6);
-  --tint-on:linear-gradient(135deg,#e0efe8,#e6e2f5);
-  --tint-ink:#3d4654; --tint-quiet:#5a6570;
-  --warm:linear-gradient(135deg,#f7e8dc,#f3e0d6); --warm-ink:#7c4b2b;
-  --orb:linear-gradient(135deg,#c6e6d8,#d3ccef);
-  --orb-inner:linear-gradient(135deg,#c9e3d6,#cdc6ec);
+  --tint:linear-gradient(135deg,#dfeae2,#dfe2ef);
+  --tint-on:linear-gradient(135deg,#cfe3d6,#d2d7e9);
+  --tint-ink:#16241f; --tint-quiet:#586460;
+  --warm:linear-gradient(135deg,#eee0c8,#ebd9bd); --warm-ink:#7a5518;
+  --orb:linear-gradient(135deg,#a9d3bd,#aeb5d3);
+  --orb-inner:linear-gradient(135deg,#b3d9c5,#b8bfda);
 
   /* статусы: ок / внимание / тревожно / справка */
-  --ok-bg:#e3f3ec;   --ok-fg:#1f6d54;
-  --warn-bg:#f7ecd6; --warn-fg:#86611f;
-  --bad-bg:#f7ddd3;  --bad-fg:#8a3f24;
-  --info-bg:#e9edfb; --info-fg:#3f4a8f;
-  --accent-bg:#bfe3d3; --accent-fg:#1f6d54;
+  --ok-bg:#d5e8dd;   --ok-fg:#14513a;
+  --warn-bg:#f0e0c2; --warn-fg:#75530f;
+  --bad-bg:#eed4c8;  --bad-fg:#7d3418;
+  --info-bg:#e0e3ef; --info-fg:#343a5c;               /* справка и источники */
+  --accent-bg:#bcdccf; --accent-fg:#14513a;
 }
 
 @media (prefers-color-scheme:dark){
   :root{
-    --bg:#1a1a18; --card:#262523; --soft:#302f2c;
-    --text:#f4f3ee; --muted:#a8a69f; --sub:#8d8b84;
-    --border:rgba(255,255,255,.11); --border-strong:rgba(255,255,255,.22);
+    --bg:#121614; --card:#1c211e; --soft:#262c29;
+    --text:#eef1ee; --muted:#9aa39e; --sub:#7c857f;
+    --border:rgba(255,255,255,.12); --border-strong:rgba(255,255,255,.22);
 
-    --sage-bg:#1d3a2f; --sage-fg:#84cdac;
-    --lav-bg:#2a2456;  --lav-fg:#b7aef0;
-    --peach-bg:#3a2b21; --peach-fg:#e2b58f;
-    --pink-bg:#3a2230; --pink-fg:#e39bbf;
-    --dawn-bg:#3a2f1a; --dawn-fg:#e0b45c;
-    --dusk-bg:rgba(133,182,178,.18); --dusk-fg:var(--teal);
-    --pu-bg:#2a2456;   --pu-fg:#b7aef0;
+    --navy:#79a3b5; --teal:#79b3ae; --accent:#4e9c85;
 
-    --tint:linear-gradient(135deg,#20302c,#272442);
-    --tint-on:linear-gradient(135deg,#24382f,#2b2748);
-    --tint-ink:#e6ebef; --tint-quiet:#a9b6bd;
-    --warm:linear-gradient(135deg,#33291f,#3a2b22); --warm-ink:#e0b58c;
-    --orb:linear-gradient(135deg,#2b4a3f,#39335e);
-    --orb-inner:linear-gradient(135deg,#2f5147,#3d3766);
+    --sage-bg:#17372a; --sage-fg:#7ec9a5;
+    --lav-bg:#242840;  --lav-fg:#b0b6d2;
+    --peach-bg:#352a17; --peach-fg:#d9b775;
+    --pink-bg:#212927; --pink-fg:#a3b2ad;
+    --dawn-bg:#352c15; --dawn-fg:#dcb964;
+    --dusk-bg:rgba(176,182,210,.16); --dusk-fg:#b0b6d2;
+    --pu-bg:#242840;   --pu-fg:#b0b6d2;
 
-    --ok-bg:#1d3a2f;   --ok-fg:#84cdac;
-    --warn-bg:#3a3220; --warn-fg:#e6c07a;
-    --bad-bg:#3d2620;  --bad-fg:#eaa38f;
-    --info-bg:#1e3550; --info-fg:#8fbdf0;
-    --accent-bg:#1d3a2f; --accent-fg:#84cdac;
+    --tint:linear-gradient(135deg,#17302a,#20243a);
+    --tint-on:linear-gradient(135deg,#1d3b32,#262b45);
+    --tint-ink:#e9efeb; --tint-quiet:#98a49f;
+    --warm:linear-gradient(135deg,#332a17,#38301d); --warm-ink:#d9b775;
+    --orb:linear-gradient(135deg,#1f4a3a,#282e4a);
+    --orb-inner:linear-gradient(135deg,#245344,#2c3252);
+
+    --ok-bg:#17372a;   --ok-fg:#7ec9a5;
+    --warn-bg:#352f18; --warn-fg:#dcbd77;
+    --bad-bg:#3a231a;  --bad-fg:#e3a385;
+    --info-bg:#242840; --info-fg:#b0b6d2;
+    --accent-bg:#17372a; --accent-fg:#7ec9a5;
   }
 }

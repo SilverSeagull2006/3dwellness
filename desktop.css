@@ -1,8 +1,8 @@
 /* общий desktop-слой: только layout, цвета берутся из палитра.css */
 
 /* ранний фон на html (до загрузки стилей страницы) — убирает белое мигание при навигации */
-html{background:#faf8f4}
-@media (prefers-color-scheme:dark){html{background:#1a1a18}}
+html{background:#f4f5f3}
+@media (prefers-color-scheme:dark){html{background:#121614}}
 /* плавный кросс-фейд между страницами там, где поддерживается */
 @view-transition{navigation:auto}
 @media (prefers-reduced-motion:no-preference){
