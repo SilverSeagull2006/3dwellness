@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>3dWellness, покой</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="опросник-данные.js"></script>
+<script src="состояние.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="палитра.css">
+<link rel="stylesheet" href="desktop.css">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:'Nunito',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:460px;margin:0 auto;padding:0 18px 30px}
+  .top{display:flex;gap:8px;margin:14px 0}
+  .navbtn{flex:1;text-align:center;padding:9px 10px;border-radius:12px;font-size:13px;font-weight:700;
+    text-decoration:none;border:1px solid var(--border-strong);color:var(--text)}
+  h1{font-size:20px;font-weight:700;margin:10px 0 4px}
+  .lead{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px}
+  .stateline{background:var(--dusk-bg);color:var(--dusk-fg);border-radius:12px;
+    padding:10px 13px;font-size:13px;line-height:1.5;margin-bottom:16px}
+  .stateline:empty{display:none}
+  .tier{margin-bottom:14px}
+  .tierhead{display:flex;align-items:baseline;justify-content:space-between;gap:8px;
+    padding:9px 2px;cursor:pointer;user-select:none}
+  .tierhead:focus-visible{outline:2px solid var(--pu-strong);outline-offset:2px;border-radius:8px}
+  .tiername{font-size:13px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.03em}
+  .tierwhen{font-size:11.5px;color:var(--sub)}
+  .tierarrow{font-size:12px;color:var(--sub);transition:transform .18s}
+  .tier.open .tierarrow{transform:rotate(180deg)}
+  .tierbody{display:none;flex-direction:column;gap:10px}
+  .tier.open .tierbody{display:flex}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 16px}
+  .toolhead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .toolname{font-size:14.5px;font-weight:700}
+  .toolshort{font-size:12px;color:var(--muted);margin-top:2px}
+  .addbtn{flex-shrink:0;font-size:11.5px;font-weight:700;border-radius:999px;padding:7px 12px;
+    border:1px solid var(--border-strong);background:transparent;color:var(--text);cursor:pointer;
+    font-family:inherit;white-space:nowrap}
+  .addbtn.on{background:var(--pu-bg);color:var(--pu-fg);border-color:transparent}
+  .whybtn{font-size:11.5px;font-weight:700;color:var(--pu-fg);background:none;border:none;
+    padding:8px 0 0;cursor:pointer;font-family:inherit}
+  .toolwhy{display:none;font-size:12.5px;color:var(--sub);line-height:1.55;margin-top:6px}
+  .toolwhy.open{display:block}
+  .toolwhy ol{margin:6px 0 0;padding-left:18px}
+  .toolwhy li{margin-bottom:3px}
+  .btn{width:100%;border:none;border-radius:12px;padding:11px;font-size:13.5px;font-weight:700;
+    font-family:inherit;cursor:pointer;background:transparent;border:1px solid var(--border-strong);color:var(--text)}
+  .srcbox{font-size:12px;color:var(--sub);line-height:1.55;padding:14px 2px 0;border-top:1px solid var(--border);margin-top:6px}
+  .foot{text-align:center;font-size:12px;color:var(--sub);padding-top:14px;line-height:1.5}
+</style>
+</head>
+<body>
+<nav class="dsidebar">
+  <div class="dbrand">3dWellness</div>
+  <a href="index.html">✦ мой день</a>
+  <a href="карта.html">карта маршрута</a>
+  <a href="журнал.html">⚓ бортовой журнал</a>
+  <div class="dgap"></div>
+  <a href="опросник.html">1D · биохимия</a>
+  <a href="физика.html">2D · тело</a>
+  <a href="психика.html" class="on">3D · психика</a>
+</nav>
+
+<div class="wrap">
+  <div class="top">
+    <a class="navbtn" href="психика.html">← психика</a>
+    <a class="navbtn" href="index.html">✦ мой день</a>
+  </div>
+
+  <h1>покой</h1>
+  <div class="lead">сбросить накал, когда тело уже впереди головы.</div>
+
+  <div class="stateline" id="stateLine"></div>
+
+  <div id="tiersHost"></div>
+
+  <div class="srcbox">
+    двойной вдох — Стэнфорд, Cell Reports Medicine · дыхание шесть в минуту — Лерер, тренировка вариабельности сердечного ритма · объятие бабочки — самостоятельная часть EMDR · сканирование тела — MBSR, Кабат-Зинн
+  </div>
+
+  <div class="foot">ничего не отмечается «на отлично». отметка «сделано» нужна только тебе, чтобы видеть, что помогает.</div>
+</div>
+
+<script>
+var PLANKEY="3dw_plan_v1";
+var DIMBLOCK="3D · психика";
+
+function loadPlanArr(){
+  try{ var raw=localStorage.getItem(PLANKEY); var p = raw ? JSON.parse(raw) : [[],[],[]]; if(!p[2]) p[2]=[]; return p; }
+  catch(_){ return [[],[],[]]; }
+}
+function isInPlan(name){
+  return loadPlanArr()[2].some(function(it){ return it.t===name; });
+}
+function togglePlan(name){
+  var p=loadPlanArr();
+  var idx=p[2].findIndex(function(it){ return it.t===name; });
+  if(idx>=0){ p[2].splice(idx,1); localStorage.setItem(PLANKEY,JSON.stringify(p)); return false; }
+  p[2].push({t:name, form:"", dose:"", time:"", beauty:false, anchor:false, source:{block:DIMBLOCK, kind:"dir"}});
+  localStorage.setItem(PLANKEY,JSON.stringify(p));
+  return true;
+}
+
+var USAGEKEY="3dw_tool_usage";
+function loadUsage(){ try{ var r=localStorage.getItem(USAGEKEY); return r?JSON.parse(r):{}; }catch(_){ return {}; } }
+function markUsedToday(name){
+  var u=loadUsage(), today=new Date().toISOString().slice(0,10);
+  if(!u[name]) u[name]=[];
+  if(u[name].indexOf(today)<0) u[name].push(today);
+  try{ localStorage.setItem(USAGEKEY, JSON.stringify(u)); }catch(_){}
+}
+function usageCount(name){ return (loadUsage()[name]||[]).length; }
+
+/* какой ярус раскрыть по умолчанию: под сегодняшнее состояние.
+   остальные не заблокированы, просто свёрнуты */
+function defaultTier(){
+  var s=stateToday();
+  if(!s) return 1;
+  if(s.id==="drowning") return 1;
+  if(s.id==="storm") return 1;
+  if(s.id==="calmflat") return 2;
+  return 3;
+}
+
+function renderState(){
+  var s=stateToday(), box=document.getElementById("stateLine");
+  if(!s){ box.textContent=""; return; }
+  var extra = s.id==="calmflat"
+    ? " покой сегодня, скорее всего, не то, что нужно — но он тут, если пригодится."
+    : "";
+  box.textContent = "сегодня " + s.t + ". " + s.line + extra;
+}
+
+function renderTiers(){
+  var host=document.getElementById("tiersHost");
+  var openT=defaultTier();
+  host.innerHTML="";
+
+  TIERS.forEach(function(t){
+    var tools=REGULATION_TOOLS.filter(function(x){ return x.tier===t.n; });
+    if(!tools.length) return;
+
+    var wrap=document.createElement("div");
+    wrap.className="tier"+(t.n===openT?" open":"");
+
+    var head=document.createElement("div");
+    head.className="tierhead";
+    head.setAttribute("role","button");
+    head.setAttribute("tabindex","0");
+    head.innerHTML='<div><div class="tiername">'+t.t+'</div><div class="tierwhen">'+t.d+'</div></div>'
+      +'<span class="tierarrow">▾</span>';
+    function toggle(){ wrap.classList.toggle("open"); }
+    head.addEventListener("click", toggle);
+    head.addEventListener("keydown", function(e){
+      if(e.key==="Enter"||e.key===" "){ e.preventDefault(); toggle(); }
+    });
+    wrap.appendChild(head);
+
+    var body=document.createElement("div");
+    body.className="tierbody";
+
+    tools.forEach(function(tool){
+      var on=isInPlan(tool.name), uses=usageCount(tool.name);
+      var card=document.createElement("div");
+      card.className="card";
+      var noteHtml = tool.note ? '<br><br>'+tool.note : '';
+      card.innerHTML=
+        '<div class="toolhead"><div><div class="toolname">'+tool.name+'</div>'
+        +'<div class="toolshort">'+tool.short+'</div></div>'
+        +'<button class="addbtn'+(on?' on':'')+'">'+(on?"✓ в моём дне":"+ мой день")+'</button></div>'
+        +'<button class="whybtn">почему и как ↓</button>'
+        +'<div class="toolwhy">'+tool.why+noteHtml+'<ol>'
+        + tool.steps.map(function(s){ return '<li>'+s+'</li>'; }).join('')
+        +'</ol></div>'
+        +'<button class="btn" style="margin-top:10px">сделано сегодня'+(uses?' ('+uses+')':'')+'</button>';
+
+      var addBtn=card.querySelector(".addbtn");
+      addBtn.addEventListener("click", function(){
+        var nowOn=togglePlan(tool.name);
+        addBtn.classList.toggle("on", nowOn);
+        addBtn.textContent = nowOn ? "✓ в моём дне" : "+ мой день";
+      });
+      var whyBtn=card.querySelector(".whybtn");
+      whyBtn.addEventListener("click", function(){
+        var w=card.querySelector(".toolwhy");
+        var open=w.classList.toggle("open");
+        whyBtn.textContent = open ? "почему и как ↑" : "почему и как ↓";
+      });
+      card.querySelector(".btn").addEventListener("click", function(){
+        markUsedToday(tool.name);
+        renderTiers();
+      });
+
+      body.appendChild(card);
+    });
+
+    wrap.appendChild(body);
+    host.appendChild(wrap);
+  });
+}
+
+renderState();
+renderTiers();
+try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
+</script>
+</body>
+</html>
