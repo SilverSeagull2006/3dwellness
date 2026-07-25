@@ -90,6 +90,18 @@ function todayMoodEmoji(){
 function labsCount(){ var l=jget("3dw_labs"); return l?l.length:0; }
 function recsCount(){ var r=jget("3dw_doctor_recs"); return r?r.length:0; }
 function planCount(){ var p=jget("3dw_plan_v1"); if(!p) return 0; return p.reduce(function(a,arr){return a+(arr?arr.length:0);},0); }
+function toBuyCount(){
+  var p=jget("3dw_plan_v1"); if(!p) return 0;
+  var bought=jget("3dw_bought")||{};
+  var n=0;
+  p.forEach(function(arr,si){
+    (arr||[]).forEach(function(it){
+      if(it.source && it.source.kind==="dir") return;
+      if(!bought[si+"|"+it.t]) n++;
+    });
+  });
+  return n;
+}
 
 var CARDS=[
   {href:"трекер.html", icon:"🗓", bg:"#eeedfe", fg:"#3c3489", title:"трекер дня", base:"настроение, сон, цикл и календарь",
@@ -103,7 +115,9 @@ var CARDS=[
   {href:"итог.html", icon:"🧭", bg:"#f7e8dc", fg:"#7c4b2b", title:"что делать дальше", base:"сводка по всему",
    preview:function(){ var f=focusCount(); return f==null?"появится после опросника":"сводка готова"; }},
   {href:"режим.html", icon:"☀️", bg:"#faeeda", fg:"#854f0b", title:"мой режим", base:"план по системам",
-   preview:function(){ var n=planCount(); return n>0?n+" в плане":"план пока пуст"; }}
+   preview:function(){ var n=planCount(); return n>0?n+" в плане":"план пока пуст"; }},
+  {href:"список_покупок.html", icon:"🧺", bg:"#eaf2e4", fg:"#41682c", title:"список покупок", base:"что купить из добавленного",
+   preview:function(){ var n=toBuyCount(); return n>0?n+" ещё не куплено":"всё куплено"; }}
 ];
 
 document.getElementById("cards").innerHTML = CARDS.map(function(c){

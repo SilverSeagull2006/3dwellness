@@ -177,7 +177,7 @@
 <!-- ЭКРАН: ОПРОСНИК -->
 <div class="wrap hidden" id="screen-q">
   <h1>1D · биохимия</h1>
-  <div class="lead">частота симптома: нет · иногда · часто · оч.часто (0 / 1 / 4 / 8). пороги «в фокусе» черновые, откалибруем по методике PLS.</div>
+  <div class="lead">где спрашиваем про частоту: нет · иногда · часто · оч.часто (0 / 1 / 4 / 8). где вопрос «да или нет», вариантов два. пороги «в фокусе» черновые, откалибруем по методике PLS.</div>
   <div class="count" id="count">отвечено: 0 / 0</div>
   <div id="body"></div>
   <div class="summary">
@@ -213,6 +213,7 @@
     <div id="cartHint" style="font-size:12.5px;color:var(--warn-fg);min-height:16px;margin-top:4px"></div>
   </div>
   <a class="btn" href="карта.html" style="display:flex;align-items:center;justify-content:center;text-decoration:none;box-sizing:border-box">готово, на карту →</a>
+  <a class="btn ghost" href="список_покупок.html" style="display:flex;align-items:center;justify-content:center;text-decoration:none;box-sizing:border-box">🧺 список покупок</a>
   <button class="btn ghost" id="backR">← анализы</button>
   <div class="foot">добавленное появится на экране «Мой день», там же отмечаешь приём и меняешь время</div>
 </div>
@@ -309,8 +310,14 @@ function buildChips(hostId,list,set,onChange){
 }
 loadProfile();
 function buildDxChips(){
+  const list = PROFILE.sex==="m"?DX_M:DX_F;
+  // отмеченного диагноза может не быть в списке другого пола (СПКЯ, эндометриоз, простата):
+  // без чипа его нельзя было бы снять, а в профиле он оставался бы навсегда
+  let changed=false;
+  [...PROFILE.dx].forEach(d=>{ if(list.indexOf(d)===-1){ PROFILE.dx.delete(d); changed=true; } });
+  if(changed) saveProfile();
   document.getElementById("dxChips").innerHTML="";
-  buildChips("dxChips", PROFILE.sex==="m"?DX_M:DX_F, PROFILE.dx);
+  buildChips("dxChips", list, PROFILE.dx);
 }
 buildDxChips();
 function paintMedWarn(){
@@ -458,7 +465,7 @@ function renderResults(){
     +'<div style="margin-top:6px">Это повод показаться врачу очно, не откладывая.</div></div>':'';
   const flagged=flaggedBlocks();
   const host=document.getElementById("results");
-  if(!flagged.length){ host.innerHTML='<div class="card"><div class="bd" style="padding:14px">По ЖКТ сейчас всё спокойно, ни один блок не в фокусе.</div></div>'; return; }
+  if(!flagged.length){ host.innerHTML='<div class="card"><div class="bd" style="padding:14px">По выбранным темам сейчас всё спокойно, ни один блок не в фокусе.</div></div>'; return; }
   host.innerHTML=flagged.map(x=>{
     const hue=HUES[x.i], r=RECS[x.i];
     const extra=demoLabsFor(x.i, PROFILE);

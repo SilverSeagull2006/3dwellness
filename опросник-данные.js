@@ -2119,6 +2119,17 @@ function toggleLabTodo(text, source){
   saveLabsTodo(list);
   return true;
 }
+/* внесённый результат закрывает пункт списка «сдать» — иначе он висит там вечно,
+   пока его не снимут вручную, хотя анализ уже сдан */
+function pruneLabsTodo(){
+  const labs=loadSavedLabs();
+  const before=loadLabsTodo();
+  const after=before.filter(function(t){
+    return !labs.some(function(l){ return labNameMatches(t.text, l.name) || labCoversLine(l.name, t.text); });
+  });
+  if(after.length!==before.length) saveLabsTodo(after);
+  return after;
+}
 
 /* ============ общий хелпер: положить/убрать пункт в любую секцию плана "Мой день" по индексу ============ */
 function isPlanItemOn(dimIdx, name){

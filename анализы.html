@@ -48,6 +48,13 @@
   .del{background:none;border:none;color:var(--sub);font-size:18px;cursor:pointer;padding:0 2px;line-height:1}
   .empty{font-size:14px;color:var(--muted);padding:22px 2px;text-align:center;line-height:1.6}
   .foot{text-align:center;font-size:12.5px;color:var(--sub);padding-top:14px;line-height:1.5}
+  .todocard{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:12px;padding:14px}
+  .todoitem{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--border);font-size:14px;line-height:1.35}
+  .todoitem:first-of-type{border-top:none}
+  .todoitem span{flex:1}
+  .todoitem button{background:none;border:none;color:var(--sub);font-size:17px;cursor:pointer;padding:0 2px;line-height:1}
+  .todoitem .fill{font-size:11.5px;font-weight:700;border:1px solid var(--border-strong);border-radius:999px;
+    padding:6px 11px;color:var(--text);white-space:nowrap}
 </style>
 </head>
 <body>
@@ -94,6 +101,8 @@
     <button class="btn" id="addBtn">добавить</button>
   </div>
 
+  <div id="todoHost"></div>
+
   <div class="card">
     <div class="glabel">уже внесено</div>
     <div id="host"></div>
@@ -129,6 +138,36 @@ function render(){
   });
 }
 
+/* список «сдать» копится в 1D и на страницах 2D, а вносят результаты здесь —
+   поэтому показываем его тут же, и внесённый результат сам убирает пункт из списка */
+function renderTodo(){
+  const host=document.getElementById("todoHost");
+  const list=loadLabsTodo();
+  if(!list.length){ host.innerHTML=""; return; }
+  host.innerHTML='<div class="todocard"><div class="glabel">сдать ('+list.length+')</div>'
+    + list.map((l,i)=>'<div class="todoitem"><span>'+l.text
+        +(l.source?' <span style="color:var(--sub);font-size:11.5px">· '+l.source+'</span>':'')+'</span>'
+        +'<button class="fill" data-fill="'+i+'">внести</button>'
+        +'<button data-i="'+i+'" aria-label="убрать">×</button></div>').join('')
+    +'</div>';
+  host.querySelectorAll("button[data-i]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      const l2=loadLabsTodo(); l2.splice(parseInt(b.dataset.i,10),1); saveLabsTodo(l2); renderTodo();
+    });
+  });
+  host.querySelectorAll("button[data-fill]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      const item=loadLabsTodo()[parseInt(b.dataset.fill,10)];
+      if(!item) return;
+      // в списке может лежать составная строка («ТТГ, свободный Т4, свободный Т3») — берём первый анализ
+      const keys=labKeysOf(item.text);
+      document.getElementById("fName").value = keys.length===1 ? keys[0] : item.text;
+      suggestUnit();
+      document.getElementById("fValue").focus();
+      window.scrollTo(0,0);
+    });
+  });
+}
 document.getElementById("addBtn").addEventListener("click",()=>{
   const name=document.getElementById("fName").value.trim();
   const value=document.getElementById("fValue").value.trim();
@@ -142,6 +181,8 @@ document.getElementById("addBtn").addEventListener("click",()=>{
   document.getElementById("fValue").value="";
   document.getElementById("fUnit").value="";
   document.getElementById("fDate").value="";
+  pruneLabsTodo();
+  renderTodo();
   render();
 });
 
@@ -161,6 +202,8 @@ fName.addEventListener("change", suggestUnit);
 fUnit.addEventListener("input", ()=>{ fUnit.dataset.auto=""; });
 
 try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
+pruneLabsTodo();
+renderTodo();
 render();
 </script>
 </body>
