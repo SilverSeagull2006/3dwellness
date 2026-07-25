@@ -6,6 +6,7 @@
 <title>3dWellness, сегодня</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="опросник-данные.js"></script>
+<script src="состояние.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -38,6 +39,11 @@
   .eopts .eic{font-size:19px}
   .enote{font-size:13px;color:var(--muted);line-height:1.45;margin-top:10px;min-height:0}
   .enote:empty{display:none}
+  /* вторая ось состояния: появляется только после ответа про силы,
+     чтобы вход в день оставался в одно касание */
+  .fq{display:none;margin-top:12px;padding-top:12px;border-top:0.5px solid var(--border)}
+  .fq.show{display:block}
+  .fq .eq{margin-bottom:8px}
   .softrest{font-size:13px;color:var(--sub);padding:9px 0 4px;border-top:0.5px solid var(--border)}
   .loadhint{font-size:13px;color:var(--sub);text-align:center;padding:4px 6px 10px;line-height:1.5}
   .loadhint:empty{display:none}
@@ -193,6 +199,13 @@ document.addEventListener("DOMContentLoaded", goToMapIfFirstVisit);
       <button data-e="high"><span class="eic">🌤</span><span>есть силы</span></button>
     </div>
     <div class="enote" id="enote"></div>
+    <div class="fq" id="floodQ">
+      <div class="eq">и как внутри, накрывает?</div>
+      <div class="eopts" id="fopts">
+        <button data-f="yes"><span class="eic">🌊</span><span>накрывает</span></button>
+        <button data-f="no"><span class="eic">〰️</span><span>ровно</span></button>
+      </div>
+    </div>
     <div class="modelink" id="modeLink" onclick="openModeSheet()">особый период, болею, путешествую, куча дел, грущу?</div>
   </div>
 
@@ -449,16 +462,35 @@ function setEnergy(e){
   paintEnergy(); render();
 }
 function paintEnergy(){
-  document.querySelectorAll(".eopts button").forEach(function(b){
+  document.querySelectorAll("#energyCard .eopts button[data-e]").forEach(function(b){
     b.classList.toggle("on", b.dataset.e===energy);
   });
   document.getElementById("enote").textContent = energy ? ENOTES[energy] : "";
+  paintFlood();
 }
 function loadEnergy(){
   try{ var e=localStorage.getItem(EKEY); if(e) energy=e; }catch(_){}
 }
-document.querySelectorAll(".eopts button").forEach(function(b){
+document.querySelectorAll("#energyCard .eopts button[data-e]").forEach(function(b){
   b.addEventListener("click", function(){ setEnergy(b.dataset.e); });
+});
+
+/* ---- вторая ось: накрывает или нет ----
+   показываем только после ответа про силы. отвечать необязательно:
+   если человек не ответил, экраны просто не сортируются, ничего не ломается */
+function paintFlood(){
+  var box=document.getElementById("floodQ");
+  box.classList.toggle("show", !!energy);
+  var f=stateFlood();
+  document.querySelectorAll("#fopts button").forEach(function(b){
+    b.classList.toggle("on", (b.dataset.f==="yes") === (f===true) && f!==null);
+  });
+}
+document.querySelectorAll("#fopts button").forEach(function(b){
+  b.addEventListener("click", function(){
+    stateSetFlood(b.dataset.f==="yes");
+    paintFlood();
+  });
 });
 /* ---- особый период (режимы) ---- */
 var MODEKEY="3dw_mode";
