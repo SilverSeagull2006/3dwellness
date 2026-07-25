@@ -7,6 +7,7 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="опросник-данные.js"></script>
 <script src="состояние.js"></script>
+<script src="наполнение.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -44,6 +45,23 @@
   .fq{display:none;margin-top:12px;padding-top:12px;border-top:0.5px solid var(--border)}
   .fq.show{display:block}
   .fq .eq{margin-bottom:8px}
+  /* наполнение: два-три из своего же списка. ничего не требует —
+     «сегодня никак» стоит рядом и ничем не наказывается */
+  .fill{background:var(--card);border:0.5px solid var(--border);border-radius:16px;
+    padding:14px;margin-bottom:16px}
+  .fill .fh{font-size:15px;font-weight:500;margin-bottom:10px}
+  .fillopts{display:flex;flex-direction:column;gap:7px}
+  .fillopt{display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+    background:var(--soft);border:none;border-radius:12px;padding:11px 13px;
+    font-family:inherit;font-size:14px;line-height:1.35;color:var(--text);cursor:pointer}
+  .fillopt.done{background:var(--ok-bg);color:var(--ok-fg)}
+  .fillopt .fd{width:18px;height:18px;flex-shrink:0;border-radius:50%;
+    border:2px solid var(--border-strong)}
+  .fillopt.done .fd{background:var(--ok-fg);border-color:var(--ok-fg)}
+  .fillskip{background:none;border:none;color:var(--sub);font-family:inherit;
+    font-size:12.5px;padding:10px 2px 0;cursor:pointer;width:100%;text-align:center}
+  .fillempty{font-size:13px;color:var(--muted);line-height:1.5}
+  .fillempty a{color:var(--pu-fg);font-weight:700;text-decoration:none}
   .softrest{font-size:13px;color:var(--sub);padding:9px 0 4px;border-top:0.5px solid var(--border)}
   .loadhint{font-size:13px;color:var(--sub);text-align:center;padding:4px 6px 10px;line-height:1.5}
   .loadhint:empty{display:none}
@@ -208,6 +226,8 @@ document.addEventListener("DOMContentLoaded", goToMapIfFirstVisit);
     </div>
     <div class="modelink" id="modeLink" onclick="openModeSheet()">особый период, болею, путешествую, куча дел, грущу?</div>
   </div>
+
+  <div class="fill" id="fillCard"></div>
 
   <div class="daytrack" id="daytrackCard">
     <a href="трекер.html" id="dtLink">📝 отметить день</a>
@@ -490,8 +510,54 @@ document.querySelectorAll("#fopts button").forEach(function(b){
   b.addEventListener("click", function(){
     stateSetFlood(b.dataset.f==="yes");
     paintFlood();
+    renderFill();
   });
 });
+
+/* ---- чем наполняет: два-три из своего же списка ----
+   не задача и не привычка. отказаться можно всегда, и это не отмечается
+   как пропуск: «сегодня никак» просто убирает блок до завтра */
+function renderFill(){
+  var card=document.getElementById("fillCard");
+  if(!card) return;
+
+  if(fillSkipped()){ card.style.display="none"; return; }
+
+  var mine=fillMine();
+  if(!mine.length){
+    card.style.display="";
+    card.innerHTML='<div class="fillempty">тут может появляться то, что тебя наполняет. '
+      +'<a href="наполнение.html">собрать список</a> — минут на пять, потом само.</div>';
+    return;
+  }
+
+  var today=fillToday(3);
+  if(!today.length){ card.style.display="none"; return; }
+  var done=fillDoneToday();
+
+  card.style.display="";
+  card.innerHTML='<div class="fh">что-нибудь из твоего?</div><div class="fillopts"></div>'
+    +'<button class="fillskip" id="fillSkipBtn">сегодня никак</button>';
+
+  var box=card.querySelector(".fillopts");
+  today.forEach(function(t){
+    var isDone=done.indexOf(t)>=0;
+    var b=document.createElement("button");
+    b.type="button";
+    b.className="fillopt"+(isDone?" done":"");
+    b.innerHTML='<span class="fd"></span><span>'+t+'</span>';
+    b.addEventListener("click", function(){
+      if(done.indexOf(t)<0){ fillMarkDone(t); }
+      renderFill();
+    });
+    box.appendChild(b);
+  });
+
+  card.querySelector("#fillSkipBtn").addEventListener("click", function(){
+    fillSkipToday();
+    renderFill();
+  });
+}
 /* ---- особый период (режимы) ---- */
 var MODEKEY="3dw_mode";
 var MODES=[
@@ -761,7 +827,7 @@ function paintDaytrack(){
 paintDaytrack();
 
 try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
-loadPlan(); loadState(); loadEnergy(); loadMode(); paintEnergy(); paintMode(); render(); update(); paintChips();
+loadPlan(); loadState(); loadEnergy(); loadMode(); paintEnergy(); paintMode(); render(); update(); paintChips(); renderFill();
 maybeShowOnboarding();
 </script>
 </body>

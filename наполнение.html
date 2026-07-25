@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>3dWellness, чем наполняет</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="опросник-данные.js"></script>
+<script src="состояние.js"></script>
+<script src="наполнение.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="палитра.css">
+<link rel="stylesheet" href="desktop.css">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:'Nunito',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:460px;margin:0 auto;padding:0 18px 30px}
+  .top{display:flex;gap:8px;margin:14px 0}
+  .navbtn{flex:1;text-align:center;padding:9px 10px;border-radius:12px;font-size:13px;font-weight:700;
+    text-decoration:none;border:1px solid var(--border-strong);color:var(--text)}
+  h1{font-size:20px;font-weight:700;margin:10px 0 4px}
+  .lead{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px}
+
+  .tabs{display:flex;gap:8px;margin-bottom:14px}
+  .tab{flex:1;padding:10px 8px;border-radius:12px;border:1px solid var(--border-strong);
+    background:transparent;color:var(--muted);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
+  .tab.on{background:var(--pu-bg);color:var(--pu-fg);border-color:transparent}
+
+  .mine{background:var(--pu-bg);color:var(--pu-fg);border-radius:14px;padding:12px 14px;margin-bottom:14px;
+    font-size:12.5px;line-height:1.5}
+  .mine b{font-size:13.5px}
+
+  .cat{font-size:12px;font-weight:700;color:var(--sub);text-transform:uppercase;
+    letter-spacing:.03em;margin:16px 2px 7px}
+  .items{display:flex;flex-direction:column;gap:7px}
+  .item{display:flex;align-items:flex-start;gap:11px;width:100%;text-align:left;
+    background:var(--card);border:1px solid var(--border);border-radius:13px;
+    padding:12px 14px;font-family:inherit;font-size:14px;line-height:1.4;
+    color:var(--text);cursor:pointer;transition:background .15s}
+  .item:focus-visible{outline:2px solid var(--pu-strong);outline-offset:2px}
+  .tick{width:20px;height:20px;border-radius:50%;border:2px solid var(--border-strong);
+    flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:.15s}
+  .tick svg{width:11px;height:11px;opacity:0;transition:.15s}
+  .item.on .tick{background:var(--accent);border-color:var(--accent)}
+  .item.on .tick svg{opacity:1}
+  .itx{flex:1;min-width:0}
+  .sec{font-size:11px;color:var(--sub);margin-top:2px}
+
+  .recall{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:14px 16px;margin-bottom:12px}
+  .rq{font-size:14px;line-height:1.45;margin-bottom:10px}
+  .addrow{display:flex;gap:8px}
+  .addrow input{flex:1;min-width:0;border:1px solid var(--border-strong);border-radius:11px;
+    padding:10px 12px;font-family:inherit;font-size:14px;background:var(--bg);color:var(--text)}
+  .addrow button{flex-shrink:0;border:none;border-radius:11px;padding:10px 15px;
+    background:var(--accent);color:#fff;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer}
+  .nextq{background:none;border:none;color:var(--pu-fg);font-family:inherit;font-size:12.5px;
+    font-weight:700;padding:10px 0 0;cursor:pointer}
+  .foot{text-align:center;font-size:12px;color:var(--sub);padding-top:16px;line-height:1.5}
+</style>
+</head>
+<body>
+<nav class="dsidebar">
+  <div class="dbrand">3dWellness</div>
+  <a href="index.html">✦ мой день</a>
+  <a href="карта.html">карта маршрута</a>
+  <a href="журнал.html">⚓ бортовой журнал</a>
+  <div class="dgap"></div>
+  <a href="опросник.html">1D · биохимия</a>
+  <a href="физика.html">2D · тело</a>
+  <a href="психика.html" class="on">3D · психика</a>
+</nav>
+
+<div class="wrap">
+  <div class="top">
+    <a class="navbtn" href="психика.html">← психика</a>
+    <a class="navbtn" href="index.html">✦ мой день</a>
+  </div>
+
+  <h1>чем наполняет</h1>
+  <div class="lead">отметь то, что твоё. потом «Мой день» будет иногда подсовывать по два-три из отмеченного — просто чтобы не забывалось.</div>
+
+  <div class="mine" id="mineBox"></div>
+
+  <div class="tabs">
+    <button class="tab on" data-tab="lib">попробовать</button>
+    <button class="tab" data-tab="recall">вспомнить своё</button>
+  </div>
+
+  <div id="libView"></div>
+
+  <div id="recallView" style="display:none">
+    <div class="recall">
+      <div class="rq" id="rq"></div>
+      <div class="addrow">
+        <input type="text" id="rInput" placeholder="запиши, что вспомнилось" autocomplete="off">
+        <button id="rAdd">в список</button>
+      </div>
+      <button class="nextq" id="rNext">другой вопрос ↻</button>
+    </div>
+    <div class="cat">что уже записано</div>
+    <div class="items" id="ownHost"></div>
+  </div>
+
+  <div class="foot">тут невозможно сделать неправильно: пробуешь и смотришь, твоё или нет.</div>
+</div>
+
+<script>
+var CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
+var SECWORD={1:"полминуты",2:"пара минут",3:"подольше"};
+
+function renderMine(){
+  var list=fillMine();
+  document.getElementById("mineBox").innerHTML = list.length
+    ? '<b>в твоём списке: '+list.length+'</b><br>из них «Мой день» и будет предлагать'
+    : '<b>список пока пустой</b><br>отметь всё, что откликается, даже если кажется ерундой — ерунда тут и работает лучше всего';
+}
+
+function renderLib(){
+  var host=document.getElementById("libView");
+  host.innerHTML="";
+  var cats=[];
+  FILL_LIBRARY.forEach(function(it){ if(cats.indexOf(it.cat)<0) cats.push(it.cat); });
+
+  cats.forEach(function(c){
+    var h=document.createElement("div"); h.className="cat"; h.textContent=c; host.appendChild(h);
+    var box=document.createElement("div"); box.className="items";
+    FILL_LIBRARY.filter(function(x){ return x.cat===c; }).forEach(function(it){
+      box.appendChild(itemEl(it.t, it.sec));
+    });
+    host.appendChild(box);
+  });
+}
+
+function itemEl(text, sec){
+  var on=fillHas(text);
+  var el=document.createElement("button");
+  el.type="button";
+  el.className="item"+(on?" on":"");
+  el.innerHTML='<span class="tick">'+CHECK+'</span><span class="itx">'+text
+    + (sec?'<span class="sec">'+SECWORD[sec]+'</span>':'') +'</span>';
+  el.addEventListener("click", function(){
+    var nowOn=fillToggle(text, sec||1);
+    el.classList.toggle("on", nowOn);
+    renderMine();
+  });
+  return el;
+}
+
+/* ---- вспомнить своё ---- */
+var rqIdx=Math.floor(Math.random()*FILL_RECALL.length);
+function paintQ(){ document.getElementById("rq").textContent=FILL_RECALL[rqIdx]; }
+document.getElementById("rNext").addEventListener("click", function(){
+  rqIdx=(rqIdx+1)%FILL_RECALL.length; paintQ();
+});
+function addOwn(){
+  var inp=document.getElementById("rInput");
+  var v=(inp.value||"").trim();
+  if(!v) return;
+  fillToggle(v, 1);
+  inp.value="";
+  renderOwn(); renderMine();
+}
+document.getElementById("rAdd").addEventListener("click", addOwn);
+document.getElementById("rInput").addEventListener("keydown", function(e){
+  if(e.key==="Enter") addOwn();
+});
+function renderOwn(){
+  var host=document.getElementById("ownHost");
+  host.innerHTML="";
+  var lib=FILL_LIBRARY.map(function(x){ return x.t; });
+  var own=fillMine().filter(function(x){ return lib.indexOf(x.t)<0; });
+  if(!own.length){
+    host.innerHTML='<div class="foot" style="padding:6px 2px;text-align:left">пока пусто. запиши хоть одно — своё всегда точнее чужого</div>';
+    return;
+  }
+  own.forEach(function(it){ host.appendChild(itemEl(it.t, it.sec)); });
+}
+
+/* ---- вкладки ---- */
+document.querySelectorAll(".tab").forEach(function(b){
+  b.addEventListener("click", function(){
+    document.querySelectorAll(".tab").forEach(function(x){ x.classList.remove("on"); });
+    b.classList.add("on");
+    var lib=b.dataset.tab==="lib";
+    document.getElementById("libView").style.display = lib?"":"none";
+    document.getElementById("recallView").style.display = lib?"none":"";
+    if(!lib) renderOwn();
+  });
+});
+
+renderMine();
+renderLib();
+paintQ();
+try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
+</script>
+</body>
+</html>
