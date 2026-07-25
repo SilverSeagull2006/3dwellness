@@ -41,6 +41,10 @@
     padding:13px 15px;text-decoration:none;color:var(--text);
     font-family:inherit;font-size:14px;cursor:pointer;transition:opacity .18s}
   .dir:focus-visible{outline:2px solid var(--pu-strong);outline-offset:2px}
+  /* английское имя восьмёрки — мелким над названием: по одному это просто
+     слово, а восемь подряд читаются как набор, ради этого и держим */
+  .dir .dc{font-size:9.5px;font-weight:700;color:var(--pu-fg);text-transform:uppercase;
+    letter-spacing:.11em;margin-bottom:2px}
   .dir .dt{font-size:14.5px;font-weight:700}
   .dir .dd{font-size:12px;color:var(--muted);margin-top:2px}
   .dir .grow{flex:1;min-width:0}
@@ -146,7 +150,7 @@ function soonRow(title, subtitle, onSoon){
   return el;
 }
 
-function makeRow(title, subtitle, href, built, dim){
+function makeRow(title, subtitle, href, built, dim, cname){
   var el;
   if(built){ el=document.createElement("a"); el.href=href; }
   else{
@@ -156,7 +160,9 @@ function makeRow(title, subtitle, href, built, dim){
     });
   }
   el.className="dir"+(dim?" dim":"");
-  el.innerHTML='<div class="grow"><div class="dt">'+title+'</div><div class="dd">'+subtitle+'</div></div>'
+  el.innerHTML='<div class="grow">'
+    + (cname ? '<div class="dc">'+cname+'</div>' : '')
+    + '<div class="dt">'+title+'</div><div class="dd">'+subtitle+'</div></div>'
     + (built ? '<span class="chev">›</span>' : '<span class="soon">скоро</span>');
   return el;
 }
@@ -166,7 +172,7 @@ function renderDirs(){
   var host=document.getElementById("dirsHost");
   host.innerHTML="";
   directionsToday().forEach(function(row){
-    host.appendChild(makeRow(row.d.t, row.d.d, row.d.href, row.d.built, row.dim));
+    host.appendChild(makeRow(row.d.t, row.d.d, row.d.href, row.d.built, row.dim, row.d.c));
   });
 }
 

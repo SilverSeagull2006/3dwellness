@@ -32,16 +32,19 @@ function stateSetFlood(v){
   try{ localStorage.setItem(stateDayKey(STATE_FKEY_PREFIX), v ? "yes" : "no"); }catch(_){}
 }
 
-/* восемь направлений: id → как называется на кнопке и куда ведёт */
+/* восемь направлений — те самые восемь C из IFS.
+   Английское слово держим на виду: по отдельности это просто восемь хороших
+   слов, а вместе — набор, и терять это не хочется.
+   c — как в оригинале, t — как называем по-русски. */
 var DIRECTIONS = [
-  {id:"pokoy",       t:"покой",      d:"сбросить накал",              href:"покой.html",      built:true},
-  {id:"interes",     t:"интерес",    d:"хотеть, замечать, наполняться", href:"интерес.html",   built:false},
-  {id:"sochuvstvie", t:"сочувствие", d:"к себе, как к близкому",      href:"сочувствие.html", built:false},
-  {id:"yasnost",     t:"ясность",    d:"видеть, что происходит",      href:"ясность.html",    built:false},
-  {id:"smelost",     t:"смелость",   d:"двинуться, не дожидаясь настроения", href:"смелость.html", built:false},
-  {id:"opora",       t:"опора",      d:"на что можно встать",         href:"опора.html",      built:false},
-  {id:"tvorchestvo", t:"творчество", d:"выразить без слов",           href:"творчество.html", built:false},
-  {id:"svyaz",       t:"связь",      d:"наружу, к людям",             href:"связь.html",      built:false}
+  {id:"pokoy",       c:"Calm",          t:"Покой",      d:"сбросить накал",                     href:"покой.html",      built:true},
+  {id:"interes",     c:"Curiosity",     t:"Интерес",    d:"хотеть, замечать, наполняться",      href:"интерес.html",    built:false},
+  {id:"sochuvstvie", c:"Compassion",    t:"Сочувствие", d:"к себе, как к близкому",             href:"сочувствие.html", built:false},
+  {id:"yasnost",     c:"Clarity",       t:"Ясность",    d:"видеть, что происходит",             href:"ясность.html",    built:false},
+  {id:"smelost",     c:"Courage",       t:"Смелость",   d:"двинуться, не дожидаясь настроения", href:"смелость.html",   built:false},
+  {id:"opora",       c:"Confidence",    t:"Опора",      d:"на что можно встать",                href:"опора.html",      built:false},
+  {id:"tvorchestvo", c:"Creativity",    t:"Творчество", d:"выразить без слов",                  href:"творчество.html", built:false},
+  {id:"svyaz",       c:"Connectedness", t:"Связь",      d:"наружу, к людям",                    href:"связь.html",      built:false}
 ];
 
 /* четыре состояния: что поднимаем наверх, что приглушаем.
