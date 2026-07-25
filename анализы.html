@@ -145,7 +145,20 @@ document.getElementById("addBtn").addEventListener("click",()=>{
   render();
 });
 
-document.getElementById("labList").innerHTML = LABTESTS.map(t=>'<option value="'+t+'">').join("");
+document.getElementById("labList").innerHTML = [...new Set(LABTESTS)].map(t=>'<option value="'+t+'">').join("");
+
+/* единицы подставляем сами, как только узнали анализ: без них значение нельзя сверить с нормой,
+   а вручную их дописывают редко */
+const fName=document.getElementById("fName"), fUnit=document.getElementById("fUnit");
+function suggestUnit(){
+  const key=canonicalLabKey(fName.value.trim());
+  const u=key && LABRANGES[key] && LABRANGES[key].unit;
+  if(!u) return;
+  if(!fUnit.value.trim() || fUnit.dataset.auto==="1"){ fUnit.value=u; fUnit.dataset.auto="1"; }
+}
+fName.addEventListener("input", suggestUnit);
+fName.addEventListener("change", suggestUnit);
+fUnit.addEventListener("input", ()=>{ fUnit.dataset.auto=""; });
 
 try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
 render();
