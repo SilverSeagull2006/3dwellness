@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>3dWellness, покой</title>
+<title>3dWellness, интерес</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="опросник-данные.js"></script>
 <script src="состояние.js"></script>
 <script src="направление.js"></script>
+<script src="наполнение.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -55,6 +56,12 @@
   .toolwhy li{margin-bottom:3px}
   .btn{width:100%;border:none;border-radius:12px;padding:11px;font-size:13.5px;font-weight:700;
     font-family:inherit;cursor:pointer;background:transparent;border:1px solid var(--border-strong);color:var(--text)}
+  .fillcard{display:flex;align-items:center;gap:12px;background:var(--pu-bg);color:var(--pu-fg);
+    border-radius:16px;padding:14px 16px;margin-bottom:16px;text-decoration:none}
+  .fillcard .fct{font-size:14.5px;font-weight:700}
+  .fillcard .fcd{font-size:12.5px;line-height:1.45;margin-top:2px}
+  .fillcard .fcbody{flex:1;min-width:0}
+  .fcv{font-size:16px;flex-shrink:0}
   .srcbox{font-size:12px;color:var(--sub);line-height:1.55;padding:14px 2px 0;border-top:1px solid var(--border);margin-top:6px}
   .foot{text-align:center;font-size:12px;color:var(--sub);padding-top:14px;line-height:1.5}
 </style>
@@ -77,23 +84,37 @@
     <a class="navbtn" href="index.html">✦ мой день</a>
   </div>
 
-  <div class="cname">Calm</div>
-  <h1>Покой</h1>
-  <div class="lead">сбросить накал, когда тело уже впереди головы.</div>
+  <div class="cname">Curiosity</div>
+  <h1>Интерес</h1>
+  <div class="lead">хотеть, замечать, наполняться. это же и самая честная проверка: интерес нельзя изобразить усилием воли.</div>
 
   <div class="stateline" id="stateLine"></div>
+
+  <a class="fillcard" href="наполнение.html">
+    <div class="fcbody">
+      <div class="fct">чем наполняет</div>
+      <div class="fcd" id="fillStatus"></div>
+    </div>
+    <span class="fcv">›</span>
+  </a>
 
   <div id="tiersHost"></div>
 
   <div class="srcbox">
-    двойной вдох — Стэнфорд, Cell Reports Medicine · дыхание шесть в минуту — Лерер, тренировка вариабельности сердечного ритма · объятие бабочки — самостоятельная часть EMDR · сканирование тела — MBSR, Кабат-Зинн
+    список приятных событий — Левинсон · растягивать хорошее — Брайант · самоуспокоение через пять чувств — ДБТ · работа с ценностями — ACT
   </div>
 
-  <div class="foot">ничего не отмечается «на отлично». отметка «сделано» нужна только тебе, чтобы видеть, что помогает.</div>
+  <div class="foot">понравиться ничего не обязано. «не моё» — такой же полезный ответ, как «моё».</div>
 </div>
 
 <script>
-renderDirection("pokoy");
+renderDirection("interes");
+(function(){
+  var n=fillMine().length;
+  document.getElementById("fillStatus").textContent = n
+    ? "в списке "+n+"; «Мой день» берёт оттуда по два-три"
+    : "собрать свой список мелочей — минут на пять, потом само";
+})();
 </script>
 </body>
 </html>

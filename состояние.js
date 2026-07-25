@@ -38,7 +38,7 @@ function stateSetFlood(v){
    c — как в оригинале, t — как называем по-русски. */
 var DIRECTIONS = [
   {id:"pokoy",       c:"Calm",          t:"Покой",      d:"сбросить накал",                     href:"покой.html",      built:true},
-  {id:"interes",     c:"Curiosity",     t:"Интерес",    d:"хотеть, замечать, наполняться",      href:"интерес.html",    built:false},
+  {id:"interes",     c:"Curiosity",     t:"Интерес",    d:"хотеть, замечать, наполняться",      href:"интерес.html",    built:true},
   {id:"sochuvstvie", c:"Compassion",    t:"Сочувствие", d:"к себе, как к близкому",             href:"сочувствие.html", built:false},
   {id:"yasnost",     c:"Clarity",       t:"Ясность",    d:"видеть, что происходит",             href:"ясность.html",    built:false},
   {id:"smelost",     c:"Courage",       t:"Смелость",   d:"двинуться, не дожидаясь настроения", href:"смелость.html",   built:false},
