@@ -39,9 +39,9 @@ function stateSetFlood(v){
 var DIRECTIONS = [
   {id:"pokoy",       c:"Calm",          t:"Покой",      d:"сбросить накал",                     href:"покой.html",      built:true},
   {id:"interes",     c:"Curiosity",     t:"Интерес",    d:"хотеть, замечать, наполняться",      href:"интерес.html",    built:true},
-  {id:"sochuvstvie", c:"Compassion",    t:"Сочувствие", d:"к себе, как к близкому",             href:"сочувствие.html", built:false},
-  {id:"yasnost",     c:"Clarity",       t:"Ясность",    d:"видеть, что происходит",             href:"ясность.html",    built:false},
-  {id:"smelost",     c:"Courage",       t:"Смелость",   d:"двинуться, не дожидаясь настроения", href:"смелость.html",   built:false},
+  {id:"sochuvstvie", c:"Compassion",    t:"Сочувствие", d:"к себе, как к близкому",             href:"сочувствие.html", built:true},
+  {id:"yasnost",     c:"Clarity",       t:"Ясность",    d:"видеть, что происходит",             href:"ясность.html",    built:true},
+  {id:"smelost",     c:"Courage",       t:"Смелость",   d:"двинуться, не дожидаясь настроения", href:"смелость.html",   built:true},
   {id:"uverennost",  c:"Confidence",    t:"Уверенность", d:"опереться на то, что уже выдержала", href:"уверенность.html", built:false},
   {id:"tvorchestvo", c:"Creativity",    t:"Творчество", d:"выразить без слов",                  href:"творчество.html", built:false},
   {id:"svyaz",       c:"Connectedness", t:"Связь",      d:"наружу, к людям",                    href:"связь.html",      built:false}
