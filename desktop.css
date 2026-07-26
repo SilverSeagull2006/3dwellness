@@ -1,5 +1,11 @@
 /* общий desktop-слой: только layout, цвета берутся из палитра.css */
 
+/* заливка кнопок верхней навигации (мой день / карта / журнал и т.п.) барвинком —
+   были только с обводкой, плохо видно. .navbtn дублируется в каждой странице,
+   поэтому правим тут одним местом, а не в 18 файлах; !important нужен, так как
+   локальный <style> каждой страницы идёт в html после этого файла и иначе победит. */
+.navbtn{background:var(--lav-bg) !important;color:var(--lav-fg) !important;border-color:transparent !important}
+
 /* ранний фон на html (до загрузки стилей страницы) — убирает белое мигание при навигации */
 html{background:#f4f5f3}
 @media (prefers-color-scheme:dark){html{background:#121614}}
