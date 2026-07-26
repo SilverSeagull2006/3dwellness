@@ -35,21 +35,10 @@
     font-size:14px;line-height:1.5}
   .stateask a{color:var(--pu-fg);font-weight:700;text-decoration:none}
 
-  /* карточка «на чём основано» — тот же приём, что «философия» в питание.html:
-     градиент из палитры вместо плоской заливки, снимок сверху заподлицо с краями */
-  .found{background:linear-gradient(160deg,var(--teal),var(--navy));border-radius:16px;
-    padding:18px;margin-top:6px;color:#fff}
-  .found img.foundimg{margin:-18px -18px 14px -18px;width:calc(100% + 36px);
-    border-radius:16px 16px 0 0;aspect-ratio:16/9;object-fit:cover;display:block}
-  .found p{margin:0 0 9px;font-size:14px;line-height:1.6}
-  .found p:last-child{margin-bottom:0}
-  .found b{font-weight:700}
-  .foundtoggle{background:none;border:none;color:var(--pu-fg);font-weight:700;font-size:14px;
-    padding:0;cursor:pointer;font-family:inherit;text-decoration:underline;margin-top:6px}
-  .found .clist{margin:9px 0;padding-left:18px;font-size:14px}
-  .found .clist li{margin-bottom:3px}
-  .found .cen{font-weight:700}
-  .found .foundtoggle{color:#fff;opacity:.85}
+  /* список восьми C под баннером источников — .srcbanner/.srchd/.srcsub и т.д. уже в desktop.css */
+  .clist{margin:9px 0 0;padding-left:18px;font-size:14px;line-height:1.6}
+  .clist li{margin-bottom:3px}
+  .clist .cen{font-weight:700}
 
   .sechead{font-size:16px;font-weight:700;color:var(--sub);text-transform:uppercase;
     letter-spacing:.03em;margin:18px 2px 8px}
@@ -157,9 +146,9 @@ function renderDxBanner(){
   }
 }
 
-/* ---- на чём основано: IFS, восемь C, Self. разворачивается один раз,
-   дальше сворачивается в ссылку — не хочется, чтобы это грузило при каждом заходе ---- */
-var FOUNDKEY="3dw_psyche_found_seen";
+/* ---- на чём основано: IFS + восемь C. всегда на виду, не сворачивается —
+   это важно видеть постоянно, а не прятать после первого раза.
+   сворачивается только список источников внутри — как в опроснике/БАД ---- */
 function cListHtml(){
   return '<ul class="clist">' + DIRECTIONS.map(function(d){
     return '<li><span class="cen">'+d.c+'</span> — '+d.t.toLowerCase()+'</li>';
@@ -167,27 +156,19 @@ function cListHtml(){
 }
 function renderFound(){
   var host=document.getElementById("foundHost");
-  var seen = localStorage.getItem(FOUNDKEY)==="1";
-
-  if(seen){
-    host.innerHTML='<button class="foundtoggle" id="foundOpen">на чём это основано ↓</button>';
-    document.getElementById("foundOpen").addEventListener("click", function(){
-      localStorage.removeItem(FOUNDKEY); renderFound();
-    });
-    return;
-  }
-
+  var b=SOURCE_BANNERS.ifs;
+  var listHtml='<div class="srcgrp">'+b.sources.map(function(s){
+    return '<div class="srcitem"><div class="srcn">'+s.n+'</div><div class="srcd">'+s.d+'</div></div>';
+  }).join('')+'</div>'+(b.note?'<div class="srcnote">'+b.note+'</div>':'');
   host.innerHTML =
-    '<div class="found">'
-    + '<p>Восемь направлений — из метода <b>IFS</b> (Internal Family Systems, «система внутренних семей»). Идея простая: вместо того чтобы бороться с собой, ты знакомишься с разными своими частями — тревожной, уставшей, любопытной, критикующей — и вместо осуждения спрашиваешь, от чего каждая пыталась тебя защитить.</p>'
-    + '<p><b>Self</b> (точного слова в русском нет, ближе всего «ты сама, без захвата какой-то одной частью») — это состояние, из которого части не рулят вместо тебя. У него восемь узнаваемых качеств, и это они же и есть восемь направлений ниже:</p>'
+    '<div class="srcbanner">'
+    +'<div class="srchd"><span style="font-size:19px">🧭</span><span>'+b.title+'</span></div>'
+    +'<div class="srcsub">'+b.sub+'</div>'
     + cListHtml()
-    + '<p>Чем чаще получается быть именно в Self, а не в захваченности одной из частей, тем легче даётся всё остальное — и решения, и отношения, и сама тревога. Направления ниже — не темы для изучения, а навыки, которые тренируются, как мышца.</p>'
-    + '<button class="foundtoggle" id="foundClose">свернуть ↑</button>'
-    + '</div>';
-  document.getElementById("foundClose").addEventListener("click", function(){
-    localStorage.setItem(FOUNDKEY,"1"); renderFound();
-  });
+    +'<button class="srctoggle" id="ifsToggle" data-srctoggle="ifsList">показать источники ▾</button>'
+    +'<div class="srclist" id="ifsList" style="display:none">'+listHtml+'</div>'
+    +'</div>';
+  wireSourceBanners(host);
 }
 
 /* ---- состояние: только показываем. спрашивают в «Моём дне», второй раз не переспрашиваем ---- */
