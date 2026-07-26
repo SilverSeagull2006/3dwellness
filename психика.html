@@ -28,17 +28,24 @@
   .dxbanner{background:var(--warn-bg);color:var(--warn-fg);border-radius:16px;padding:14px 16px;
     margin-bottom:14px;font-size:14px;line-height:1.55}
 
-  .stateline{background:var(--dusk-bg);color:var(--dusk-fg);border-radius:14px;padding:12px 14px}
+  .stateline{background:var(--dusk-bg);color:var(--dusk-fg);border-radius:14px;padding:12px 14px;margin-bottom:14px}
   .stateline .st{font-size:16px;font-weight:700;margin-bottom:2px}
   .stateline .sl{font-size:14px;line-height:1.5}
   .stateask{background:var(--soft);color:var(--muted);border-radius:14px;padding:12px 14px;
-    font-size:14px;line-height:1.5}
+    font-size:14px;line-height:1.5;margin-bottom:14px}
   .stateask a{color:var(--pu-fg);font-weight:700;text-decoration:none}
 
+  /* баннер IFS — своя барвинковая заливка (документированный акцент именно 3D в
+     палитра.css), а не общий серый .srcbanner: иначе сливается с блоком состояния над ним,
+     у которого тот же var(--soft) */
+  #foundHost .srcbanner{background:var(--lav-bg);color:var(--lav-fg)}
+  #foundHost .srcsub{color:var(--lav-fg);opacity:.85}
+  #foundHost .srctoggle{border-color:var(--lav-fg);color:var(--lav-fg)}
+  #foundHost .srcitem{background:rgba(255,255,255,.5)}
   /* список восьми C под баннером источников — .srcbanner/.srchd/.srcsub и т.д. уже в desktop.css */
   .clist{margin:9px 0 0;padding-left:18px;font-size:14px;line-height:1.6}
   .clist li{margin-bottom:3px}
-  .clist .cen{font-weight:700}
+  .clist .cen{font-weight:700;font-size:16px}
 
   .sechead{font-size:16px;font-weight:700;color:var(--sub);text-transform:uppercase;
     letter-spacing:.03em;margin:18px 2px 8px}
