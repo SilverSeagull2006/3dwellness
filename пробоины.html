@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>3dWellness, что уносит силы</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="опросник-данные.js"></script>
+<script src="пробоины.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="палитра.css">
+<link rel="stylesheet" href="desktop.css">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:'Nunito',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:460px;margin:0 auto;padding:0 18px 30px}
+  .top{display:flex;gap:8px;margin:14px 0}
+  .navbtn{flex:1;text-align:center;padding:9px 10px;border-radius:12px;font-size:13px;font-weight:700;
+    text-decoration:none;border:1px solid var(--border-strong);color:var(--text);background:transparent;
+    font-family:inherit;cursor:pointer}
+  h1{font-size:20px;font-weight:700;margin:10px 0 4px}
+  .lead{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:16px}
+
+  .steps{display:flex;gap:6px;margin-bottom:16px}
+  .stepdot{flex:1;height:3px;border-radius:99px;background:var(--soft)}
+  .stepdot.on{background:var(--accent)}
+
+  .cat{font-size:12px;font-weight:700;color:var(--sub);text-transform:uppercase;
+    letter-spacing:.03em;margin:16px 2px 7px}
+  .items{display:flex;flex-direction:column;gap:7px}
+  .item{display:flex;align-items:flex-start;gap:11px;width:100%;text-align:left;
+    background:var(--card);border:1px solid var(--border);border-radius:13px;
+    padding:12px 14px;font-family:inherit;font-size:14px;line-height:1.4;
+    color:var(--text);cursor:pointer}
+  .item:focus-visible{outline:2px solid var(--pu-strong);outline-offset:2px}
+  .tick{width:20px;height:20px;border-radius:50%;border:2px solid var(--border-strong);
+    flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center}
+  .tick svg{width:11px;height:11px;opacity:0}
+  .item.on .tick{background:var(--accent);border-color:var(--accent)}
+  .item.on .tick svg{opacity:1}
+
+  .addrow{display:flex;gap:8px;margin-top:7px}
+  .addrow input{flex:1;min-width:0;border:1px solid var(--border-strong);border-radius:11px;
+    padding:10px 12px;font-family:inherit;font-size:13.5px;background:var(--bg);color:var(--text)}
+  .addrow button{flex-shrink:0;border:none;border-radius:11px;padding:10px 14px;
+    background:var(--soft);color:var(--text);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
+
+  .bar{position:sticky;bottom:0;background:var(--bg);padding:14px 0 6px;margin-top:10px}
+  .btn{width:100%;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;
+    font-family:inherit;cursor:pointer}
+  .btn.primary{background:var(--accent);color:#fff}
+  .btn.primary:disabled{opacity:.4;cursor:default}
+  .btn.ghost{background:transparent;border:1px solid var(--border-strong);color:var(--text);margin-top:8px}
+
+  /* сортировка */
+  .sortcard{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:13px 15px;margin-bottom:9px}
+  .sorttext{font-size:14px;line-height:1.4;margin-bottom:10px}
+  .pilebtns{display:flex;gap:6px}
+  .pilebtn{flex:1;border:1px solid var(--border-strong);background:transparent;color:var(--muted);
+    border-radius:10px;padding:8px 4px;font-family:inherit;font-size:11.5px;font-weight:700;
+    cursor:pointer;text-align:center;line-height:1.3}
+  .pilebtn.on.fixable{background:var(--ok-bg);color:var(--ok-fg);border-color:transparent}
+  .pilebtn.on.reducible{background:var(--warn-bg);color:var(--warn-fg);border-color:transparent}
+  .pilebtn.on.fixed{background:var(--lav-bg);color:var(--lav-fg);border-color:transparent}
+
+  /* результат */
+  .pile{border-radius:16px;padding:14px 16px;margin-bottom:12px}
+  .pile.fixable{background:var(--ok-bg);color:var(--ok-fg)}
+  .pile.reducible{background:var(--warn-bg);color:var(--warn-fg)}
+  .pile.fixed{background:var(--lav-bg);color:var(--lav-fg)}
+  .pile h3{margin:0 0 3px;font-size:15px}
+  .pile .pd{font-size:12.5px;line-height:1.5;opacity:.9;margin-bottom:10px}
+  .pile ul{margin:0;padding-left:18px;line-height:1.7;font-size:13.5px}
+  .pile.empty{opacity:.5}
+
+  .empty{font-size:13.5px;color:var(--muted);line-height:1.6;padding:20px 4px;text-align:center}
+  .foot{text-align:center;font-size:12px;color:var(--sub);padding-top:16px;line-height:1.5}
+</style>
+</head>
+<body>
+<nav class="dsidebar">
+  <div class="dbrand">3dWellness</div>
+  <a href="index.html">✦ мой день</a>
+  <a href="карта.html">карта маршрута</a>
+  <a href="журнал.html">⚓ бортовой журнал</a>
+  <div class="dgap"></div>
+  <a href="опросник.html">1D · биохимия</a>
+  <a href="физика.html">2D · тело</a>
+  <a href="психика.html" class="on">3D · психика</a>
+</nav>
+
+<div class="wrap">
+  <div class="top">
+    <a class="navbtn" href="психика.html">← психика</a>
+    <a class="navbtn" href="index.html">✦ мой день</a>
+  </div>
+
+  <h1>что уносит силы</h1>
+  <div class="lead" id="lead"></div>
+
+  <div class="steps">
+    <div class="stepdot" id="dot1"></div>
+    <div class="stepdot" id="dot2"></div>
+    <div class="stepdot" id="dot3"></div>
+  </div>
+
+  <div id="host"></div>
+
+  <div class="foot" id="foot"></div>
+</div>
+
+<script>
+var VIEWKEY="3dw_leaks_view";
+function getView(){ try{ return localStorage.getItem(VIEWKEY)||"pick"; }catch(_){ return "pick"; } }
+function setView(v){ try{ localStorage.setItem(VIEWKEY,v); }catch(_){} render(); window.scrollTo(0,0); }
+
+function paintSteps(view){
+  var order=["pick","sort","result"];
+  var idx=order.indexOf(view);
+  [1,2,3].forEach(function(n){
+    document.getElementById("dot"+n).classList.toggle("on", n-1<=idx);
+  });
+}
+
+var CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
+
+function renderPick(){
+  document.getElementById("lead").textContent =
+    "отметь, что откликается. без оценки — просто заметить, что уносит, а не решать, что с этим делать.";
+  var host=document.getElementById("host");
+  host.innerHTML="";
+
+  LEAK_CATS.forEach(function(cat){
+    var h=document.createElement("div"); h.className="cat"; h.textContent=cat.t; host.appendChild(h);
+    var box=document.createElement("div"); box.className="items";
+
+    cat.items.forEach(function(text){ box.appendChild(itemEl(text, cat.id)); });
+
+    var own=leaksPicked().filter(function(x){ return x.cat===cat.id && cat.items.indexOf(x.t)<0; });
+    own.forEach(function(x){ box.appendChild(itemEl(x.t, cat.id)); });
+
+    host.appendChild(box);
+
+    var row=document.createElement("div"); row.className="addrow";
+    row.innerHTML='<input type="text" placeholder="своё, если не нашлось выше" autocomplete="off">'
+      +'<button type="button">добавить</button>';
+    var inp=row.querySelector("input"), btn=row.querySelector("button");
+    function addOwn(){
+      var v=(inp.value||"").trim();
+      if(!v) return;
+      leaksTogglePicked(v, cat.id);
+      inp.value="";
+      renderPick();
+    }
+    btn.addEventListener("click", addOwn);
+    inp.addEventListener("keydown", function(e){ if(e.key==="Enter") addOwn(); });
+    host.appendChild(row);
+  });
+
+  var bar=document.createElement("div"); bar.className="bar";
+  var n=leaksPicked().length;
+  bar.innerHTML='<button class="btn primary" id="toSort"'+(n?'':' disabled')+'>'
+    + (n ? "разобрать по кучам ("+n+") →" : "отметь хотя бы одно, чтобы продолжить")
+    +'</button>';
+  host.appendChild(bar);
+  var goBtn=document.getElementById("toSort");
+  if(goBtn) goBtn.addEventListener("click", function(){ setView("sort"); });
+
+  document.getElementById("foot").textContent="";
+}
+
+function itemEl(text, cat){
+  var on=leaksHasPicked(text);
+  var el=document.createElement("button");
+  el.type="button";
+  el.className="item"+(on?" on":"");
+  el.innerHTML='<span class="tick">'+CHECK+'</span><span>'+text+'</span>';
+  el.addEventListener("click", function(){
+    leaksTogglePicked(text, cat);
+    renderPick();
+  });
+  return el;
+}
+
+function renderSort(){
+  var picked=leaksPicked();
+  if(!picked.length){ setView("pick"); return; }
+
+  document.getElementById("lead").textContent =
+    "теперь разложи каждую по кучам. «не чинится» — не про то, что ты не справилась, а про то, что это не твоя работа.";
+  var host=document.getElementById("host");
+  host.innerHTML="";
+  var sort=leaksSort();
+
+  picked.forEach(function(p){
+    var card=document.createElement("div"); card.className="sortcard";
+    card.innerHTML='<div class="sorttext">'+p.t+'</div><div class="pilebtns"></div>';
+    var btnsBox=card.querySelector(".pilebtns");
+    LEAK_PILES.forEach(function(pile){
+      var b=document.createElement("button");
+      b.type="button";
+      b.className="pilebtn"+(sort[p.t]===pile.id?" on "+pile.id:"");
+      b.textContent=pile.t;
+      b.addEventListener("click", function(){
+        leaksSetPile(p.t, pile.id);
+        renderSort();
+      });
+      btnsBox.appendChild(b);
+    });
+    host.appendChild(card);
+  });
+
+  var left=leaksUnsortedCount();
+  var bar=document.createElement("div"); bar.className="bar";
+  bar.innerHTML='<button class="btn primary" id="toResult"'+(left?' disabled':'')+'>'
+    + (left ? "осталось разобрать: "+left : "посмотреть, что вышло →")
+    +'</button>'
+    +'<button class="btn ghost" id="backPick">← вернуться к списку</button>';
+  host.appendChild(bar);
+  var goBtn=document.getElementById("toResult");
+  if(goBtn) goBtn.addEventListener("click", function(){ setView("result"); });
+  document.getElementById("backPick").addEventListener("click", function(){ setView("pick"); });
+
+  document.getElementById("foot").textContent="";
+}
+
+function renderResult(){
+  var picked=leaksPicked(), sort=leaksSort();
+  if(!picked.length){ setView("pick"); return; }
+
+  document.getElementById("lead").textContent = "вот как разложилось сегодня. можно возвращаться и пересобирать в любой день — пробоины меняются.";
+  var host=document.getElementById("host");
+  host.innerHTML="";
+
+  LEAK_PILES.forEach(function(pile){
+    var items=picked.filter(function(p){ return sort[p.t]===pile.id; });
+    var box=document.createElement("div");
+    box.className="pile "+pile.id+(items.length?"":" empty");
+    box.innerHTML='<h3>'+pile.t+'</h3><div class="pd">'+pile.d+'</div>'
+      + (items.length
+          ? '<ul>'+items.map(function(x){ return '<li>'+x.t+'</li>'; }).join('')+'</ul>'
+          : '<div style="font-size:13px">пока пусто</div>');
+    host.appendChild(box);
+  });
+
+  var bar=document.createElement("div"); bar.className="bar";
+  bar.innerHTML='<button class="btn ghost" id="backSort">← поправить разбор</button>'
+    +'<button class="btn ghost" id="backPick2">← добавить ещё</button>';
+  host.appendChild(bar);
+  document.getElementById("backSort").addEventListener("click", function(){ setView("sort"); });
+  document.getElementById("backPick2").addEventListener("click", function(){ setView("pick"); });
+
+  document.getElementById("foot").textContent =
+    "3dWellness · пробоины меняются, возвращайся сюда, когда почувствуешь, что что-то новое утекает";
+}
+
+function render(){
+  var v=getView();
+  paintSteps(v);
+  if(v==="pick") renderPick();
+  else if(v==="sort") renderSort();
+  else renderResult();
+}
+
+render();
+try{ if(window.Telegram && Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
+</script>
+</body>
+</html>
