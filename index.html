@@ -162,20 +162,50 @@
   .sheet{background:var(--card);border-radius:22px;padding:20px 18px 22px;max-width:360px;width:100%;text-align:center}
   .sheet h3{margin:0 0 2px;font-size:17px;font-weight:600}
   .sheet .sub{font-size:13px;color:var(--muted);margin-bottom:6px}
-  .stage{position:relative;height:230px;display:flex;align-items:center;justify-content:center}
-  .ring{position:absolute;border-radius:50%;border:1px solid rgba(140,150,180,.16)}
-  #brc{width:190px;height:190px;border-radius:50%;background:var(--orb-inner);
-    transform:scale(.55);transition:transform 4s ease-in-out;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;color:#4c5560}
-  #brp{font-size:15px;font-weight:500}
-  #brn{font-size:30px;font-weight:500;line-height:1.1}
-  .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:6px 0 12px}
-  .chips button{font-size:12.5px;padding:6px 12px;border-radius:999px;border:1px solid var(--border-strong);
-    background:transparent;color:var(--muted);cursor:pointer;font-family:inherit}
   .row2{display:flex;gap:10px}
   .row2 button{flex:1;height:42px;border-radius:12px;font-family:inherit;font-size:15px;cursor:pointer;
     border:1px solid var(--border-strong);background:transparent;color:var(--text)}
   .row2 .go{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+
+  /* ---- дыхание: полноэкранный режим ---- */
+  .breathfull{--b-navy:#3f5d67;--b-navy-deep:#233238;--b-teal:#85b6b2;--b-ink:#eaf3f1;
+    display:none;position:fixed;inset:0;z-index:40;overflow:hidden;
+    background:radial-gradient(120% 120% at 50% 30%,var(--b-navy) 0%,var(--b-navy-deep) 70%,#161f22 100%);
+    color:var(--b-ink);flex-direction:column;align-items:center;justify-content:center;padding-bottom:150px}
+  .breathfull.on{display:flex}
+  .bfbg{position:absolute;inset:0;background-image:url(дыхание_фон.jpg);background-size:cover;background-position:center;
+    opacity:.6;filter:saturate(.9);pointer-events:none}
+  .bfbg::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 120% at 50% 30%,rgba(63,93,103,.15) 0%,rgba(22,31,34,.75) 75%)}
+  .bfclose{position:absolute;top:22px;right:26px;width:36px;height:36px;border-radius:50%;
+    border:1px solid rgba(234,243,241,.25);background:rgba(255,255,255,.04);color:rgba(234,243,241,.7);
+    display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;z-index:10;font-family:inherit}
+  .bfcount{margin-bottom:22px;font-size:12.5px;color:rgba(234,243,241,.55);letter-spacing:.03em;z-index:2}
+  .bfstage{position:relative;width:min(70vw,420px);height:min(70vw,420px);display:flex;align-items:center;justify-content:center;z-index:2}
+  .bfhalo{position:absolute;border-radius:50%;width:100%;height:100%;
+    background:radial-gradient(circle,rgba(133,182,178,.35) 0%,rgba(133,182,178,0) 70%);
+    transition:transform 4s ease-in-out,opacity 4s ease-in-out}
+  .bfring{position:absolute;border-radius:50%;border:1px solid rgba(169,207,201,.25)}
+  .bfring.r1{width:92%;height:92%}
+  .bfring.r2{width:100%;height:100%}
+  .bforb{position:relative;width:38%;height:38%;border-radius:50%;
+    background:radial-gradient(circle at 38% 32%,rgba(255,255,255,.55),var(--b-teal) 45%,var(--b-navy) 100%);
+    box-shadow:0 0 60px rgba(133,182,178,.5);transition:transform 4s cubic-bezier(.45,0,.4,1);
+    display:flex;align-items:center;justify-content:center;z-index:3}
+  .bfphase{font-size:14px;font-weight:700;color:#16292b;letter-spacing:.02em;text-align:center;line-height:1.35}
+  .bfphase.intro{color:#fff;text-transform:uppercase;letter-spacing:.05em;font-size:11px}
+  .bfdock{position:absolute;bottom:34px;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:14px;z-index:5}
+  .bfrhythms{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding:0 16px}
+  .bfrhy{font-size:12.5px;font-weight:700;padding:7px 14px;border-radius:999px;border:1px solid rgba(234,243,241,.22);
+    background:rgba(255,255,255,.03);color:rgba(234,243,241,.75);cursor:pointer;font-family:inherit}
+  .bfrhy.on{background:var(--b-teal);color:#16292b;border-color:var(--b-teal)}
+  .bfdesc{max-width:340px;text-align:center;font-size:11.5px;line-height:1.5;color:rgba(234,243,241,.55);padding:0 16px}
+  .bfdurs{display:flex;gap:6px;margin-top:2px}
+  .bfdur{font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:999px;border:1px solid rgba(234,243,241,.18);
+    background:rgba(255,255,255,.02);color:rgba(234,243,241,.6);cursor:pointer;font-family:inherit}
+  .bfdur.on{background:rgba(133,182,178,.3);color:var(--b-ink);border-color:rgba(133,182,178,.5)}
+  .bfgo{width:150px;height:44px;border-radius:999px;border:none;background:rgba(255,255,255,.12);color:var(--b-ink);
+    font-weight:700;font-size:14px;cursor:pointer;backdrop-filter:blur(6px);font-family:inherit}
+  .bfgo.on{background:var(--b-teal);color:#16292b}
 </style>
 </head>
 <body>
@@ -323,17 +353,26 @@ document.addEventListener("DOMContentLoaded", goToMapIfFirstVisit);
   </div>
 </div>
 
-<div class="overlay" id="ov">
-  <div class="sheet">
-    <h3>дыши</h3>
-    <div class="sub" id="brsub">выбери ритм</div>
-    <div class="stage">
-      <div class="ring" style="width:210px;height:210px"></div>
-      <div class="ring" style="width:172px;height:172px"></div>
-      <div id="brc"><div id="brp">готов?</div><div id="brn">·</div></div>
+<div class="breathfull" id="ov">
+  <div class="bfbg"></div>
+  <button class="bfclose" onclick="closeBreath()">✕</button>
+  <div class="bfcount" id="brcount">осталось 3:00</div>
+  <div class="bfstage">
+    <div class="bfhalo" id="brhalo"></div>
+    <div class="bfring r1"></div>
+    <div class="bfring r2"></div>
+    <div class="bforb" id="brc"><span class="bfphase intro" id="brp">Ты<br>Здесь<br>и<br>сейчас</span></div>
+  </div>
+  <div class="bfdock">
+    <div class="bfrhythms" id="brchips"></div>
+    <div class="bfdesc" id="brdesc"></div>
+    <div class="bfdurs" id="brdurs">
+      <button class="bfdur" data-d="60">1 мин</button>
+      <button class="bfdur on" data-d="180">3 мин</button>
+      <button class="bfdur" data-d="300">5 мин</button>
+      <button class="bfdur" data-d="600">10 мин</button>
     </div>
-    <div class="chips" id="brchips"></div>
-    <div class="row2"><button onclick="closeBreath()">закрыть</button><button class="go" id="brgo" onclick="toggleBreath()">начать</button></div>
+    <button class="bfgo" id="brgo" onclick="toggleBreath()">начать</button>
   </div>
 </div>
 
@@ -734,42 +773,64 @@ function toggleEdit(){
   applyEdit(!editMode);
 }
 
-/* ---- дыхание ---- */
-var PATTERNS=[
-  {key:"478", name:"4·7·8", steps:[["вдох",4,1],["задержка",7,null],["выдох",8,0.55]]},
-  {key:"box", name:"квадрат 4·4·4·4", steps:[["вдох",4,1],["задержка",4,null],["выдох",4,0.55],["задержка",4,null]]},
-  {key:"long", name:"долгий выдох 4·6", steps:[["вдох",4,1],["выдох",6,0.55]]}
-];
-var curP=PATTERNS[0], gen=0, running=false, tick=null;
-var brc=document.getElementById("brc"), brp=document.getElementById("brp"), brn=document.getElementById("brn"), brgo=document.getElementById("brgo");
+/* ---- дыхание: полноэкранный режим ---- */
+var RH={
+  '478':{label:'4·7·8', steps:[['вдох носом',4,1.35],['задержи',7,null],['выдох ртом',8,0.72]],
+    desc:'задержка длиннее выдоха, успокаивает нервную систему сильнее всего — если тревожно прямо сейчас'},
+  'box':{label:'квадрат', steps:[['вдох',4,1.35],['задержи',4,null],['выдох',4,0.72],['пусто',4,null]],
+    desc:'равные вдох-пауза-выдох-пауза, так дышат перед стрессовой ситуацией (спецназ, экзамен, выступление)'},
+  'coh':{label:'когерентное', steps:[['вдох',5.5,1.35],['выдох',5.5,0.72]],
+    desc:'просто ровный вдох и выдох без задержек, самый мягкий и незаметный, подходит на каждый день'}
+};
+var curR='478', DUR=180, gen=0, running=false, stepTimer=null, ctimer=null, endAt=0;
+var brc=document.getElementById("brc"), brp=document.getElementById("brp"), brhalo=document.getElementById("brhalo"),
+    brcount=document.getElementById("brcount"), brgo=document.getElementById("brgo"), brdesc=document.getElementById("brdesc");
 (function(){
   var h=document.getElementById("brchips");
-  PATTERNS.forEach(function(p){
-    var b=document.createElement("button"); b.textContent=p.name; b.dataset.k=p.key;
-    b.onclick=function(){ curP=p; paintChips(); if(running) startBreath(); };
+  Object.keys(RH).forEach(function(k){
+    var b=document.createElement("button"); b.className="bfrhy"; b.textContent=RH[k].label; b.dataset.k=k;
+    b.onclick=function(){ curR=k; paintChips(); stopBreath(); };
     h.appendChild(b);
+  });
+  document.querySelectorAll("#brdurs .bfdur").forEach(function(b){
+    b.onclick=function(){
+      document.querySelectorAll("#brdurs .bfdur").forEach(function(x){x.classList.remove("on");});
+      b.classList.add("on"); DUR=parseInt(b.dataset.d,10); stopBreath();
+    };
   });
 })();
 function paintChips(){
-  document.querySelectorAll("#brchips button").forEach(function(c){
-    var on=c.dataset.k===curP.key;
-    c.style.background=on?"var(--lav-bg)":"transparent";
-    c.style.color=on?"var(--lav-fg)":"var(--muted)";
-    c.style.borderColor=on?"transparent":"var(--border-strong)";
-  });
+  document.querySelectorAll("#brchips .bfrhy").forEach(function(c){ c.classList.toggle("on", c.dataset.k===curR); });
+  brdesc.textContent=RH[curR].desc;
 }
-function stopTick(){ if(tick){clearInterval(tick);tick=null;} }
+function fmtBr(s){ s=Math.max(0,Math.round(s)); var m=Math.floor(s/60), r=s%60; return m+':'+(r<10?'0':'')+r; }
+function tickCount(){
+  var left=(endAt-Date.now())/1000;
+  if(left<=0){ stopBreath(); return; }
+  brcount.textContent='осталось '+fmtBr(left);
+}
 function runStep(g,i){
   if(g!==gen) return;
-  var s=curP.steps[i];
-  brp.textContent=s[0];
-  if(s[2]!==null){ brc.style.transitionDuration=s[1]+"s"; brc.style.transform="scale("+s[2]+")"; }
-  var left=s[1]; brn.textContent=left; stopTick();
-  tick=setInterval(function(){ if(g!==gen){stopTick();return;} left--; if(left>=1) brn.textContent=left; },1000);
-  setTimeout(function(){ if(g!==gen) return; runStep(g,(i+1)%curP.steps.length); }, s[1]*1000);
+  var seq=RH[curR].steps, s=seq[i%seq.length];
+  brp.classList.remove("intro"); brp.textContent=s[0];
+  brc.style.transitionDuration=s[1]+"s"; brhalo.style.transitionDuration=s[1]+"s";
+  brc.style.transform="scale("+s[2]+")"; brhalo.style.transform="scale("+(s[2]*1.05)+")";
+  brhalo.style.opacity=s[0].indexOf("вдох")===0?.9:.45;
+  stepTimer=setTimeout(function(){ runStep(g,i+1); }, s[1]*1000);
 }
-function startBreath(){ gen++; running=true; brgo.textContent="пауза"; runStep(gen,0); }
-function stopBreath(){ gen++; running=false; stopTick(); brgo.textContent="начать"; brp.textContent="пауза"; }
+function startBreath(){
+  gen++; running=true; brgo.textContent="пауза"; brgo.classList.add("on");
+  endAt=Date.now()+DUR*1000; brcount.textContent='осталось '+fmtBr(DUR);
+  ctimer=setInterval(tickCount,500);
+  runStep(gen,0);
+}
+function stopBreath(){
+  gen++; running=false; clearTimeout(stepTimer); clearInterval(ctimer);
+  brgo.textContent="начать"; brgo.classList.remove("on");
+  brp.innerHTML="Ты<br>Здесь<br>и<br>сейчас"; brp.classList.add("intro");
+  brc.style.transform="scale(1)"; brhalo.style.transform="scale(1)";
+  brcount.textContent='осталось '+fmtBr(DUR);
+}
 function toggleBreath(){ running?stopBreath():startBreath(); }
 function openBreath(){ document.getElementById("ov").classList.add("on"); paintChips(); }
 function closeBreath(){ stopBreath(); document.getElementById("ov").classList.remove("on"); }
