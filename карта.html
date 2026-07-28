@@ -17,7 +17,11 @@
     font-family:'Nunito',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     -webkit-font-smoothing:antialiased}
 
-  .scene{position:relative;max-width:460px;width:100%;margin:0 auto;min-height:100svh;
+  /* +100px запаса: плашка «о приложении» проценты не решают надёжно — на низких
+     экранах (например 667px, iPhone SE) карточки не сжимаются вместе с высотой
+     сцены и начинают наезжать друг на друга. лишний запас снизу даёт им место
+     и включает скролл на коротких экранах вместо наложения */
+  .scene{position:relative;max-width:460px;width:100%;margin:0 auto;min-height:calc(100svh + 100px);
     background-image:url(карта_фон.png);background-size:cover;background-position:center;
     display:flex;flex-direction:column}
 
@@ -41,10 +45,11 @@
   #leaf2{left:18%;top:calc(45% + 8.5mm);width:72%}
   #leaf3{left:10%;top:calc(66% + 10mm);width:72%}
 
-  /* плашка «о приложении» — низ сцены, левее центра, не задевает маяк/гавань справа.
-     привязка к bottom, а не top: высота текста может меняться, а расстояние
-     от нижнего края сцены должно оставаться постоянным */
-  .about{position:absolute;left:5%;bottom:1.5%;width:82%;text-align:left;
+  /* плашка «о приложении» — левее центра, сразу под карточкой 3D.
+     top с фиксированным пиксельным отступом от #leaf3, а не bottom% от сцены:
+     на bottom% высота карточки #leaf3 не растягивается вместе с экраном,
+     и на низких экранах плашки наезжали друг на друга */
+  .about{position:absolute;left:5%;top:calc(66% + 10mm + 92px);width:82%;text-align:left;
     background:rgba(253,246,236,.92);color:#3d3320;border-radius:16px;
     padding:12px 15px;box-shadow:0 6px 16px rgba(40,30,20,.18);backdrop-filter:blur(2px)}
   .about .at{font-size:14px;font-weight:800;line-height:1.3}
