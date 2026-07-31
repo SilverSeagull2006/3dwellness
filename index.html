@@ -176,9 +176,9 @@
   .bfbg{position:absolute;inset:0;background-image:url(дыхание_фон.jpg);background-size:cover;background-position:center;
     opacity:.6;filter:saturate(.9);pointer-events:none}
   .bfbg::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 120% at 50% 30%,rgba(63,93,103,.15) 0%,rgba(22,31,34,.75) 75%)}
-  .bfclose{position:absolute;top:22px;right:26px;width:36px;height:36px;border-radius:50%;
+  .bfclose{position:absolute;top:22px;right:26px;height:36px;padding:0 16px;border-radius:999px;
     border:1px solid rgba(234,243,241,.25);background:rgba(255,255,255,.04);color:rgba(234,243,241,.7);
-    display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;z-index:10;font-family:inherit}
+    display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;cursor:pointer;z-index:10;font-family:inherit}
   .bfcount{margin-bottom:22px;font-size:12.5px;color:rgba(234,243,241,.55);letter-spacing:.03em;z-index:2}
   .bfstage{position:relative;width:min(70vw,420px);height:min(70vw,420px);display:flex;align-items:center;justify-content:center;z-index:2}
   .bfhalo{position:absolute;border-radius:50%;width:100%;height:100%;
@@ -355,7 +355,7 @@ document.addEventListener("DOMContentLoaded", goToMapIfFirstVisit);
 
 <div class="breathfull" id="ov">
   <div class="bfbg"></div>
-  <button class="bfclose" onclick="closeBreath()">✕</button>
+  <button class="bfclose" onclick="closeBreath()">выйти</button>
   <div class="bfcount" id="brcount">осталось 3:00</div>
   <div class="bfstage">
     <div class="bfhalo" id="brhalo"></div>
